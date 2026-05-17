@@ -47,12 +47,12 @@ export function TopBar() {
           size="sm"
           onClick={() => setLang(lang === "vi" ? "en" : "vi")}
           className="gap-1.5 text-xs"
-          title="Change language"
+          title={t("topbar.language")}
         >
           <Languages className="size-4" />
           {lang.toUpperCase()}
         </Button>
-        <Button variant="ghost" size="icon" asChild aria-label="GitHub repository">
+        <Button variant="ghost" size="icon" asChild aria-label={t("topbar.github")}>
           <a href="https://github.com/padit69/uni-tools" target="_blank" rel="noreferrer">
             <Github className="size-4" />
           </a>

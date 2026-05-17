@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type ECC = "L" | "M" | "Q" | "H";
 type Mode = "text" | "url" | "email" | "phone" | "sms" | "wifi";
@@ -43,6 +44,7 @@ const RANDOM_COLORS = [
 ];
 
 export default function QrTool() {
+  const { t } = useI18n();
   const [generator, setGenerator] = useLocalStorage<Generator>("qr-generator", "qr");
   const [mode, setMode] = useLocalStorage<Mode>("qr-mode", "url");
   const [text, setText] = useLocalStorage("qr-text", SAMPLE);
@@ -159,12 +161,12 @@ export default function QrTool() {
   const copyDataUrl = () => {
     if (generator === "barcode") {
       navigator.clipboard.writeText(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(barcodeSvg)}`);
-      toast.success("Copied SVG data URL");
+      toast.success(t("tool.qr.copiedSvg"));
       return;
     }
     if (!canvasRef.current) return;
     navigator.clipboard.writeText(canvasRef.current.toDataURL("image/png"));
-    toast.success("Copied PNG data URL");
+    toast.success(t("tool.qr.copiedPng"));
   };
 
   const scanImage = async (file: File | undefined) => {
@@ -173,7 +175,7 @@ export default function QrTool() {
     setScanError(null);
     const Detector = (window as unknown as { BarcodeDetector?: new (options?: unknown) => { detect: (source: ImageBitmap) => Promise<Array<{ rawValue: string; format: string }>> } }).BarcodeDetector;
     if (!Detector) {
-      setScanError("This browser does not support BarcodeDetector yet. Try a recent Chrome/Edge.");
+      setScanError(t("tool.qr.noBarcodeDetector"));
       return;
     }
     try {
@@ -183,7 +185,7 @@ export default function QrTool() {
       });
       const codes = await detector.detect(bitmap);
       setScanResult(codes.map((code) => `${code.format}: ${code.rawValue}`));
-      if (codes.length === 0) setScanError("Could not read a QR/barcode from this image.");
+      if (codes.length === 0) setScanError(t("tool.qr.noScanResult"));
     } catch (e) {
       setScanError((e as Error).message);
     }
@@ -207,10 +209,10 @@ export default function QrTool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm font-medium">QR / Barcode</div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => setText("")} disabled={!payload} title="Clear content">
+          <Button variant="ghost" size="icon" className="size-8" onClick={() => setText("")} disabled={!payload} title={t("tool.qr.clearContent")}>
             <Eraser className="size-3.5" />
           </Button>
-          <Button variant="secondary" size="icon" className="size-8" onClick={copyDataUrl} disabled={!payload || !!error} title="Copy PNG data URL">
+          <Button variant="secondary" size="icon" className="size-8" onClick={copyDataUrl} disabled={!payload || !!error} title={t("tool.qr.copyPng")}>
             <Copy className="size-3.5" />
           </Button>
           <Button variant="secondary" size="sm" onClick={downloadSvg} disabled={!payload || !!error}>
@@ -306,7 +308,7 @@ export default function QrTool() {
           <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
             <ColorField label="Foreground" value={dark} onChange={setDark} />
             <ColorField label="Background" value={light} onChange={setLight} />
-            <Button variant="secondary" size="icon" className="mt-5 size-8" onClick={randomizeColors} title="Random colors">
+            <Button variant="secondary" size="icon" className="mt-5 size-8" onClick={randomizeColors} title={t("tool.qr.randomColors")}>
               <Shuffle className="size-3.5" />
             </Button>
           </div>
@@ -370,7 +372,7 @@ export default function QrTool() {
                       size="icon"
                       className="size-7 shrink-0"
                       onClick={() => navigator.clipboard.writeText(value)}
-                      title="Copy decoded value"
+                      title={t("tool.qr.copyDecoded")}
                     >
                       <Copy className="size-3.5" />
                     </Button>
@@ -410,20 +412,21 @@ function PayloadFields(props: {
   hidden: boolean;
   setHidden: (value: boolean) => void;
 }) {
+  const { t } = useI18n();
   if (props.mode === "email") {
     return (
       <div className="grid grid-cols-1 gap-2">
         <TextInput label="Email" value={props.email} onChange={props.setEmail} />
-        <TextInput label="Subject" value={props.subject} onChange={props.setSubject} />
+        <TextInput label={t("label.subject")} value={props.subject} onChange={props.setSubject} />
       </div>
     );
   }
-  if (props.mode === "phone") return <TextInput label="Phone" value={props.phone} onChange={props.setPhone} />;
+  if (props.mode === "phone") return <TextInput label={t("label.phone")} value={props.phone} onChange={props.setPhone} />;
   if (props.mode === "sms") {
     return (
       <div className="grid grid-cols-1 gap-2">
-        <TextInput label="Phone" value={props.phone} onChange={props.setPhone} />
-        <TextArea label="Message" value={props.sms} onChange={props.setSms} />
+        <TextInput label={t("label.phone")} value={props.phone} onChange={props.setPhone} />
+        <TextArea label={t("label.message")} value={props.sms} onChange={props.setSms} />
       </div>
     );
   }
@@ -431,22 +434,22 @@ function PayloadFields(props: {
     return (
       <div className="grid grid-cols-1 gap-2">
         <TextInput label="SSID" value={props.ssid} onChange={props.setSsid} />
-        <TextInput label="Password" value={props.password} onChange={props.setPassword} />
+        <TextInput label={t("label.password")} value={props.password} onChange={props.setPassword} />
         <div className="flex items-center gap-2">
           <select value={props.wifiType} onChange={(e) => props.setWifiType(e.target.value as "WPA" | "WEP" | "nopass")} className="h-8 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 px-2 text-xs">
             <option value="WPA">WPA/WPA2</option>
             <option value="WEP">WEP</option>
-            <option value="nopass">No password</option>
+            <option value="nopass">{t("tool.qr.noPassword")}</option>
           </select>
           <label className="flex items-center gap-1.5 text-xs">
             <input type="checkbox" checked={props.hidden} onChange={(e) => props.setHidden(e.target.checked)} className="size-3 accent-[var(--primary)]" />
-            Hidden
+            {t("label.hidden")}
           </label>
         </div>
       </div>
     );
   }
-  return <TextArea label={props.mode === "url" ? "URL" : "Content"} value={props.text} onChange={props.setText} />;
+  return <TextArea label={props.mode === "url" ? "URL" : t("label.content")} value={props.text} onChange={props.setText} />;
 }
 
 function TextInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
@@ -459,10 +462,11 @@ function TextInput({ label, value, onChange }: { label: string; value: string; o
 }
 
 function TextArea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  const { t } = useI18n();
   return (
     <label className="flex flex-col gap-1.5">
       <span className="text-xs font-medium">{label}</span>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder="URL, text, or any string..." className="min-h-28 resize-y rounded-lg border border-[var(--border)] bg-transparent p-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" spellCheck={false} />
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={t("tool.qr.contentPlaceholder")} className="min-h-28 resize-y rounded-lg border border-[var(--border)] bg-transparent p-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" spellCheck={false} />
     </label>
   );
 }

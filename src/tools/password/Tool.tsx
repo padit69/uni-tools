@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 import {
   buildCharset,
   entropyBits,
@@ -21,6 +22,7 @@ type Mode = "random" | "passphrase";
 const SEPARATORS = ["-", "_", ".", " ", ""] as const;
 
 export default function PasswordTool() {
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>("random");
   const [length, setLength] = useState(20);
   const [opts, setOpts] = useState<RandomOptions>({
@@ -55,7 +57,7 @@ export default function PasswordTool() {
       }
       setItems(list);
     } catch (e) {
-      toast.error("Error", { description: (e as Error).message });
+      toast.error(t("label.error"), { description: (e as Error).message });
     }
   };
 
@@ -73,12 +75,12 @@ export default function PasswordTool() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <Shield className="size-4 text-[var(--muted-foreground)]" />
-          <span className="font-medium">Password Generator</span>
+          <span className="font-medium">Password</span>
         </div>
         <div className="flex items-center gap-2">
           <ModeSwitch value={mode} onChange={setMode} />
           <label className="flex items-center gap-1.5 text-xs">
-            <span className="text-[var(--muted-foreground)]">Count</span>
+            <span className="text-[var(--muted-foreground)]">{t("label.count")}</span>
             <input
               type="number"
               min={1}
@@ -93,9 +95,9 @@ export default function PasswordTool() {
           </label>
           <Button onClick={regen} size="sm">
             <RefreshCw className="size-3.5" />
-            Generate
+            {t("action.generate")}
           </Button>
-          <CopyButton text={allText} label="Copy all" disabled={!items.length} />
+          <CopyButton text={allText} label={t("action.copyAll")} disabled={!items.length} />
         </div>
       </div>
 
@@ -112,7 +114,7 @@ export default function PasswordTool() {
       <div className="min-h-0 flex-1 overflow-auto p-3">
         {items.length === 0 ? (
           <div className="flex h-full items-center justify-center text-xs text-[var(--muted-foreground)]">
-            Click "Generate" to create passwords.
+            {t("tool.password.clickGenerate")}
           </div>
         ) : (
           <ul className="flex flex-col gap-1">
@@ -135,13 +137,14 @@ export default function PasswordTool() {
 /* ---------- Sub components ---------- */
 
 function ModeSwitch({ value, onChange }: { value: Mode; onChange: (m: Mode) => void }) {
+  const { t } = useI18n();
   return (
     <div className="flex gap-0.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-0.5 text-xs">
       <ModeButton current={value} target="random" onClick={() => onChange("random")}>
-        <KeyRound className="size-3" /> Random
+        <KeyRound className="size-3" /> {t("tool.password.random")}
       </ModeButton>
       <ModeButton current={value} target="passphrase" onClick={() => onChange("passphrase")}>
-        <MessagesSquare className="size-3" /> Passphrase
+        <MessagesSquare className="size-3" /> {t("tool.password.passphrase")}
       </ModeButton>
     </div>
   );
@@ -184,10 +187,11 @@ function RandomOptionsPanel({
   opts: RandomOptions;
   setOpts: (o: RandomOptions) => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
       <label className="flex flex-1 min-w-[200px] items-center gap-2">
-        <span className="w-12 text-[var(--muted-foreground)]">Length</span>
+        <span className="w-12 text-[var(--muted-foreground)]">{t("tool.password.length")}</span>
         <input
           type="range"
           min={4}
@@ -230,7 +234,7 @@ function RandomOptionsPanel({
           onChange={(v) => setOpts({ ...opts, symbol: v })}
         />
         <Toggle
-          label="Exclude ambiguous characters"
+          label={t("tool.password.excludeAmbiguous")}
           checked={opts.excludeAmbiguous}
           onChange={(v) => setOpts({ ...opts, excludeAmbiguous: v })}
         />
@@ -246,10 +250,11 @@ function PassphraseOptionsPanel({
   pp: PassphraseOptions;
   setPp: (o: PassphraseOptions) => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
       <label className="flex items-center gap-2">
-        <span className="text-[var(--muted-foreground)]">Word count</span>
+        <span className="text-[var(--muted-foreground)]">{t("tool.password.wordCount")}</span>
         <input
           type="number"
           min={2}
@@ -263,7 +268,7 @@ function PassphraseOptionsPanel({
         />
       </label>
       <label className="flex items-center gap-2">
-        <span className="text-[var(--muted-foreground)]">Separator</span>
+        <span className="text-[var(--muted-foreground)]">{t("tool.password.separator")}</span>
         <div className="flex gap-0.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 p-0.5">
           {SEPARATORS.map((s) => (
             <button
@@ -282,12 +287,12 @@ function PassphraseOptionsPanel({
         </div>
       </label>
       <Toggle
-        label="Capitalize first letter"
+        label={t("tool.password.capitalize")}
         checked={pp.capitalize}
         onChange={(v) => setPp({ ...pp, capitalize: v })}
       />
       <Toggle
-        label="Add number"
+        label={t("tool.password.addNumber")}
         checked={pp.includeNumber}
         onChange={(v) => setPp({ ...pp, includeNumber: v })}
       />
@@ -359,12 +364,13 @@ function PasswordRow({
 }
 
 function StrengthBadge({ strength, bits }: { strength: Strength; bits: number }) {
+  const { t } = useI18n();
   const meta: Record<Strength, { label: string; cls: string }> = {
-    "very-weak": { label: "Very weak", cls: "bg-red-500/15 text-red-400" },
-    weak: { label: "Weak", cls: "bg-orange-500/15 text-orange-400" },
-    fair: { label: "Fair", cls: "bg-yellow-500/15 text-yellow-400" },
-    strong: { label: "Strong", cls: "bg-emerald-500/15 text-emerald-400" },
-    "very-strong": { label: "Very strong", cls: "bg-emerald-500/20 text-emerald-300" },
+    "very-weak": { label: t("tool.password.veryWeak"), cls: "bg-red-500/15 text-red-400" },
+    weak: { label: t("tool.password.weak"), cls: "bg-orange-500/15 text-orange-400" },
+    fair: { label: t("tool.password.fair"), cls: "bg-yellow-500/15 text-yellow-400" },
+    strong: { label: t("tool.password.strong"), cls: "bg-emerald-500/15 text-emerald-400" },
+    "very-strong": { label: t("tool.password.veryStrong"), cls: "bg-emerald-500/20 text-emerald-300" },
   };
   const m = meta[strength];
   return (

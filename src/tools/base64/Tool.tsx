@@ -3,34 +3,36 @@ import { ArrowRightLeft, Eraser } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { CopyButton } from "@/components/tool/CopyButton";
+import { useI18n } from "@/i18n";
 
 function encode(s: string): string {
   // UTF-8 safe Base64
   return btoa(String.fromCharCode(...new TextEncoder().encode(s)));
 }
 
-function decode(s: string): string {
+function decode(s: string, invalidMessage: string): string {
   try {
     const binary = atob(s.replace(/\s+/g, ""));
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     return new TextDecoder().decode(bytes);
   } catch {
-    throw new Error("Invalid Base64 string");
+    throw new Error(invalidMessage);
   }
 }
 
 export default function Base64Tool() {
+  const { t } = useI18n();
   const [mode, setMode] = useState<"encode" | "decode">("encode");
   const [input, setInput] = useState("");
 
   const result = useMemo(() => {
     if (!input) return { ok: true, output: "" } as const;
     try {
-      return { ok: true, output: mode === "encode" ? encode(input) : decode(input) } as const;
+      return { ok: true, output: mode === "encode" ? encode(input) : decode(input, t("error.invalidBase64")) } as const;
     } catch (e) {
       return { ok: false, error: (e as Error).message } as const;
     }
-  }, [input, mode]);
+  }, [input, mode, t]);
 
   const swap = () => {
     if (result.ok && result.output) {
@@ -44,34 +46,34 @@ export default function Base64Tool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <Tabs value={mode} onValueChange={(v) => setMode(v as "encode" | "decode")}>
           <TabsList>
-            <TabsTrigger value="encode">Encode</TabsTrigger>
-            <TabsTrigger value="decode">Decode</TabsTrigger>
+            <TabsTrigger value="encode">{t("action.encode")}</TabsTrigger>
+            <TabsTrigger value="decode">{t("action.decode")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={swap} disabled={!result.ok || !result.output}>
-            <ArrowRightLeft className="size-3.5" /> Swap
+            <ArrowRightLeft className="size-3.5" /> {t("action.swap")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
 
       <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
-          <PaneHeader label={mode === "encode" ? "Plain text" : "Base64"} />
+          <PaneHeader label={mode === "encode" ? t("label.plainText") : "Base64"} />
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "encode" ? "Enter text to encode..." : "Paste Base64 string..."}
+            placeholder={mode === "encode" ? t("tool.base64.placeholder.encode") : t("tool.base64.placeholder.decode")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
         </div>
         <div className="flex flex-col overflow-hidden">
           <PaneHeader
-            label={result.ok ? (mode === "encode" ? "Base64" : "Plain text") : "Error"}
+            label={result.ok ? (mode === "encode" ? "Base64" : t("label.plainText")) : t("label.error")}
             right={result.ok ? <CopyButton text={result.output} /> : null}
           />
           <OutputBody result={result} />

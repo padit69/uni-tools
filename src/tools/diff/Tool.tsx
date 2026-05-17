@@ -3,11 +3,13 @@ import { diffLines, diffWordsWithSpace, type Change } from "diff";
 import { Eraser, GitCompare, Columns2, AlignLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type Granularity = "lines" | "words";
 type ViewMode = "unified" | "split";
 
 export default function DiffTool() {
+  const { t } = useI18n();
   const [left, setLeft] = useState("");
   const [right, setRight] = useState("");
   const [granularity, setGranularity] = useState<Granularity>("lines");
@@ -54,8 +56,8 @@ export default function DiffTool() {
             value={granularity}
             onChange={setGranularity}
             options={[
-              { value: "lines", label: "Lines" },
-              { value: "words", label: "Words" },
+              { value: "lines", label: t("tool.diff.lines") },
+              { value: "words", label: t("tool.diff.words") },
             ]}
           />
           <SegmentedControl
@@ -73,7 +75,7 @@ export default function DiffTool() {
               onChange={(e) => setIgnoreCase(e.target.checked)}
               className="size-3 accent-[var(--primary)]"
             />
-            Ignore case
+            {t("tool.diff.ignoreCase")}
           </label>
           <label className="flex items-center gap-1.5 text-xs">
             <input
@@ -82,7 +84,7 @@ export default function DiffTool() {
               onChange={(e) => setHideUnchanged(e.target.checked)}
               className="size-3 accent-[var(--primary)]"
             />
-            Changes only
+            {t("tool.diff.changesOnly")}
           </label>
           <Button
             variant="ghost"
@@ -93,7 +95,7 @@ export default function DiffTool() {
             }}
             disabled={!left && !right}
           >
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
@@ -101,21 +103,21 @@ export default function DiffTool() {
       {/* Inputs */}
       <div className="grid shrink-0 basis-[40%] grid-cols-1 overflow-hidden md:grid-cols-2">
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
-          <PaneHeader label="Left" />
+          <PaneHeader label={t("label.left")} />
           <textarea
             value={left}
             onChange={(e) => setLeft(e.target.value)}
-            placeholder="Original..."
+            placeholder={t("tool.diff.original")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
         </div>
         <div className="flex flex-col overflow-hidden">
-          <PaneHeader label="Right" />
+          <PaneHeader label={t("label.right")} />
           <textarea
             value={right}
             onChange={(e) => setRight(e.target.value)}
-            placeholder="Modified..."
+            placeholder={t("tool.diff.modified")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
@@ -125,12 +127,12 @@ export default function DiffTool() {
       {/* Diff result */}
       <div className="flex min-h-0 flex-1 flex-col border-t border-[var(--border)]">
         <PaneHeader
-          label={viewMode === "split" ? "Compare — Side by side" : "Compare — Unified"}
+          label={viewMode === "split" ? t("tool.diff.compareSplit") : t("tool.diff.compareUnified")}
         />
         <div className="min-h-0 flex-1 overflow-auto">
           {!left && !right ? (
             <div className="flex h-full items-center justify-center p-6 text-xs text-[var(--muted-foreground)]">
-              Enter text in both panes above to compare.
+              {t("tool.diff.empty")}
             </div>
           ) : viewMode === "split" ? (
             <SplitDiff pairs={linePairs} hideUnchanged={hideUnchanged} granularity={granularity} />

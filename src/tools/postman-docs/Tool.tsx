@@ -3,6 +3,7 @@ import yaml from "js-yaml";
 import { CheckSquare, Copy, Download, FileJson, FolderOpen, List, Link as LinkIcon, Search, Square, TreePine, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -14,6 +15,7 @@ interface MdFile {
 const SAMPLE_URL = "https://example.com/postman_collection.json";
 
 export default function PostmanDocsTool() {
+  const { t } = useI18n();
   const [sourceUrl, setSourceUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [files, setFiles] = useState<MdFile[]>([]);
@@ -49,7 +51,7 @@ export default function PostmanDocsTool() {
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       convertText(await res.text());
     } catch (e) {
-      setError(`Could not load URL: ${(e as Error).message}. If CORS blocks it, download the JSON file and import it as a file.`);
+      setError(`${t("tool.postman.loadUrlError")}: ${(e as Error).message}. ${t("tool.postman.corsFileHint")}`);
     }
   };
 
@@ -89,7 +91,7 @@ export default function PostmanDocsTool() {
           Postman Docs
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="secondary" size="icon" className="size-8" onClick={() => current && navigator.clipboard.writeText(current.content)} disabled={!current} title="Copy selected markdown">
+          <Button variant="secondary" size="icon" className="size-8" onClick={() => current && navigator.clipboard.writeText(current.content)} disabled={!current} title={t("tool.postman.copySelected")}>
             <Copy className="size-3.5" />
           </Button>
           <Button size="sm" onClick={downloadZip} disabled={selectedFiles.length === 0}>
@@ -102,7 +104,7 @@ export default function PostmanDocsTool() {
       <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[380px_1fr]">
         <div className="flex min-h-0 flex-col gap-4 overflow-y-auto border-b border-[var(--border)] p-4 lg:border-b-0 lg:border-r">
           <div className="space-y-2">
-            <div className="text-xs font-medium">Import from URL</div>
+            <div className="text-xs font-medium">{t("tool.postman.importUrl")}</div>
             <div className="flex gap-2">
               <div className="relative min-w-0 flex-1">
                 <LinkIcon className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
@@ -115,27 +117,27 @@ export default function PostmanDocsTool() {
                 />
               </div>
               <Button variant="secondary" size="sm" onClick={loadUrl} disabled={!sourceUrl.trim()}>
-                Load
+                {t("tool.postman.load")}
               </Button>
             </div>
           </div>
 
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] bg-[var(--muted)]/15 p-6 text-center text-xs text-[var(--muted-foreground)] hover:bg-[var(--muted)]/25">
             <Upload className="size-5" />
-            <span>Choose Postman / Swagger / OpenAPI file</span>
+            <span>{t("tool.postman.chooseFile")}</span>
             <input type="file" accept="application/json,.json,.yaml,.yml" className="hidden" onChange={(e) => loadFile(e.target.files?.[0])} />
           </label>
 
           {error && <div className="rounded-md border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">{error}</div>}
 
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <Stat label="Files" value={stats.files} />
-            <Stat label="Chars" value={stats.markdown} />
+            <Stat label={t("tool.postman.files")} value={stats.files} />
+            <Stat label={t("tool.postman.chars")} value={stats.markdown} />
           </div>
 
           <div className="min-h-0 space-y-1">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="text-xs font-medium">Export selection</div>
+              <div className="text-xs font-medium">{t("tool.postman.exportSelection")}</div>
               {files.length > 0 && (
                 <div className="flex gap-1">
                   <button
@@ -144,7 +146,7 @@ export default function PostmanDocsTool() {
                       "grid size-7 place-items-center rounded-md",
                       viewMode === "list" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                     )}
-                    title="List view"
+                    title={t("tool.postman.listView")}
                   >
                     <List className="size-3.5" />
                   </button>
@@ -154,14 +156,14 @@ export default function PostmanDocsTool() {
                       "grid size-7 place-items-center rounded-md",
                       viewMode === "tree" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                     )}
-                    title="Tree view"
+                    title={t("tool.postman.treeView")}
                   >
                     <TreePine className="size-3.5" />
                   </button>
-                  <Button variant="secondary" size="icon" className="size-7" onClick={() => setSelectedPaths(files.map((file) => file.path))} title="Select all">
+                  <Button variant="secondary" size="icon" className="size-7" onClick={() => setSelectedPaths(files.map((file) => file.path))} title={t("tool.postman.selectAll")}>
                     <CheckSquare className="size-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="size-7" onClick={() => setSelectedPaths([])} title="Clear selection">
+                  <Button variant="ghost" size="icon" className="size-7" onClick={() => setSelectedPaths([])} title={t("tool.postman.clearSelection")}>
                     <Square className="size-3.5" />
                   </Button>
                 </div>
@@ -173,7 +175,7 @@ export default function PostmanDocsTool() {
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search file or folder..."
+                  placeholder={t("tool.postman.search")}
                   className="h-8 w-full rounded-md border border-[var(--border)] bg-transparent pl-7 pr-2 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   spellCheck={false}
                 />
@@ -181,11 +183,11 @@ export default function PostmanDocsTool() {
             )}
             {files.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                Import a collection to generate README.md and Markdown files.
+                {t("tool.postman.empty")}
               </div>
             ) : visibleFiles.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                No files or folders match the search.
+                {t("tool.postman.noMatch")}
               </div>
             ) : (
               viewMode === "list" ? (

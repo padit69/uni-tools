@@ -1,1 +1,47 @@
-import{useMemo,useState}from"react";import{Settings2}from"lucide-react";import{CopyButton}from"@/components/tool/CopyButton";function envToJson(s:string){const o:Record<string,string>={};s.split(/\r?\n/).forEach(l=>{const m=l.match(/^\s*([A-Za-z_][\w.-]*)\s*=\s*(.*)\s*$/);if(m)o[m[1]]=m[2].replace(/^['"]|['"]$/g,'')});return JSON.stringify(o,null,2)}function jsonToEnv(s:string){const o=JSON.parse(s);return Object.entries(o).map(([k,v])=>`${k}=${typeof v==='string'?v:JSON.stringify(v)}`).join('\n')}export default function ConfigTool(){const[mode,setMode]=useState<'env-json'|'json-env'>('env-json');const[input,setInput]=useState('API_URL=https://api.example.com\nTOKEN=secret');const out=useMemo(()=>{try{return mode==='env-json'?envToJson(input):jsonToEnv(input)}catch(e){return 'Error: '+(e as Error).message}},[input,mode]);return <div className="flex h-full flex-col"><div className="flex justify-between border-b p-3"><span className="flex gap-2 text-sm"><Settings2 className="size-4"/><b>ENV / Config Tool</b></span><select value={mode} onChange={e=>setMode(e.target.value as any)} className="rounded border bg-transparent px-2 text-xs"><option value="env-json">.env → JSON</option><option value="json-env">JSON → .env</option></select></div><div className="grid flex-1 md:grid-cols-2"><textarea value={input} onChange={e=>setInput(e.target.value)} className="resize-none border-r bg-transparent p-3 font-mono text-sm"/><pre className="overflow-auto p-3 font-mono text-sm"><CopyButton text={out}/>{out}</pre></div></div>}
+import { useMemo, useState } from "react";
+import { Settings2 } from "lucide-react";
+import { CopyButton } from "@/components/tool/CopyButton";
+import { useI18n } from "@/i18n";
+
+function envToJson(s: string) {
+  const o: Record<string, string> = {};
+  s.split(/\r?\n/).forEach((l) => {
+    const m = l.match(/^\s*([A-Za-z_][\w.-]*)\s*=\s*(.*)\s*$/);
+    if (m) o[m[1]] = m[2].replace(/^['"]|['"]$/g, "");
+  });
+  return JSON.stringify(o, null, 2);
+}
+
+function jsonToEnv(s: string) {
+  const o = JSON.parse(s);
+  return Object.entries(o).map(([k, v]) => `${k}=${typeof v === "string" ? v : JSON.stringify(v)}`).join("\n");
+}
+
+export default function ConfigTool() {
+  const { t } = useI18n();
+  const [mode, setMode] = useState<"env-json" | "json-env">("env-json");
+  const [input, setInput] = useState("API_URL=https://api.example.com\nTOKEN=secret");
+  const out = useMemo(() => {
+    try {
+      return mode === "env-json" ? envToJson(input) : jsonToEnv(input);
+    } catch (e) {
+      return `${t("label.error")}: ${(e as Error).message}`;
+    }
+  }, [input, mode, t]);
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex justify-between border-b p-3">
+        <span className="flex gap-2 text-sm"><Settings2 className="size-4" /><b>ENV / Config</b></span>
+        <select value={mode} onChange={(e) => setMode(e.target.value as "env-json" | "json-env")} className="rounded border bg-transparent px-2 text-xs">
+          <option value="env-json">.env -> JSON</option>
+          <option value="json-env">JSON -> .env</option>
+        </select>
+      </div>
+      <div className="grid flex-1 md:grid-cols-2">
+        <textarea value={input} onChange={(e) => setInput(e.target.value)} className="resize-none border-r bg-transparent p-3 font-mono text-sm" />
+        <pre className="overflow-auto p-3 font-mono text-sm"><CopyButton text={out} />{out}</pre>
+      </div>
+    </div>
+  );
+}

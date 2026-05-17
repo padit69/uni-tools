@@ -27,7 +27,7 @@ function move<T>(items: T[], from: number, to: number) {
 }
 
 export function Sidebar() {
-  const { t } = useI18n();
+  const { t, categoryLabel } = useI18n();
   const [q, setQ] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -118,7 +118,7 @@ export function Sidebar() {
         <div className="rounded-lg border border-orange-400/30 bg-orange-400/10 p-2 text-[11px] text-[var(--muted-foreground)]">
           <div className="flex items-center justify-between gap-2">
             <span>{t("sidebar.customizeHint")}</span>
-            <button onClick={resetLayout} title="Reset" className="rounded p-1 hover:bg-white/10">
+            <button onClick={resetLayout} title={t("sidebar.reset")} className="rounded p-1 hover:bg-white/10">
               <RotateCcw className="size-3.5" />
             </button>
           </div>
@@ -168,7 +168,7 @@ export function Sidebar() {
               {filtered.map((g) => (
                 <div key={g.category} className="flex flex-col gap-1">
                   <div className="px-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
-                    {g.label}
+                    {categoryLabel(g.category)}
                   </div>
                   {g.tools.map((t) => (
                     <ToolRow key={t.id} tool={t} pinned={false} onPin={() => togglePin(t.id)} />

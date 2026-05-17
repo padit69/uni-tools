@@ -9,7 +9,7 @@ import { useI18n } from "@/i18n";
 
 export function CommandPalette() {
   const { isOpen, setOpen, close } = useCommandPalette();
-  const { t, toolDesc } = useI18n();
+  const { t, categoryLabel, toolDesc } = useI18n();
   const navigate = useNavigate();
   useCommandPaletteHotkey();
 
@@ -17,7 +17,7 @@ export function CommandPalette() {
     const cat = catKey as keyof typeof categories;
     return {
       cat,
-      label: categories[cat].label,
+      label: categoryLabel(cat),
       tools: tools.filter((t) => t.category === cat),
     };
   }).filter((g) => g.tools.length > 0);
@@ -30,7 +30,7 @@ export function CommandPalette() {
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent className="overflow-hidden p-0">
-        <DialogTitle className="sr-only">Command palette</DialogTitle>
+        <DialogTitle className="sr-only">{t("search.commandPlaceholder")}</DialogTitle>
         <Command className="flex flex-col" loop>
           <div className="flex items-center gap-2 border-b border-[var(--border)] px-4">
             <Search className="size-4 text-[var(--muted-foreground)]" />

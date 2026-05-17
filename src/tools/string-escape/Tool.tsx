@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
 import { escape, unescape, LANG_LABEL, type Lang } from "./escape";
+import { useI18n } from "@/i18n";
 
 type Mode = "encode" | "decode";
 
 const SAMPLE = `Hello "world"\nTab:\tEnd. Em dash: — Non-ASCII: café`;
 
 export default function StringEscapeTool() {
+  const { t } = useI18n();
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<Mode>("encode");
   const [lang, setLang] = useState<Lang>("js");
@@ -42,9 +44,9 @@ export default function StringEscapeTool() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ModeSelector mode={mode} onChange={setMode} />
-          <Button variant="ghost" size="sm" onClick={handleSwap} title="Swap direction" className="h-7 px-2 text-xs">
+          <Button variant="ghost" size="sm" onClick={handleSwap} title={t("tool.string.swapDirection")} className="h-7 px-2 text-xs">
             <ArrowRightLeft className="size-3.5" />
-            Swap
+            {t("action.swap")}
           </Button>
           <select
             value={lang}
@@ -58,28 +60,28 @@ export default function StringEscapeTool() {
             ))}
           </select>
           <Button variant="ghost" size="sm" onClick={() => setInput(SAMPLE)} disabled={!!input}>
-            Example
+            {t("json.example")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
 
       <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
-          <PaneHeader label={mode === "encode" ? "Raw" : "Escaped"} />
+          <PaneHeader label={mode === "encode" ? t("tool.string.raw") : t("tool.string.escaped")} />
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "encode" ? "Enter text..." : "Paste escaped string..."}
+            placeholder={mode === "encode" ? t("tool.string.enterText") : t("tool.string.pasteEscaped")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
         </div>
         <div className="flex flex-col overflow-hidden">
           <PaneHeader
-            label={mode === "encode" ? "Escaped" : "Raw"}
+            label={mode === "encode" ? t("tool.string.escaped") : t("tool.string.raw")}
             right={result.ok ? <CopyButton text={result.output} /> : null}
           />
           <div className="min-h-0 flex-1 overflow-auto">
@@ -89,7 +91,7 @@ export default function StringEscapeTool() {
               <pre className="whitespace-pre-wrap break-words p-3 font-mono text-sm">{result.output}</pre>
             ) : (
               <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
-                <div className="font-medium text-red-400">Error</div>
+                <div className="font-medium text-red-400">{t("label.error")}</div>
                 <p className="mt-1">{result.error}</p>
               </div>
             )}
@@ -101,6 +103,7 @@ export default function StringEscapeTool() {
 }
 
 function ModeSelector({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
+  const { t } = useI18n();
   return (
     <div className="flex gap-0.5 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-0.5 text-xs">
       {(["encode", "decode"] as Mode[]).map((m) => (
@@ -114,7 +117,7 @@ function ModeSelector({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => v
               : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
           )}
         >
-          {m === "encode" ? "Escape" : "Unescape"}
+          {m === "encode" ? t("tool.string.escape") : t("tool.string.unescape")}
         </button>
       ))}
     </div>
@@ -133,11 +136,12 @@ function PaneHeader({ label, right }: { label: string; right?: React.ReactNode }
 }
 
 function EmptyHint({ mode, lang }: { mode: Mode; lang: Lang }) {
+  const { t } = useI18n();
   return (
     <div className="flex h-full items-center justify-center p-6 text-center text-xs text-[var(--muted-foreground)]">
       {mode === "encode"
-        ? `Enter text in the left pane to escape into ${LANG_LABEL[lang]}.`
-        : `Paste escaped string ${LANG_LABEL[lang]} to unescape back to raw text.`}
+        ? `${t("tool.string.emptyEncode")} ${LANG_LABEL[lang]}.`
+        : `${t("tool.string.emptyDecode")} ${LANG_LABEL[lang]} ${t("tool.string.emptyDecodeSuffix")}`}
     </div>
   );
 }

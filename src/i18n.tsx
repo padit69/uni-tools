@@ -1,239 +1,52 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import type { ToolCategory } from "@/tools/types";
+import en from "@/locales/en.json";
+import vi from "@/locales/vi.json";
 
 export type Lang = "vi" | "en";
 
 type Dict = Record<string, string>;
-
 type ToolDescDict = Record<string, string>;
+type CategoryDict = Record<ToolCategory, string>;
 
-const toolDescriptions: Record<Lang, ToolDescDict> = {
-  vi: {
-    json: "Format, validate, xem cây và convert JSON ↔ YAML/CSV/XML",
-    base64: "Encode/decode Base64, hỗ trợ Unicode",
-    url: "Encode/decode URL component hoặc full URL",
-    jwt: "Decode JWT — header, payload, signature (không verify)",
-    "jwt-sign": "Ký và verify JWT HS256 bằng secret",
-    "data-url": "Tạo/parse Data URL, MIME và Base64 inline",
-    uuid: "Sinh UUID v4 / v7 / Nil, hỗ trợ batch",
-    hash: "Tạo SHA-1/SHA-256/SHA-384/SHA-512 bằng Web Crypto",
-    hmac: "Tạo HMAC SHA-1/256/384/512 với secret, output HEX/Base64",
-    qr: "Sinh QR code, tải file PNG",
-    lorem: "Sinh text mẫu Lorem ipsum (đoạn / câu / từ)",
-    password: "Sinh password ngẫu nhiên + passphrase, đo strength",
-    timestamp: "Convert Unix timestamp ↔ date, hỗ trợ s/ms tự động",
-    color: "Convert HEX / RGB / HSL / HSV / tên màu, có swatch",
-    unit: "Convert chiều dài, khối lượng, nhiệt độ",
-    "string-escape": "Escape/unescape string cho JS, JSON, HTML, Regex, URL",
-    diff: "So sánh 2 đoạn text theo dòng hoặc từ",
-    sql: "Format / minify SQL nhanh, highlight keyword cơ bản",
-    beautifier: "Format/minify snippet HTML, CSS, JS cơ bản",
-    cidr: "Tính network, broadcast, range và kiểm tra IP trong CIDR",
-    robots: "Kiểm tra robots.txt cơ bản và lấy sitemap",
-    "user-agent": "Parse browser, OS, device từ User-Agent string",
-    regex: "Test regex với flags + highlight matches + capture groups",
-    markdown: "Preview Markdown với DOMPurify (an toàn)",
-    config: "Convert ENV ↔ JSON và flatten config keys",
-    curl: "Build curl command và test HTTP request trong browser",
-    "postman-docs": "Convert Postman collection JSON thành Markdown docs theo folder",
-  },
-  en: {
-    json: "Format, validate, tree view, and convert JSON ↔ YAML/CSV/XML",
-    base64: "Encode/decode Base64 with Unicode support",
-    url: "Encode/decode URL components or full URLs",
-    jwt: "Decode JWT — header, payload, signature (no verification)",
-    "jwt-sign": "Sign and verify HS256 JWTs with a secret",
-    "data-url": "Create/parse Data URLs, MIME, and inline Base64",
-    uuid: "Generate UUID v4 / v7 / Nil, with batch support",
-    hash: "Generate SHA-1/SHA-256/SHA-384/SHA-512 via Web Crypto",
-    hmac: "Generate HMAC SHA-1/256/384/512 with HEX/Base64 output",
-    qr: "Generate QR codes and download PNG files",
-    lorem: "Generate Lorem ipsum text by paragraph / sentence / word",
-    password: "Generate random passwords + passphrases and measure strength",
-    timestamp: "Convert Unix timestamp ↔ date with auto s/ms detection",
-    color: "Convert HEX / RGB / HSL / HSV / color names with swatches",
-    unit: "Convert length, weight, and temperature units",
-    "string-escape": "Escape/unescape strings for JS, JSON, HTML, Regex, URL",
-    diff: "Compare two text blocks by line or word",
-    sql: "Quickly format/minify SQL with basic keyword highlighting",
-    beautifier: "Format/minify basic HTML, CSS, and JS snippets",
-    cidr: "Calculate network, broadcast, range, and IP-in-CIDR matches",
-    robots: "Check robots.txt basics and extract sitemaps",
-    "user-agent": "Parse browser, OS, and device from User-Agent strings",
-    regex: "Test regex flags with highlighted matches and capture groups",
-    markdown: "Preview Markdown safely with DOMPurify",
-    config: "Convert ENV ↔ JSON and flatten config keys",
-    curl: "Build curl commands and test HTTP requests in the browser",
-    "postman-docs": "Convert Postman collection JSON into folder-based Markdown docs",
-  },
-};
+interface LocaleData {
+  meta: { name: string };
+  categories: CategoryDict;
+  toolDescriptions: ToolDescDict;
+  messages: Dict;
+}
 
-const dict: Record<Lang, Dict> = {
-  vi: {
-    "app.tagline": "Bộ công cụ dev — chạy 100% trên trình duyệt",
-    "app.description": "Một nơi cho mọi tool dev hay dùng. JSON, encode, generator, converter, text utilities — và sẽ thêm nữa.",
-    "app.quickSearchHint.before": "Bấm",
-    "app.quickSearchHint.after": "để tìm tool nhanh.",
-    "nav.home": "Home",
-    "search.placeholder": "Tìm tool...",
-    "search.commandPlaceholder": "Tìm tool, gõ keyword...",
-    "search.empty": "Không tìm thấy tool nào.",
-    "sidebar.empty": "Không có tool nào khớp.",
-    "sidebar.customizeTitle": "Tùy chỉnh vị trí / pin tool",
-    "sidebar.customizeHint": "Kéo thả để đổi vị trí, bấm pin để đưa lên đầu.",
-    "sidebar.arrange": "Sắp xếp tool",
-    "sidebar.pinned": "Pinned",
-    "pin.pin": "Pin lên đầu",
-    "pin.unpin": "Bỏ pin",
-    "cta.title": "Muốn thêm tool khác?",
-    "cta.desc": "Gửi góp ý hoặc yêu cầu thêm tool mới — mô tả use-case, input/output mong muốn.",
-    "cta.button": "Gửi yêu cầu",
-    "feedback.title": "Góp ý / yêu cầu thêm tool",
-    "feedback.desc": "Mô tả tool bạn muốn thêm, use-case, input/output mong muốn. Form này mở email client hoặc copy nội dung để gửi nhanh.",
-    "feedback.name": "Tên / team",
-    "feedback.namePlaceholder": "Tên của bạn",
-    "feedback.contact": "Liên hệ",
-    "feedback.contactPlaceholder": "Email, Telegram, GitHub...",
-    "feedback.idea": "Nội dung góp ý",
-    "feedback.ideaPlaceholder": "Ví dụ: thêm tool parse log nginx, input là log text, output thống kê status code...",
-    "feedback.close": "Đóng",
-    "feedback.copy": "Copy nội dung",
-    "feedback.send": "Gửi góp ý",
-    "feedback.copied": "Đã copy nội dung góp ý",
-    "notFound.message": "Tool này chưa có. Có thể bạn gõ nhầm slug?",
-    "notFound.home": "Về trang chủ",
-    "error.toolTitle": "Tool bị lỗi",
-    "error.chunkTitle": "Cần tải lại phiên bản mới",
-    "error.chunkDesc": "Trình duyệt hoặc Cloudflare đang giữ file JS cũ sau khi deploy. Bấm tải lại để lấy bản mới nhất.",
-    "error.reload": "Tải lại",
-    "error.clearCache": "Xóa cache local",
-    "theme.label": "Đổi theme",
-    "theme.light": "Sáng",
-    "theme.dark": "Tối",
-    "theme.system": "Hệ thống",
-    "copy.copied": "Đã copy",
-    "json.input": "Input",
-    "json.output.format": "Format",
-    "json.valid": "Hợp lệ",
-    "json.errors": "Lỗi",
-    "json.tree": "Cây",
-    "json.queryResult": "Kết quả query",
-    "json.actionOutput": "Kết quả action",
-    "json.validJson": "JSON hợp lệ",
-    "json.noSyntaxErrors": "Không phát hiện lỗi cú pháp.",
-    "json.emptyValidate": "Paste JSON vào pane bên trái để kiểm tra.",
-    "json.emptyTree": "Paste JSON để xem dạng cây.",
-    "json.processing": "Đang xử lý...",
-    "json.invalidJson": "JSON không hợp lệ",
-    "json.conversionFailed": "Convert thất bại",
-    "json.emptyConvert": "Paste input và chọn From/To để convert.",
-    "json.updateInput": "Cập nhật input",
-    "json.writeOutput": "Ghi kết quả action vào input",
-    "json.disableAutoFormat": "Tắt auto format",
-    "json.enableAutoFormat": "Bật auto format",
-    "json.hideStats": "Ẩn thống kê",
-    "json.showStats": "Hiện thống kê",
-    "json.hideQuery": "Ẩn query",
-    "json.openQuery": "Mở query",
-    "json.invalidJsonPrefix": "JSON không hợp lệ",
-    "json.emptyQueryBase": "Paste JSON để repair, sort hoặc query.",
-    "json.emptyPath": "Nhập JSON path, ví dụ $.tools[*].id.",
-    "json.queryFailed": "Query thất bại",
-    "json.noResults": "Không có kết quả.",
-    "json.emptyActionOutput": "Repair, sort, format hoặc minify để tạo output.",
-    "json.insertSample": "Chèn ví dụ",
-    "json.example": "Ví dụ",
-    "json.clear": "Xóa",
-    "json.dragResize": "Kéo để đổi độ rộng input/output",
-    "json.errorsCount": "lỗi",
-  },
-  en: {
-    "app.tagline": "Developer toolbox — runs 100% in your browser",
-    "app.description": "One place for everyday developer tools. JSON, encoding, generators, converters, text utilities — with more to come.",
-    "app.quickSearchHint.before": "Press",
-    "app.quickSearchHint.after": "to quickly find a tool.",
-    "nav.home": "Home",
-    "search.placeholder": "Search tools...",
-    "search.commandPlaceholder": "Search tools or keywords...",
-    "search.empty": "No tools found.",
-    "sidebar.empty": "No matching tools.",
-    "sidebar.customizeTitle": "Customize order / pin tools",
-    "sidebar.customizeHint": "Drag to reorder, click pin to move a tool to the top.",
-    "sidebar.arrange": "Arrange tools",
-    "sidebar.pinned": "Pinned",
-    "pin.pin": "Pin to top",
-    "pin.unpin": "Unpin",
-    "cta.title": "Want another tool?",
-    "cta.desc": "Send feedback or request a new tool — describe the use-case and expected input/output.",
-    "cta.button": "Send request",
-    "feedback.title": "Feedback / request a tool",
-    "feedback.desc": "Describe the tool you want, use-case, and expected input/output. This form opens your email client or copies the request content.",
-    "feedback.name": "Name / team",
-    "feedback.namePlaceholder": "Your name",
-    "feedback.contact": "Contact",
-    "feedback.contactPlaceholder": "Email, Telegram, GitHub...",
-    "feedback.idea": "Feedback / request",
-    "feedback.ideaPlaceholder": "Example: add an nginx log parser; input is log text, output is status-code stats...",
-    "feedback.close": "Close",
-    "feedback.copy": "Copy content",
-    "feedback.send": "Send feedback",
-    "feedback.copied": "Feedback content copied",
-    "notFound.message": "This tool does not exist yet. Maybe the slug is wrong?",
-    "notFound.home": "Back home",
-    "error.toolTitle": "Tool crashed",
-    "error.chunkTitle": "Reload required",
-    "error.chunkDesc": "Your browser or Cloudflare is still holding an old JS file after deploy. Reload to get the latest version.",
-    "error.reload": "Reload",
-    "error.clearCache": "Clear local cache",
-    "theme.label": "Change theme",
-    "theme.light": "Light",
-    "theme.dark": "Dark",
-    "theme.system": "System",
-    "copy.copied": "Copied",
-    "json.input": "Input",
-    "json.output.format": "Format",
-    "json.valid": "Valid",
-    "json.errors": "Errors",
-    "json.tree": "Tree",
-    "json.queryResult": "Query result",
-    "json.actionOutput": "Action output",
-    "json.validJson": "Valid JSON",
-    "json.noSyntaxErrors": "No syntax errors detected.",
-    "json.emptyValidate": "Paste JSON in the left pane to validate.",
-    "json.emptyTree": "Paste JSON to view the tree.",
-    "json.processing": "Processing...",
-    "json.invalidJson": "Invalid JSON",
-    "json.conversionFailed": "Conversion failed",
-    "json.emptyConvert": "Paste input and choose From/To to convert.",
-    "json.updateInput": "Update input",
-    "json.writeOutput": "Write action output to input",
-    "json.disableAutoFormat": "Disable auto format",
-    "json.enableAutoFormat": "Enable auto format",
-    "json.hideStats": "Hide stats",
-    "json.showStats": "Show stats",
-    "json.hideQuery": "Hide query",
-    "json.openQuery": "Open query",
-    "json.invalidJsonPrefix": "Invalid JSON",
-    "json.emptyQueryBase": "Paste JSON to repair, sort, or query.",
-    "json.emptyPath": "Enter JSON path, e.g. $.tools[*].id.",
-    "json.queryFailed": "Query failed",
-    "json.noResults": "No results.",
-    "json.emptyActionOutput": "Repair, sort, format, or minify to create output.",
-    "json.insertSample": "Insert sample",
-    "json.example": "Example",
-    "json.clear": "Clear",
-    "json.dragResize": "Drag to resize input/output",
-    "json.errorsCount": "errors",
-  },
-};
+const locales: Record<Lang, LocaleData> = { vi, en };
+const fallbackLang: Lang = "vi";
 
-const I18nContext = createContext<{ lang: Lang; setLang: (lang: Lang) => void; t: (key: string) => string; toolDesc: (id: string, fallback: string) => string } | null>(null);
+const I18nContext = createContext<{
+  lang: Lang;
+  setLang: (lang: Lang) => void;
+  t: (key: string) => string;
+  categoryLabel: (category: ToolCategory) => string;
+  toolDesc: (id: string, fallback: string) => string;
+} | null>(null);
+
+function normalizeLang(lang: string): Lang {
+  return lang in locales ? (lang as Lang) : fallbackLang;
+}
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useLocalStorage<Lang>("ui-language", "vi");
-  const t = (key: string) => dict[lang][key] ?? dict.vi[key] ?? key;
-  const toolDesc = (id: string, fallback: string) => toolDescriptions[lang][id] ?? fallback;
-  return <I18nContext.Provider value={{ lang, setLang, t, toolDesc }}>{children}</I18nContext.Provider>;
+  const [storedLang, setStoredLang] = useLocalStorage<Lang>("ui-language", fallbackLang);
+  const lang = normalizeLang(storedLang);
+  const current = locales[lang];
+  const fallback = locales[fallbackLang];
+
+  const t = (key: string) => current.messages[key] ?? fallback.messages[key] ?? key;
+  const categoryLabel = (category: ToolCategory) => current.categories[category] ?? fallback.categories[category] ?? category;
+  const toolDesc = (id: string, fallbackText: string) => current.toolDescriptions[id] ?? fallback.toolDescriptions[id] ?? fallbackText;
+
+  return (
+    <I18nContext.Provider value={{ lang, setLang: setStoredLang, t, categoryLabel, toolDesc }}>
+      {children}
+    </I18nContext.Provider>
+  );
 }
 
 export function useI18n() {

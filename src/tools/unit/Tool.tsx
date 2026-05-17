@@ -2,12 +2,13 @@ import { useMemo, useState } from "react";
 import { Ruler } from "lucide-react";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type Category = "length" | "weight" | "temperature";
 
 interface UnitDef {
   id: string;
-  label: string;
+  labelKey: string;
   toBase: (v: number) => number;
   fromBase: (v: number) => number;
 }
@@ -16,35 +17,35 @@ interface UnitDef {
 // Weight: base = gram
 // Temperature: base = celsius
 const LENGTHS: UnitDef[] = [
-  { id: "mm", label: "Millimeter (mm)", toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
-  { id: "cm", label: "Centimeter (cm)", toBase: (v) => v / 100, fromBase: (v) => v * 100 },
-  { id: "m", label: "Meter (m)", toBase: (v) => v, fromBase: (v) => v },
-  { id: "km", label: "Kilometer (km)", toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
-  { id: "in", label: "Inch (in)", toBase: (v) => v * 0.0254, fromBase: (v) => v / 0.0254 },
-  { id: "ft", label: "Foot (ft)", toBase: (v) => v * 0.3048, fromBase: (v) => v / 0.3048 },
-  { id: "yd", label: "Yard (yd)", toBase: (v) => v * 0.9144, fromBase: (v) => v / 0.9144 },
-  { id: "mi", label: "Mile (mi)", toBase: (v) => v * 1609.344, fromBase: (v) => v / 1609.344 },
+  { id: "mm", labelKey: "unit.millimeter", toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+  { id: "cm", labelKey: "unit.centimeter", toBase: (v) => v / 100, fromBase: (v) => v * 100 },
+  { id: "m", labelKey: "unit.meter", toBase: (v) => v, fromBase: (v) => v },
+  { id: "km", labelKey: "unit.kilometer", toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+  { id: "in", labelKey: "unit.inch", toBase: (v) => v * 0.0254, fromBase: (v) => v / 0.0254 },
+  { id: "ft", labelKey: "unit.foot", toBase: (v) => v * 0.3048, fromBase: (v) => v / 0.3048 },
+  { id: "yd", labelKey: "unit.yard", toBase: (v) => v * 0.9144, fromBase: (v) => v / 0.9144 },
+  { id: "mi", labelKey: "unit.mile", toBase: (v) => v * 1609.344, fromBase: (v) => v / 1609.344 },
 ];
 
 const WEIGHTS: UnitDef[] = [
-  { id: "mg", label: "Milligram (mg)", toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
-  { id: "g", label: "Gram (g)", toBase: (v) => v, fromBase: (v) => v },
-  { id: "kg", label: "Kilogram (kg)", toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
-  { id: "t", label: "Tonne (t)", toBase: (v) => v * 1_000_000, fromBase: (v) => v / 1_000_000 },
-  { id: "oz", label: "Ounce (oz)", toBase: (v) => v * 28.3495, fromBase: (v) => v / 28.3495 },
-  { id: "lb", label: "Pound (lb)", toBase: (v) => v * 453.592, fromBase: (v) => v / 453.592 },
+  { id: "mg", labelKey: "unit.milligram", toBase: (v) => v / 1000, fromBase: (v) => v * 1000 },
+  { id: "g", labelKey: "unit.gram", toBase: (v) => v, fromBase: (v) => v },
+  { id: "kg", labelKey: "unit.kilogram", toBase: (v) => v * 1000, fromBase: (v) => v / 1000 },
+  { id: "t", labelKey: "unit.tonne", toBase: (v) => v * 1_000_000, fromBase: (v) => v / 1_000_000 },
+  { id: "oz", labelKey: "unit.ounce", toBase: (v) => v * 28.3495, fromBase: (v) => v / 28.3495 },
+  { id: "lb", labelKey: "unit.pound", toBase: (v) => v * 453.592, fromBase: (v) => v / 453.592 },
 ];
 
 const TEMPS: UnitDef[] = [
-  { id: "c", label: "Celsius (°C)", toBase: (v) => v, fromBase: (v) => v },
-  { id: "f", label: "Fahrenheit (°F)", toBase: (v) => (v - 32) * (5 / 9), fromBase: (v) => v * (9 / 5) + 32 },
-  { id: "k", label: "Kelvin (K)", toBase: (v) => v - 273.15, fromBase: (v) => v + 273.15 },
+  { id: "c", labelKey: "unit.celsius", toBase: (v) => v, fromBase: (v) => v },
+  { id: "f", labelKey: "unit.fahrenheit", toBase: (v) => (v - 32) * (5 / 9), fromBase: (v) => v * (9 / 5) + 32 },
+  { id: "k", labelKey: "unit.kelvin", toBase: (v) => v - 273.15, fromBase: (v) => v + 273.15 },
 ];
 
-const CATEGORIES: Record<Category, { label: string; units: UnitDef[] }> = {
-  length: { label: "Length", units: LENGTHS },
-  weight: { label: "Weight", units: WEIGHTS },
-  temperature: { label: "Temperature", units: TEMPS },
+const CATEGORIES: Record<Category, { labelKey: string; units: UnitDef[] }> = {
+  length: { labelKey: "unit.length", units: LENGTHS },
+  weight: { labelKey: "unit.weight", units: WEIGHTS },
+  temperature: { labelKey: "unit.temperature", units: TEMPS },
 };
 
 function fmt(n: number): string {
@@ -55,6 +56,7 @@ function fmt(n: number): string {
 }
 
 export default function UnitTool() {
+  const { t } = useI18n();
   const [category, setCategory] = useState<Category>("length");
   const [from, setFrom] = useState<string>("m");
   const [value, setValue] = useState<string>("1");
@@ -67,7 +69,7 @@ export default function UnitTool() {
     const def = cat.units.find((u) => u.id === from);
     if (!def) return null;
     const base = def.toBase(num);
-    return cat.units.map((u) => ({ id: u.id, label: u.label, value: u.fromBase(base) }));
+    return cat.units.map((u) => ({ id: u.id, labelKey: u.labelKey, value: u.fromBase(base) }));
   }, [value, from, cat]);
 
   return (
@@ -75,7 +77,7 @@ export default function UnitTool() {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <Ruler className="size-4 text-[var(--muted-foreground)]" />
-          <span className="font-medium">Unit Converter</span>
+          <span className="font-medium">{t("unit.converter")}</span>
         </div>
         <div className="flex gap-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-0.5 text-xs">
           {(Object.keys(CATEGORIES) as Category[]).map((c) => (
@@ -90,7 +92,7 @@ export default function UnitTool() {
                 category === c ? "bg-[var(--card)] shadow-sm" : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
               )}
             >
-              {CATEGORIES[c].label}
+              {t(CATEGORIES[c].labelKey)}
             </button>
           ))}
         </div>
@@ -99,7 +101,7 @@ export default function UnitTool() {
       <div className="flex flex-col gap-4 overflow-y-auto p-4">
         <div className="flex flex-wrap items-end gap-2">
           <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-xs font-medium">Value</span>
+            <span className="text-xs font-medium">{t("label.value")}</span>
             <input
               type="text"
               inputMode="decimal"
@@ -109,7 +111,7 @@ export default function UnitTool() {
             />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-medium">From</span>
+            <span className="text-xs font-medium">{t("label.from")}</span>
             <select
               value={from}
               onChange={(e) => setFrom(e.target.value)}
@@ -117,7 +119,7 @@ export default function UnitTool() {
             >
               {cat.units.map((u) => (
                 <option key={u.id} value={u.id}>
-                  {u.label}
+                  {t(u.labelKey)}
                 </option>
               ))}
             </select>
@@ -126,7 +128,7 @@ export default function UnitTool() {
 
         {!computed && value && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
-            "{value}" is not a valid number.
+            "{value}" {t("error.invalidNumber")}
           </div>
         )}
 
@@ -146,7 +148,7 @@ export default function UnitTool() {
                 >
                   <div className="min-w-0">
                     <div className="text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">
-                      {r.label}
+                      {t(r.labelKey)}
                     </div>
                     <div className="mt-0.5 truncate font-mono text-sm">{text}</div>
                   </div>

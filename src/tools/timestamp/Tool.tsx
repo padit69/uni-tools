@@ -3,6 +3,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { Clock, Eraser } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
+import { useI18n } from "@/i18n";
 
 function parseInput(s: string): Date | null {
   const trimmed = s.trim();
@@ -19,6 +20,7 @@ function parseInput(s: string): Date | null {
 }
 
 export default function TimestampTool() {
+  const { t } = useI18n();
   const [input, setInput] = useState("");
   const [now, setNow] = useState(() => new Date());
 
@@ -37,31 +39,31 @@ export default function TimestampTool() {
       { label: "Unix (ms)", value: String(parsed.getTime()) },
       { label: "ISO 8601", value: parsed.toISOString() },
       { label: "RFC 2822", value: parsed.toUTCString() },
-      { label: "Local", value: format(parsed, "yyyy-MM-dd HH:mm:ss zzz") },
+      { label: t("label.local"), value: format(parsed, "yyyy-MM-dd HH:mm:ss zzz") },
       {
-        label: "Relative",
+        label: t("label.relative"),
         value: formatDistanceToNow(parsed, { addSuffix: true }),
       },
-      { label: "Year", value: String(parsed.getFullYear()) },
-      { label: "Day of year", value: String(dayOfYear(parsed)) },
-      { label: "Week", value: String(weekOfYear(parsed)) },
+      { label: t("label.year"), value: String(parsed.getFullYear()) },
+      { label: t("label.dayOfYear"), value: String(dayOfYear(parsed)) },
+      { label: t("label.week"), value: String(weekOfYear(parsed)) },
     ];
-  }, [parsed]);
+  }, [parsed, t]);
 
   return (
     <div className="flex h-full flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <Clock className="size-4 text-[var(--muted-foreground)]" />
-          <span className="font-medium">Timestamp Converter</span>
-          <span className="text-xs text-[var(--muted-foreground)]">— auto-detect Unix s/ms or date string</span>
+          <span className="font-medium">Timestamp</span>
+          <span className="text-xs text-[var(--muted-foreground)]">{t("tool.timestamp.subtitle")}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setInput(String(Math.floor(Date.now() / 1000)))}>
-            Now
+            {t("tool.timestamp.now")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
@@ -70,14 +72,14 @@ export default function TimestampTool() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="1735689600  ·  1735689600000  ·  2025-01-01T00:00:00Z  ·  empty = now"
+          placeholder={t("tool.timestamp.placeholder")}
           className="h-10 w-full rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           spellCheck={false}
         />
 
         {!parsed && input.trim() && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
-            Could not parse "{input}". Try a Unix timestamp or ISO 8601.
+            {t("tool.timestamp.parseError")} "{input}". {t("tool.timestamp.parseHint")}
           </div>
         )}
 

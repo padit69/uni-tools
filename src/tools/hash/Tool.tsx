@@ -3,6 +3,7 @@ import { ResultBox } from "@/components/tool/ToolLayout";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { Eraser } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/i18n";
 
 const ALGOS = ["SHA-1", "SHA-256", "SHA-384", "SHA-512"] as const;
 type Algo = (typeof ALGOS)[number];
@@ -16,6 +17,7 @@ async function hash(text: string, algo: Algo): Promise<string> {
 }
 
 export default function HashTool() {
+  const { t } = useI18n();
   const [input, setInput] = useState("");
   const [hashes, setHashes] = useState<Record<Algo, string>>({
     "SHA-1": "",
@@ -47,11 +49,11 @@ export default function HashTool() {
         <div className="text-sm">
           <span className="font-medium">Hash</span>
           <span className="ml-2 text-xs text-[var(--muted-foreground)]">
-            — Web Crypto, hash updates live
+            — Web Crypto
           </span>
         </div>
         <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-          <Eraser className="size-3.5" /> Clear
+          <Eraser className="size-3.5" /> {t("action.clear")}
         </Button>
       </div>
 
@@ -59,13 +61,13 @@ export default function HashTool() {
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
           <div className="flex h-9 shrink-0 items-center border-b border-[var(--border)] px-3">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
-              Input
+              {t("label.input")}
             </span>
           </div>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Enter text to hash..."
+            placeholder={t("tool.hash.placeholder")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />

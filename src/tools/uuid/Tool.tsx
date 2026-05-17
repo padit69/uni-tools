@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type Version = "v4" | "v7" | "nil";
 
@@ -18,6 +19,7 @@ function generate(version: Version, count: number, uppercase: boolean): string[]
 }
 
 export default function UuidTool() {
+  const { t } = useI18n();
   const [version, setVersion] = useState<Version>("v4");
   const [count, setCount] = useState(5);
   const [uppercase, setUppercase] = useState(false);
@@ -35,9 +37,9 @@ export default function UuidTool() {
         <div className="flex items-center gap-2">
           <Toggle
             options={[
-              { v: "v4", label: "v4 (random)" },
-              { v: "v7", label: "v7 (sortable)" },
-              { v: "nil", label: "Nil" },
+              { v: "v4", label: t("uuid.v4") },
+              { v: "v7", label: t("uuid.v7") },
+              { v: "nil", label: t("uuid.nil") },
             ]}
             value={version}
             onChange={(v) => {
@@ -46,7 +48,7 @@ export default function UuidTool() {
             }}
           />
           <label className="flex items-center gap-1.5 text-xs">
-            <span className="text-[var(--muted-foreground)]">Count</span>
+            <span className="text-[var(--muted-foreground)]">{t("label.count")}</span>
             <input
               type="number"
               min={1}
@@ -61,12 +63,12 @@ export default function UuidTool() {
           </label>
         </div>
         <div className="flex items-center gap-2">
-          <Checkbox label="UPPERCASE" checked={uppercase} onChange={setUppercase} />
-          <Checkbox label="Include hyphens" checked={hyphens} onChange={setHyphens} />
+          <Checkbox label={t("uuid.uppercase")} checked={uppercase} onChange={setUppercase} />
+          <Checkbox label={t("uuid.hyphens")} checked={hyphens} onChange={setHyphens} />
           <Button onClick={regen} size="sm">
-            <RefreshCw className="size-3.5" /> Generate
+            <RefreshCw className="size-3.5" /> {t("action.generate")}
           </Button>
-          <CopyButton text={allText} label="Copy all" />
+          <CopyButton text={allText} label={t("action.copyAll")} />
         </div>
       </div>
 

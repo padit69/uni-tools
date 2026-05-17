@@ -3,13 +3,12 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Mail, Send, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { tools } from "@/tools/registry";
-import { categories } from "@/tools/types";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/Dialog";
 import { useI18n } from "@/i18n";
 
 export default function Home() {
-  const { t, toolDesc } = useI18n();
+  const { t, categoryLabel, toolDesc } = useI18n();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -65,7 +64,7 @@ export default function Home() {
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="font-semibold tracking-tight">{t.name}</h3>
                   <span className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
-                    {categories[t.category].label}
+                    {categoryLabel(t.category)}
                   </span>
                 </div>
                 <p className="line-clamp-2 text-xs text-[var(--muted-foreground)]">

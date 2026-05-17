@@ -3,6 +3,7 @@ import { Eraser, Regex } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 interface MatchResult {
   match: string;
@@ -65,6 +66,7 @@ function build(pattern: string, flags: string, test: string): BuildResult | Buil
 }
 
 export default function RegexTool() {
+  const { t } = useI18n();
   const [pattern, setPattern] = useState("\\b\\w+@[\\w.-]+\\b");
   const [flags, setFlags] = useState<Set<string>>(new Set(["g"]));
   const [test, setTest] = useState("Contact alice@example.com or bob@test.io to learn more.");
@@ -104,7 +106,7 @@ export default function RegexTool() {
           <span className="font-medium">Regex Tester</span>
           {result.ok && (
             <span className="text-xs text-[var(--muted-foreground)]">
-              {result.matches.length} match{result.matches.length !== 1 ? "es" : ""}
+              {result.matches.length} {result.matches.length !== 1 ? t("tool.regex.matchesCountPlural") : t("tool.regex.matchesCount")}
             </span>
           )}
         </div>
@@ -117,7 +119,7 @@ export default function RegexTool() {
           }}
           disabled={!pattern && !test}
         >
-          <Eraser className="size-3.5" /> Clear
+          <Eraser className="size-3.5" /> {t("action.clear")}
         </Button>
       </div>
 
@@ -128,7 +130,7 @@ export default function RegexTool() {
             <input
               value={pattern}
               onChange={(e) => setPattern(e.target.value)}
-              placeholder="pattern"
+              placeholder={t("tool.regex.pattern")}
               className="h-9 flex-1 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 px-2 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
               spellCheck={false}
             />
@@ -161,11 +163,11 @@ export default function RegexTool() {
         )}
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium">Test string</span>
+          <span className="text-xs font-medium">{t("tool.regex.testString")}</span>
           <textarea
             value={test}
             onChange={(e) => setTest(e.target.value)}
-            placeholder="Enter text to test regex..."
+            placeholder={t("tool.regex.placeholder")}
             className="min-h-32 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             spellCheck={false}
           />
@@ -174,7 +176,7 @@ export default function RegexTool() {
         {highlightedTest && (
           <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/20">
             <div className="border-b border-[var(--border)] px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
-              Highlighted
+              {t("label.highlighted")}
             </div>
             <pre className="whitespace-pre-wrap break-words p-3 font-mono text-sm leading-relaxed">
               {highlightedTest.map((p, i) =>
@@ -195,7 +197,7 @@ export default function RegexTool() {
 
         {result.ok && result.matches.length > 0 && (
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium">Matches</span>
+            <span className="text-xs font-medium">{t("label.matches")}</span>
             {result.matches.map((m, i) => (
               <div
                 key={i}

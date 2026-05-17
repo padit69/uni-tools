@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { JsonEditor } from "@/tools/json/JsonEditor";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
 type BodyMode = "none" | "json" | "raw" | "form-data";
@@ -49,6 +50,7 @@ interface CurlHistoryItem {
 const METHODS: Method[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"];
 
 export default function CurlTool() {
+  const { t } = useI18n();
   const [url, setUrl] = useState("https://jsonplaceholder.typicode.com/todos/1");
   const [method, setMethod] = useState<Method>("GET");
   const [headers, setHeaders] = useState<HeaderRow[]>([
@@ -233,15 +235,15 @@ export default function CurlTool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm font-medium">Curl Tester</div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="size-8" onClick={clear} disabled={!url && !body && !response} title="Clear">
+          <Button variant="ghost" size="icon" className="size-8" onClick={clear} disabled={!url && !body && !response} title={t("action.clear")}>
             <Eraser className="size-3.5" />
           </Button>
-          <Button variant="secondary" size="icon" className="size-8" onClick={() => navigator.clipboard.writeText(curlText || curl)} disabled={!url && !curlText} title="Copy curl">
+          <Button variant="secondary" size="icon" className="size-8" onClick={() => navigator.clipboard.writeText(curlText || curl)} disabled={!url && !curlText} title={t("tool.curl.copyCurl")}>
             <Copy className="size-3.5" />
           </Button>
           <Button size="sm" onClick={send} disabled={!url || loading}>
             <Play className="size-3.5" />
-            {loading ? "Sending" : "Send"}
+            {loading ? t("action.sending") : t("action.send")}
           </Button>
         </div>
       </div>
@@ -269,14 +271,14 @@ export default function CurlTool() {
             />
           </div>
 
-          <SectionTitle label="Headers" action={<Button variant="secondary" size="icon" className="size-7" onClick={addHeader} title="Add header"><Plus className="size-3.5" /></Button>} />
+          <SectionTitle label={t("label.headers")} action={<Button variant="secondary" size="icon" className="size-7" onClick={addHeader} title={t("tool.curl.addHeader")}><Plus className="size-3.5" /></Button>} />
           <div className="space-y-2">
             {headers.map((row) => (
               <div key={row.id} className="grid grid-cols-[22px_1fr_1fr_28px] items-center gap-2">
                 <input type="checkbox" checked={row.enabled} onChange={(e) => updateHeader(row.id, { enabled: e.target.checked })} className="size-3 accent-[var(--primary)]" />
-                <input value={row.key} onChange={(e) => updateHeader(row.id, { key: e.target.value })} placeholder="Header" className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
-                <input value={row.value} onChange={(e) => updateHeader(row.id, { value: e.target.value })} placeholder="Value" className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
-                <Button variant="ghost" size="icon" className="size-7" onClick={() => setHeaders((current) => current.filter((h) => h.id !== row.id))} title="Remove header">
+                <input value={row.key} onChange={(e) => updateHeader(row.id, { key: e.target.value })} placeholder={t("label.header")} className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
+                <input value={row.value} onChange={(e) => updateHeader(row.id, { value: e.target.value })} placeholder={t("label.value")} className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
+                <Button variant="ghost" size="icon" className="size-7" onClick={() => setHeaders((current) => current.filter((h) => h.id !== row.id))} title={t("tool.curl.removeHeader")}>
                   <Trash2 className="size-3.5" />
                 </Button>
               </div>
@@ -339,11 +341,11 @@ export default function CurlTool() {
             </div>
           )}
 
-          <SectionTitle label="History" />
+          <SectionTitle label={t("tool.curl.history")} />
           <div className="space-y-2">
             {history.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                No history yet.
+                {t("tool.curl.noHistory")}
               </div>
             ) : (
               history.map((item) => (
@@ -352,7 +354,7 @@ export default function CurlTool() {
                     <div className="truncate font-mono text-xs">{item.method} {item.url}</div>
                     <div className="mt-0.5 text-[10px] text-[var(--muted-foreground)]">{new Date(item.savedAt).toLocaleString()}</div>
                   </button>
-                  <Button variant="ghost" size="icon" className="size-7 opacity-70 group-hover:opacity-100" onClick={() => deleteHistory(item.id)} title="Delete history">
+                  <Button variant="ghost" size="icon" className="size-7 opacity-70 group-hover:opacity-100" onClick={() => deleteHistory(item.id)} title={t("tool.curl.deleteHistory")}>
                     <Trash2 className="size-3.5" />
                   </Button>
                 </div>
@@ -363,7 +365,7 @@ export default function CurlTool() {
 
         <div className="flex min-h-0 flex-col overflow-hidden">
           <div className="flex h-10 shrink-0 items-center justify-between border-b border-[var(--border)] px-3">
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">Response</div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">{t("label.response")}</div>
             {response && (
               <div className="flex items-center gap-2 text-xs">
                 <span className={cn("rounded px-1.5 py-0.5 font-mono", response.ok ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400")}>
@@ -375,12 +377,12 @@ export default function CurlTool() {
           </div>
 
           {!response ? (
-            <Empty message="Send request to see the response." />
+            <Empty message={t("tool.curl.emptyResponse")} />
           ) : response.error ? (
             <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
               {response.error}
               <div className="mt-2 text-[var(--muted-foreground)]">
-                Browser fetch is limited by CORS. If the endpoint does not allow CORS, copy the curl command and run it in a terminal.
+                {t("tool.curl.corsHint")}
               </div>
             </div>
           ) : (
@@ -389,7 +391,7 @@ export default function CurlTool() {
                 <JsonEditor value={prettyBody(response.body)} readOnly lang={looksJson(response.body) ? "json" : "text"} height="100%" style={{ height: "100%" }} />
               </div>
               <div className="min-h-0 overflow-auto border-t border-[var(--border)] p-3">
-                <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">Headers</div>
+                <div className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">{t("label.headers")}</div>
                 <div className="space-y-1 font-mono text-xs">
                   {Object.entries(response.headers).map(([key, value]) => (
                     <div key={key} className="grid grid-cols-[160px_1fr] gap-3">
@@ -429,6 +431,7 @@ function FormDataEditor({
   setRows: React.Dispatch<React.SetStateAction<FormRow[]>>;
   disabled: boolean;
 }) {
+  const { t } = useI18n();
   const updateRow = (id: number, patch: Partial<FormRow>) => {
     setRows((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
   };
@@ -438,14 +441,14 @@ function FormDataEditor({
       {rows.map((row) => (
         <div key={row.id} className="grid grid-cols-[22px_1fr_82px_1fr_28px] items-center gap-2">
           <input type="checkbox" checked={row.enabled} onChange={(e) => updateRow(row.id, { enabled: e.target.checked })} className="size-3 accent-[var(--primary)]" />
-          <input value={row.key} onChange={(e) => updateRow(row.id, { key: e.target.value })} placeholder="key" className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
+          <input value={row.key} onChange={(e) => updateRow(row.id, { key: e.target.value })} placeholder={t("tool.curl.key")} className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
           <select
             value={row.kind}
             onChange={(e) => updateRow(row.id, { kind: e.target.value as "text" | "file", file: undefined, value: "" })}
             className="h-8 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 text-xs"
           >
-            <option value="text">Text</option>
-            <option value="file">File</option>
+            <option value="text">{t("tool.curl.text")}</option>
+            <option value="file">{t("tool.curl.file")}</option>
           </select>
           {row.kind === "file" ? (
             <label className="flex h-8 min-w-0 cursor-pointer items-center rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 text-xs text-[var(--muted-foreground)]">
@@ -457,19 +460,19 @@ function FormDataEditor({
                   updateRow(row.id, { file, value: file?.name ?? "" });
                 }}
               />
-              <span className="truncate">{row.file?.name || row.value || "Choose file..."}</span>
+              <span className="truncate">{row.file?.name || row.value || t("tool.curl.chooseFile")}</span>
             </label>
           ) : (
-            <input value={row.value} onChange={(e) => updateRow(row.id, { value: e.target.value })} placeholder="value" className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
+            <input value={row.value} onChange={(e) => updateRow(row.id, { value: e.target.value })} placeholder={t("label.value")} className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
           )}
-          <Button variant="ghost" size="icon" className="size-7" onClick={() => setRows((current) => current.filter((item) => item.id !== row.id))} title="Remove field">
+          <Button variant="ghost" size="icon" className="size-7" onClick={() => setRows((current) => current.filter((item) => item.id !== row.id))} title={t("tool.curl.removeField")}>
             <Trash2 className="size-3.5" />
           </Button>
         </div>
       ))}
       <Button variant="secondary" size="sm" onClick={() => setRows((current) => [...current, { id: Date.now(), key: "", value: "", kind: "text", enabled: true }])}>
         <Plus className="size-3.5" />
-        Add field
+        {t("tool.curl.addField")}
       </Button>
     </div>
   );

@@ -126,7 +126,7 @@ export default function JsonTool() {
       const out = formatJson(input, indent);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Formatted");
+      toast.success(t("action.formatted"));
     } catch (e) {
       toast.error(t("json.invalidJson"), { description: (e as Error).message });
     }
@@ -137,7 +137,7 @@ export default function JsonTool() {
       const out = minifyJson(input);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Minified");
+      toast.success(t("action.minified"));
     } catch (e) {
       toast.error(t("json.invalidJson"), { description: (e as Error).message });
     }
@@ -148,7 +148,7 @@ export default function JsonTool() {
       const out = sortJson(input, indent);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Sorted keys");
+      toast.success(t("action.sorted"));
     } catch (e) {
       toast.error(t("json.invalidJson"), { description: (e as Error).message });
     }
@@ -159,9 +159,9 @@ export default function JsonTool() {
       const out = repairJson(input, indent);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Repaired JSON");
+      toast.success(t("action.repaired"));
     } catch (e) {
-      toast.error("Could not repair", { description: (e as Error).message });
+      toast.error(t("action.couldNotRepair"), { description: (e as Error).message });
     }
   };
 
@@ -363,6 +363,7 @@ function PaneHeader({ label, right }: { label: string; right?: React.ReactNode }
 }
 
 function CopyButton({ text }: { text: string }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   if (!text) return null;
   return (
@@ -377,7 +378,7 @@ function CopyButton({ text }: { text: string }) {
       className="h-7 text-xs"
     >
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {copied ? "Copied" : "Copy"}
+      {copied ? t("copy.copied") : t("action.copy")}
     </Button>
   );
 }
@@ -400,6 +401,7 @@ function ValidationBadge({ ok, count, hasInput }: { ok: boolean; count: number; 
 }
 
 function IndentSelector({ value, onChange }: { value: Indent; onChange: (i: Indent) => void }) {
+  const { t } = useI18n();
   const opts: Array<{ v: Indent; label: string }> = [
     { v: 2, label: "2" },
     { v: 4, label: "4" },
@@ -407,7 +409,7 @@ function IndentSelector({ value, onChange }: { value: Indent; onChange: (i: Inde
   ];
   return (
     <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-0.5 text-xs">
-      <span className="px-1.5 text-[var(--muted-foreground)]">Indent</span>
+      <span className="px-1.5 text-[var(--muted-foreground)]">{t("label.indent")}</span>
       {opts.map((o) => (
         <button
           key={String(o.v)}
@@ -439,10 +441,11 @@ function ConvertSelector({
   setTo: (f: Format) => void;
   onSwap: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-1 text-xs">
       <FormatSelect value={from} onChange={setFrom} />
-      <Button variant="ghost" size="icon" className="size-7" onClick={onSwap} title="Swap">
+      <Button variant="ghost" size="icon" className="size-7" onClick={onSwap} title={t("action.swap")}>
         <ArrowRightLeft className="size-3.5" />
       </Button>
       <FormatSelect value={to} onChange={setTo} />
@@ -616,13 +619,13 @@ function FormatHeaderActions({
       <Button onClick={onFormat} disabled={!input} size="icon" className="size-7" title={t("json.output.format")}>
         <Wand2 className="size-3.5" />
       </Button>
-      <Button onClick={onMinify} disabled={!input} variant="secondary" size="icon" className="size-7" title="Minify">
+      <Button onClick={onMinify} disabled={!input} variant="secondary" size="icon" className="size-7" title={t("action.minify")}>
         <Minimize2 className="size-3.5" />
       </Button>
-      <Button onClick={onRepair} disabled={!input} variant="secondary" size="icon" className="size-7" title="Repair JSON">
+      <Button onClick={onRepair} disabled={!input} variant="secondary" size="icon" className="size-7" title={t("action.repair")}>
         <Wrench className="size-3.5" />
       </Button>
-      <Button onClick={onSort} disabled={!input} variant="secondary" size="icon" className="size-7" title="Sort keys">
+      <Button onClick={onSort} disabled={!input} variant="secondary" size="icon" className="size-7" title={t("action.sortKeys")}>
         <SortAsc className="size-3.5" />
       </Button>
       <Button

@@ -4,6 +4,7 @@ import { Eraser, KeyRound } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
+import { useI18n } from "@/i18n";
 
 interface Decoded {
   header: Record<string, unknown>;
@@ -11,11 +12,11 @@ interface Decoded {
   signature: string;
 }
 
-function decode(token: string): Decoded {
+function decode(token: string, t: (key: string) => string): Decoded {
   const trimmed = token.trim();
-  if (!trimmed) throw new Error("Empty token");
+  if (!trimmed) throw new Error(t("tool.jwt.emptyToken"));
   const parts = trimmed.split(".");
-  if (parts.length !== 3) throw new Error("JWT must have 3 parts separated by '.'");
+  if (parts.length !== 3) throw new Error(t("tool.jwt.partsError"));
   const header = decodeProtectedHeader(trimmed) as Record<string, unknown>;
   const payload = decodeJwt(trimmed) as Record<string, unknown>;
   return { header, payload, signature: parts[2] };
@@ -25,16 +26,17 @@ const SAMPLE =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
 export default function JwtTool() {
+  const { t } = useI18n();
   const [token, setToken] = useState("");
 
   const decoded = useMemo(() => {
     if (!token.trim()) return null;
     try {
-      return { ok: true as const, value: decode(token) };
+      return { ok: true as const, value: decode(token, t) };
     } catch (e) {
       return { ok: false as const, error: (e as Error).message };
     }
-  }, [token]);
+  }, [token, t]);
 
   return (
     <div className="flex h-full flex-col">
@@ -42,32 +44,32 @@ export default function JwtTool() {
         <div className="flex items-center gap-2 text-sm">
           <KeyRound className="size-4 text-[var(--muted-foreground)]" />
           <span className="font-medium">JWT Decoder</span>
-          <span className="text-xs text-[var(--muted-foreground)]">— decode only, no verification</span>
+          <span className="text-xs text-[var(--muted-foreground)]">{t("tool.jwt.subtitle")}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setToken(SAMPLE)} disabled={!!token}>
-            Example
+            {t("json.example")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setToken("")} disabled={!token}>
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
 
       <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-[1fr_1.2fr]">
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
-          <PaneHeader label="Token" />
+          <PaneHeader label={t("tool.jwt.token")} />
           <textarea
             value={token}
             onChange={(e) => setToken(e.target.value)}
-            placeholder="Paste JWT token..."
+            placeholder={t("tool.jwt.placeholder")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-xs focus:outline-none"
             spellCheck={false}
           />
         </div>
 
         <div className="flex flex-col overflow-y-auto">
-          {!decoded && <Empty>Paste a JWT to inspect its contents.</Empty>}
+          {!decoded && <Empty>{t("tool.jwt.empty")}</Empty>}
           {decoded?.ok === false && (
             <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
               {decoded.error}
@@ -76,18 +78,18 @@ export default function JwtTool() {
           {decoded?.ok && (
             <div className="flex flex-col gap-3 p-3">
               <Section
-                title="Header"
+                title={t("tool.jwt.header")}
                 color="text-fuchsia-400"
                 value={JSON.stringify(decoded.value.header, null, 2)}
               />
               <Section
-                title="Payload"
+                title={t("tool.jwt.payload")}
                 color="text-emerald-400"
                 value={JSON.stringify(decoded.value.payload, null, 2)}
                 extras={<Claims claims={decoded.value.payload} />}
               />
               <Section
-                title="Signature"
+                title={t("tool.jwt.signature")}
                 color="text-sky-400"
                 value={decoded.value.signature}
                 mono

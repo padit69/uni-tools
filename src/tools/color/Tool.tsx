@@ -6,6 +6,7 @@ import { Copy, Eraser, Palette, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 extend([namesPlugin, a11yPlugin]);
 
@@ -38,6 +39,7 @@ const GRADIENT_PRESETS = [
 type GradientType = "linear" | "radial" | "conic";
 
 export default function ColorTool() {
+  const { t } = useI18n();
   const [input, setInput] = useState("#fb923c");
   const [gradientType, setGradientType] = useState<GradientType>("linear");
   const [angle, setAngle] = useState(90);
@@ -74,10 +76,10 @@ export default function ColorTool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <Palette className="size-4 text-[var(--muted-foreground)]" />
-          <span className="font-medium">Color Converter</span>
+          <span className="font-medium">Color</span>
         </div>
         <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-          <Eraser className="size-3.5" /> Clear
+          <Eraser className="size-3.5" /> {t("action.clear")}
         </Button>
       </div>
 
@@ -86,7 +88,7 @@ export default function ColorTool() {
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="#fb923c · rgb(...) · hsl(...) · 'tomato'"
+            placeholder={t("tool.color.placeholder")}
             className="h-10 flex-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             spellCheck={false}
           />
@@ -99,7 +101,7 @@ export default function ColorTool() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[var(--muted-foreground)]">Presets:</span>
+          <span className="text-xs text-[var(--muted-foreground)]">{t("tool.color.presets")}</span>
           {PRESETS.map((p) => (
             <button
               key={p}
@@ -113,7 +115,7 @@ export default function ColorTool() {
 
         {!parsed && input.trim() && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
-            "{input}" is not a valid color.
+            "{input}" {t("error.invalidColor")}
           </div>
         )}
 
@@ -131,7 +133,7 @@ export default function ColorTool() {
               <span
                 className={`text-xs ${parsed.isLight ? "text-zinc-700" : "text-white/70"}`}
               >
-                luminance {parsed.luminance}
+                {t("tool.color.luminance")} {parsed.luminance}
               </span>
             </div>
 
@@ -141,16 +143,16 @@ export default function ColorTool() {
               {parsed.rgba && <Row label="RGBA" value={parsed.rgba} />}
               <Row label="HSL" value={parsed.hsl} />
               <Row label="HSV" value={parsed.hsv} />
-              {parsed.name && <Row label="Closest name" value={parsed.name} />}
+              {parsed.name && <Row label={t("tool.color.closestName")} value={parsed.name} />}
             </div>
           </>
         )}
 
         <div className="border-t border-[var(--border)] pt-4">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <div className="text-sm font-medium">Gradient</div>
+            <div className="text-sm font-medium">{t("tool.color.gradient")}</div>
             <div className="flex items-center gap-1">
-              <Button variant="secondary" size="icon" className="size-8" onClick={randomGradient} title="Random gradient">
+              <Button variant="secondary" size="icon" className="size-8" onClick={randomGradient} title={t("tool.color.randomGradient")}>
                 <Shuffle className="size-3.5" />
               </Button>
               <Button
@@ -158,7 +160,7 @@ export default function ColorTool() {
                 size="icon"
                 className="size-8"
                 onClick={() => navigator.clipboard.writeText(`background: ${gradientCss};`)}
-                title="Copy CSS"
+                title={t("tool.color.copyCss")}
               >
                 <Copy className="size-3.5" />
               </Button>
@@ -188,7 +190,7 @@ export default function ColorTool() {
 
               {gradientType !== "radial" && (
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-medium">Angle</span>
+                  <span className="text-xs font-medium">{t("tool.color.angle")}</span>
                   <input type="range" min={0} max={360} value={angle} onChange={(e) => setAngle(Number(e.target.value))} className="accent-[var(--primary)]" />
                   <span className="self-end text-xs text-[var(--muted-foreground)]">{angle}deg</span>
                 </label>
@@ -204,7 +206,7 @@ export default function ColorTool() {
                       onClick={() => setStops((current) => current.filter((_, i) => i !== index))}
                       disabled={stops.length <= 2}
                       className="h-8 rounded-md border border-[var(--border)] text-xs disabled:opacity-40"
-                      title="Remove stop"
+                      title={t("tool.color.removeStop")}
                     >
                       -
                     </button>
@@ -213,7 +215,7 @@ export default function ColorTool() {
               </div>
 
               <Button variant="secondary" size="sm" onClick={addStop} disabled={stops.length >= 6}>
-                Add stop
+                {t("tool.color.addStop")}
               </Button>
 
               <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-3 py-2">

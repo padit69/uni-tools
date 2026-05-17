@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 type Mode = "encode" | "decode";
 type Strategy = "component" | "uri";
@@ -17,6 +18,7 @@ function transform(input: string, mode: Mode, strategy: Strategy): string {
 }
 
 export default function UrlTool() {
+  const { t } = useI18n();
   const [mode, setMode] = useState<Mode>("encode");
   const [strategy, setStrategy] = useState<Strategy>("component");
   const [input, setInput] = useState("");
@@ -42,8 +44,8 @@ export default function UrlTool() {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
           <TabsList>
-            <TabsTrigger value="encode">Encode</TabsTrigger>
-            <TabsTrigger value="decode">Decode</TabsTrigger>
+            <TabsTrigger value="encode">{t("action.encode")}</TabsTrigger>
+            <TabsTrigger value="decode">{t("action.decode")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="flex items-center gap-2">
@@ -60,8 +62,8 @@ export default function UrlTool() {
                 )}
                 title={
                   s === "component"
-                    ? "encodeURIComponent — encodes : / ? & = etc"
-                    : "encodeURI — keeps URL special characters"
+                    ? t("tool.url.componentTitle")
+                    : t("tool.url.uriTitle")
                 }
               >
                 {s === "component" ? "Component" : "URI"}
@@ -69,28 +71,28 @@ export default function UrlTool() {
             ))}
           </div>
           <Button variant="ghost" size="sm" onClick={swap} disabled={!result.ok || !result.output}>
-            <ArrowRightLeft className="size-3.5" /> Swap
+            <ArrowRightLeft className="size-3.5" /> {t("action.swap")}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
 
       <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
-          <PaneHeader label={mode === "encode" ? "Plain" : "Encoded"} />
+          <PaneHeader label={mode === "encode" ? t("label.plain") : t("label.encoded")} />
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "encode" ? "https://example.com/?q=hello world" : "https%3A%2F%2Fexample.com..."}
+            placeholder={mode === "encode" ? t("tool.url.placeholder.encode") : t("tool.url.placeholder.decode")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
         </div>
         <div className="flex flex-col overflow-hidden">
           <PaneHeader
-            label={result.ok ? (mode === "encode" ? "Encoded" : "Plain") : "Error"}
+            label={result.ok ? (mode === "encode" ? t("label.encoded") : t("label.plain")) : t("label.error")}
             right={result.ok ? <CopyButton text={result.output} /> : null}
           />
           {result.ok ? (

@@ -4,6 +4,7 @@ import DOMPurify from "dompurify";
 import { Eraser, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
+import { useI18n } from "@/i18n";
 
 const SAMPLE = `# Uni Tool
 
@@ -29,6 +30,7 @@ console.log(greet("uni-tool"));
 `;
 
 export default function MarkdownTool() {
+  const { t } = useI18n();
   const [input, setInput] = useState(SAMPLE);
   const [html, setHtml] = useState("");
 
@@ -43,13 +45,13 @@ export default function MarkdownTool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <FileText className="size-4 text-[var(--muted-foreground)]" />
-          <span className="font-medium">Markdown Preview</span>
+          <span className="font-medium">Markdown</span>
           <span className="text-xs text-[var(--muted-foreground)]">— marked + DOMPurify</span>
         </div>
         <div className="flex items-center gap-2">
-          <CopyButton text={html} label="Copy HTML" />
+          <CopyButton text={html} label={t("tool.markdown.copyHtml")} />
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Clear
+            <Eraser className="size-3.5" /> {t("action.clear")}
           </Button>
         </div>
       </div>
@@ -64,7 +66,7 @@ export default function MarkdownTool() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="# Heading..."
+            placeholder={t("tool.markdown.placeholder")}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
@@ -73,7 +75,7 @@ export default function MarkdownTool() {
         <div className="flex flex-col overflow-hidden">
           <div className="flex h-9 shrink-0 items-center border-b border-[var(--border)] px-3">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
-              Preview
+              {t("label.preview")}
             </span>
           </div>
           <div
