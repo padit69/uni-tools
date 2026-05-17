@@ -16,11 +16,11 @@ export default function Home() {
 
   const mailto = useMemo(() => {
     const body = [`Name: ${name || "-"}`, `Contact: ${contact || "-"}`, "", "Feedback / tool request:", idea].join("\n");
-    return `mailto:hello@aiex.site?subject=${encodeURIComponent("Uni Tool feedback")}&body=${encodeURIComponent(body)}`;
+    return `mailto:hello@tools.hihi.team?subject=${encodeURIComponent("Uni Tools feedback")}&body=${encodeURIComponent(body)}`;
   }, [name, contact, idea]);
 
   const copyRequest = async () => {
-    const text = [`Uni Tool feedback`, `Name: ${name || "-"}`, `Contact: ${contact || "-"}`, "", idea].join("\n");
+    const text = [`Uni Tools feedback`, `Name: ${name || "-"}`, `Contact: ${contact || "-"}`, "", idea].join("\n");
     await navigator.clipboard.writeText(text);
     toast.success(t("feedback.copied"));
   };
@@ -33,7 +33,7 @@ export default function Home() {
           <span>{t("app.tagline")}</span>
         </div>
         <h1 className="bg-gradient-to-br from-orange-400 via-fuchsia-500 to-indigo-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-6xl">
-          uni · tool
+          uni · tools
         </h1>
         <p className="mt-3 max-w-xl text-balance text-sm text-[var(--muted-foreground)] md:text-base">
           {t("app.description")}

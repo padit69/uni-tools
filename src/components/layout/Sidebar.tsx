@@ -86,8 +86,8 @@ export function Sidebar() {
           <Sparkles className="size-4" />
         </div>
         <div className="flex flex-col leading-none">
-          <span className="text-sm font-semibold tracking-tight">uni · tool</span>
-          <span className="text-[10px] text-[var(--muted-foreground)]">dev toolbox</span>
+          <span className="text-sm font-semibold tracking-tight">uni · tools</span>
+          <span className="text-[10px] text-[var(--muted-foreground)]">tools.hihi.team</span>
         </div>
       </NavLink>
 

@@ -25,7 +25,7 @@ type ECC = "L" | "M" | "Q" | "H";
 type Mode = "text" | "url" | "email" | "phone" | "sms" | "wifi";
 type Generator = "qr" | "barcode";
 
-const SAMPLE = "https://uni-tool.dev";
+const SAMPLE = "https://tools.hihi.team";
 const MODES: Array<{ value: Mode; label: string; icon: React.ReactNode }> = [
   { value: "text", label: "Text", icon: <Type className="size-3.5" /> },
   { value: "url", label: "URL", icon: <QrCode className="size-3.5" /> },
@@ -48,10 +48,10 @@ export default function QrTool() {
   const [generator, setGenerator] = useLocalStorage<Generator>("qr-generator", "qr");
   const [mode, setMode] = useLocalStorage<Mode>("qr-mode", "url");
   const [text, setText] = useLocalStorage("qr-text", SAMPLE);
-  const [email, setEmail] = useState("hello@uni-tool.dev");
+  const [email, setEmail] = useState("hello@tools.hihi.team");
   const [subject, setSubject] = useState("Hello");
   const [phone, setPhone] = useState("+84901234567");
-  const [sms, setSms] = useState("Hello from uni-tool");
+  const [sms, setSms] = useState("Hello from uni-tools");
   const [ssid, setSsid] = useState("My WiFi");
   const [password, setPassword] = useState("password123");
   const [wifiType, setWifiType] = useState<"WPA" | "WEP" | "nopass">("WPA");

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { useI18n } from "@/i18n";
 
-const SAMPLE = `# Uni Tool
+const SAMPLE = `# Uni Tools
 
 A versatile developer toolbox, **runs 100% in your browser**.
 
@@ -21,7 +21,7 @@ A versatile developer toolbox, **runs 100% in your browser**.
 
 \`\`\`ts
 const greet = (name: string) => \`Hello, \${name}!\`;
-console.log(greet("uni-tool"));
+console.log(greet("uni-tools"));
 \`\`\`
 
 > Privacy first — no backend, no tracking.
