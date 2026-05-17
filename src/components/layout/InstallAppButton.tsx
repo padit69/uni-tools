@@ -34,23 +34,47 @@ function isIos() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
+function readStorageFlag(key: string) {
+  try {
+    return localStorage.getItem(key) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeStorageFlag(key: string) {
+  try {
+    localStorage.setItem(key, "1");
+  } catch {
+    // Ignore storage failures; in-memory state still hides the prompt for this session.
+  }
+}
+
+function removeStorageFlag(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
 export function InstallAppProvider({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const [promptEvent, setPromptEvent] = useState<InstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [installed, setInstalled] = useState(() => isStandalone() || readStorageFlag(INSTALLED_KEY));
+  const [dismissed, setDismissed] = useState(() => readStorageFlag(DISMISSED_KEY));
   const canShowIosHint = useMemo(() => isIos() && !isStandalone(), []);
 
   useEffect(() => {
-    setInstalled(isStandalone() || localStorage.getItem(INSTALLED_KEY) === "1");
-    setDismissed(localStorage.getItem(DISMISSED_KEY) === "1");
+    setInstalled(isStandalone() || readStorageFlag(INSTALLED_KEY));
+    setDismissed(readStorageFlag(DISMISSED_KEY));
 
     const handleBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setPromptEvent(event as InstallPromptEvent);
     };
     const handleInstalled = () => {
-      localStorage.setItem(INSTALLED_KEY, "1");
+      writeStorageFlag(INSTALLED_KEY);
       setInstalled(true);
       setPromptEvent(null);
       toast.success(t("install.installed"));
@@ -73,19 +97,19 @@ export function InstallAppProvider({ children }: { children: ReactNode }) {
     await promptEvent.prompt();
     const choice = await promptEvent.userChoice;
     if (choice.outcome === "accepted") {
-      localStorage.setItem(INSTALLED_KEY, "1");
+      writeStorageFlag(INSTALLED_KEY);
       setInstalled(true);
     }
     setPromptEvent(null);
   };
 
   const dismiss = () => {
-    localStorage.setItem(DISMISSED_KEY, "1");
+    writeStorageFlag(DISMISSED_KEY);
     setDismissed(true);
   };
 
   const restore = () => {
-    localStorage.removeItem(DISMISSED_KEY);
+    removeStorageFlag(DISMISSED_KEY);
     setDismissed(false);
   };
 
@@ -115,7 +139,13 @@ export function useInstallApp() {
 export function InstallAppButton() {
   const { t } = useI18n();
   const installApp = useInstallApp();
-  const visible = !installApp.installed && !installApp.dismissed && (installApp.canInstall || installApp.canShowIosHint);
+  const [delayElapsed, setDelayElapsed] = useState(false);
+  const visible = delayElapsed && !installApp.installed && !installApp.dismissed && (installApp.canInstall || installApp.canShowIosHint);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDelayElapsed(true), 10_000);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   if (!visible) return null;
 
@@ -126,8 +156,18 @@ export function InstallAppButton() {
         <div className="pointer-events-none absolute -bottom-10 left-8 size-28 rounded-full bg-orange-400/25 blur-2xl" />
         <button
           type="button"
-          onClick={installApp.dismiss}
-          className="absolute right-2 top-2 grid size-7 place-items-center rounded-full text-[var(--muted-foreground)] transition hover:bg-white/10 hover:text-[var(--foreground)]"
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            installApp.dismiss();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            installApp.dismiss();
+          }}
+          className="absolute right-2 top-2 z-20 grid size-7 place-items-center rounded-full text-[var(--muted-foreground)] transition hover:bg-red-500/15 hover:text-red-400 focus-visible:bg-red-500/15 focus-visible:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400/40"
+          aria-label={t("install.dismiss")}
           title={t("install.dismiss")}
         >
           <X className="size-3.5" />
@@ -149,7 +189,6 @@ export function InstallAppButton() {
         <div className="relative mt-3 flex flex-wrap items-center justify-between gap-2">
           <Link
             to="/info"
-            onClick={installApp.restore}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2 text-xs text-[var(--muted-foreground)] transition hover:bg-white/10 hover:text-[var(--foreground)]"
           >
             <Info className="size-3.5" />

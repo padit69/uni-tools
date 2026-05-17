@@ -52,11 +52,6 @@ export function TopBar() {
           </kbd>
         </Button>
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="icon" asChild aria-label={t("nav.info")} title={t("nav.info")}>
-            <Link to="/info">
-              <Info className="size-4" />
-            </Link>
-          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -73,6 +68,11 @@ export function TopBar() {
             </a>
           </Button>
           <ThemeToggle />
+          <Button variant="ghost" size="icon" asChild aria-label={t("nav.info")} title={t("nav.info")}>
+            <Link to="/info">
+              <Info className="size-4" />
+            </Link>
+          </Button>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
