@@ -191,6 +191,35 @@ body {
   .mesh-bg-extra { animation: none; }
 }
 
+@keyframes install-float-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes install-pulse {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    box-shadow: 0 16px 36px -18px rgb(217 70 239 / 0.9);
+  }
+  50% {
+    transform: translateY(-2px) rotate(-3deg);
+    box-shadow: 0 22px 42px -16px rgb(251 146 60 / 0.9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="install-float-in"],
+  [class*="install-pulse"] {
+    animation: none !important;
+  }
+}
+
 /* ============================================================
    Glass surface utilities
    ============================================================ */

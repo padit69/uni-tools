@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Command } from "cmdk";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Info, Search } from "lucide-react";
 import { useCommandPalette, useCommandPaletteHotkey } from "./useCommandPalette";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import { tools } from "@/tools/registry";
@@ -27,6 +27,11 @@ export function CommandPalette() {
     navigate(`/tools/${slug}`);
   };
 
+  const onPageSelect = (path: string) => {
+    close();
+    navigate(path);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent className="overflow-hidden p-0">
@@ -48,6 +53,26 @@ export function CommandPalette() {
             <Command.Empty className="px-3 py-8 text-center text-sm text-[var(--muted-foreground)]">
               {t("search.empty")}
             </Command.Empty>
+
+            <Command.Group
+              heading={t("command.pages")}
+              className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-[var(--muted-foreground)]"
+            >
+              <Command.Item
+                value={`${t("nav.info")} tools.hihi.team pwa policy terms save app`}
+                onSelect={() => onPageSelect("/info")}
+                className="group flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm aria-selected:bg-[var(--muted)]"
+              >
+                <div className="grid size-7 place-items-center rounded-md bg-[var(--muted)]">
+                  <Info className="size-3.5" />
+                </div>
+                <div className="flex flex-1 flex-col">
+                  <span className="font-medium">{t("nav.info")}</span>
+                  <span className="line-clamp-1 text-xs text-[var(--muted-foreground)]">{t("info.subtitle")}</span>
+                </div>
+                <ArrowRight className="size-3.5 opacity-0 group-aria-selected:opacity-60" />
+              </Command.Item>
+            </Command.Group>
 
             {grouped.map((g) => (
               <Command.Group

@@ -14,3 +14,11 @@ createRoot(document.getElementById("root")!).render(
     </ThemeProvider>
   </StrictMode>
 );
+
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // App still works without offline/install support.
+    });
+  });
+}

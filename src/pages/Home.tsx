@@ -99,6 +99,17 @@ export default function Home() {
         </button>
       </div>
 
+      <footer className="mx-auto mt-auto flex w-full max-w-4xl flex-col gap-2 pt-8 text-[11px] text-[var(--muted-foreground)] sm:flex-row sm:items-center sm:justify-between">
+        <nav className="flex items-center gap-2">
+          <Link to="/info" className="transition hover:text-[var(--foreground)]">{t("nav.info")}</Link>
+          <span>/</span>
+          <Link to="/policy" className="transition hover:text-[var(--foreground)]">{t("nav.policy")}</Link>
+          <span>/</span>
+          <Link to="/terms" className="transition hover:text-[var(--foreground)]">{t("nav.terms")}</Link>
+        </nav>
+        <p>{t("footer.copyright")}</p>
+      </footer>
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-5">
           <DialogTitle className="text-lg font-semibold">{t("feedback.title")}</DialogTitle>
