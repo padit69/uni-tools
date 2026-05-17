@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { getToolBySlug } from "@/tools/registry";
 import NotFound from "@/pages/NotFound";
+import { ChunkErrorBoundary } from "./ChunkErrorBoundary";
 
 function ToolLoading() {
   return (
@@ -18,8 +19,10 @@ export function ToolHost() {
   if (!tool) return <NotFound />;
   const Component = tool.Component;
   return (
-    <Suspense fallback={<ToolLoading />}>
-      <Component />
-    </Suspense>
+    <ChunkErrorBoundary key={slug}>
+      <Suspense fallback={<ToolLoading />}>
+        <Component />
+      </Suspense>
+    </ChunkErrorBoundary>
   );
 }

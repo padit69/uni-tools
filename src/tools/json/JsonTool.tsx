@@ -5,22 +5,25 @@ import {
   Eraser,
   FileCode,
   FileWarning,
+  Info,
   Minimize2,
+  Search,
+  SortAsc,
   Wand2,
   ArrowRightLeft,
-  Columns2,
-  Square,
+  Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
 import { JsonEditor } from "./JsonEditor";
 import { TreeView } from "./TreeView";
-import { formatJson, minifyJson, type Indent } from "./format";
+import { formatJson, minifyJson, sortJson, type Indent } from "./format";
 import { validateJson } from "./validate";
 import { convert, type Format } from "./convert";
+import { repairJson } from "./repair";
+import { analyzeJson, queryJson } from "./query";
 import { useToolHistory } from "@/hooks/useToolHistory";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
 
 const SAMPLE = `{
@@ -43,11 +46,14 @@ export default function JsonTool() {
   const [indent, setIndent] = useState<Indent>(2);
   const [from, setFrom] = useState<Format>("json");
   const [to, setTo] = useState<Format>("yaml");
-  const [splitView, setSplitView] = useLocalStorage<boolean>("json-format-split", true);
+  const [queryPath, setQueryPath] = useState("$.tools[*].id");
+  const [updateInputOnAction, setUpdateInputOnAction] = useState(false);
+  const [showQuery, setShowQuery] = useState(false);
+  const [showStats, setShowStats] = useState(false);
 
   const history = useToolHistory("json");
 
-  const showOutputPane = tab !== "format" || splitView;
+  const showOutputPane = true;
 
   const validation = useMemo(() => validateJson(input), [input]);
 
@@ -69,14 +75,36 @@ export default function JsonTool() {
     }
   }, [tab, input, from, to]);
 
+  const queryResult = useMemo(() => {
+    if (tab !== "format" || !showQuery || !input.trim() || !queryPath.trim()) return null;
+    try {
+      return { ok: true as const, output: queryJson(input, queryPath) };
+    } catch (e) {
+      return { ok: false as const, error: (e as Error).message };
+    }
+  }, [tab, showQuery, input, queryPath]);
+
+  const stats = useMemo(() => {
+    if (tab !== "format" || !input.trim()) return null;
+    try {
+      return { ok: true as const, data: analyzeJson(input) };
+    } catch (e) {
+      return { ok: false as const, error: (e as Error).message };
+    }
+  }, [tab, input]);
+
   /* ---------- Actions ---------- */
+
+  const applyActionOutput = (value: string) => {
+    setOutput(value);
+    if (updateInputOnAction) setInput(value);
+  };
 
   const handleFormat = () => {
     try {
       const out = formatJson(input, indent);
       history.push(input);
-      if (splitView) setOutput(out);
-      else setInput(out);
+      applyActionOutput(out);
       toast.success("Đã format");
     } catch (e) {
       toast.error("JSON không hợp lệ", { description: (e as Error).message });
@@ -87,11 +115,32 @@ export default function JsonTool() {
     try {
       const out = minifyJson(input);
       history.push(input);
-      if (splitView) setOutput(out);
-      else setInput(out);
+      applyActionOutput(out);
       toast.success("Đã minify");
     } catch (e) {
       toast.error("JSON không hợp lệ", { description: (e as Error).message });
+    }
+  };
+
+  const handleSort = () => {
+    try {
+      const out = sortJson(input, indent);
+      history.push(input);
+      applyActionOutput(out);
+      toast.success("Đã sort key");
+    } catch (e) {
+      toast.error("JSON không hợp lệ", { description: (e as Error).message });
+    }
+  };
+
+  const handleRepair = () => {
+    try {
+      const out = repairJson(input, indent);
+      history.push(input);
+      applyActionOutput(out);
+      toast.success("Đã repair JSON");
+    } catch (e) {
+      toast.error("Không repair được", { description: (e as Error).message });
     }
   };
 
@@ -137,12 +186,7 @@ export default function JsonTool() {
           </TabsList>
 
           <div className="flex items-center gap-2">
-            {tab === "format" && (
-              <>
-                <IndentSelector value={indent} onChange={setIndent} />
-                <LayoutToggle splitView={splitView} onToggle={() => setSplitView(!splitView)} />
-              </>
-            )}
+            {tab === "format" && <IndentSelector value={indent} onChange={setIndent} />}
             {tab === "convert" && (
               <ConvertSelector from={from} to={to} setFrom={setFrom} setTo={setTo} onSwap={handleSwap} />
             )}
@@ -176,24 +220,11 @@ export default function JsonTool() {
             )}
           >
             <PaneHeader
-              label={tab === "format" && !splitView ? "Editor" : "Input"}
+              label="Input"
               right={
                 <ValidationBadge ok={validation.ok} count={validation.errors.length} hasInput={!!input} />
               }
             />
-            {tab === "format" && !splitView && (
-              <div className="flex shrink-0 items-center gap-2 px-3 pt-2 pb-2">
-                <Button onClick={handleFormat} disabled={!input} className="flex-1">
-                  <Wand2 className="size-3.5" />
-                  Format
-                </Button>
-                <Button onClick={handleMinify} disabled={!input} variant="secondary" className="flex-1">
-                  <Minimize2 className="size-3.5" />
-                  Minify
-                </Button>
-                <CopyButton text={input} />
-              </div>
-            )}
             <div className="min-h-0 flex-1 overflow-auto">
               <JsonEditor
                 value={input}
@@ -212,22 +243,33 @@ export default function JsonTool() {
           <div className="flex flex-col overflow-hidden">
             <TabsContent value="format" className="m-0 flex h-full flex-col">
               <PaneHeader
-                label="Output"
-                right={<CopyButton text={output} />}
+                label="Format"
+                right={
+                  <FormatHeaderActions
+                    input={input}
+                    showQuery={showQuery}
+                    setShowQuery={setShowQuery}
+                    showStats={showStats}
+                    setShowStats={setShowStats}
+                    updateInputOnAction={updateInputOnAction}
+                    setUpdateInputOnAction={setUpdateInputOnAction}
+                    onRepair={handleRepair}
+                    onSort={handleSort}
+                    onFormat={handleFormat}
+                    onMinify={handleMinify}
+                  />
+                }
               />
-              <div className="flex shrink-0 items-center gap-2 px-3 pb-2 pt-2">
-                <Button onClick={handleFormat} disabled={!input} className="flex-1">
-                  <Wand2 className="size-3.5" />
-                  Format
-                </Button>
-                <Button onClick={handleMinify} disabled={!input} variant="secondary" className="flex-1">
-                  <Minimize2 className="size-3.5" />
-                  Minify
-                </Button>
-              </div>
-              <div className="min-h-0 flex-1 overflow-auto">
-                <JsonEditor value={output} readOnly lang="json" height="100%" style={{ height: "100%" }} />
-              </div>
+              <ToolsPane
+                input={input}
+                output={output}
+                queryPath={queryPath}
+                setQueryPath={setQueryPath}
+                queryResult={queryResult}
+                stats={stats}
+                showQuery={showQuery}
+                showStats={showStats}
+              />
             </TabsContent>
 
             <TabsContent value="validate" className="m-0 flex h-full flex-col">
@@ -301,21 +343,6 @@ function ValidationBadge({ ok, count, hasInput }: { ok: boolean; count: number; 
     <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-medium text-red-400">
       {count} lỗi
     </span>
-  );
-}
-
-function LayoutToggle({ splitView, onToggle }: { splitView: boolean; onToggle: () => void }) {
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={onToggle}
-      title={splitView ? "Gộp 1 cột (format in-place)" : "Chia 2 cột Input / Output"}
-      className="h-7 px-2 text-xs"
-    >
-      {splitView ? <Columns2 className="size-3.5" /> : <Square className="size-3.5" />}
-      <span className="hidden sm:inline">{splitView ? "2 cột" : "1 cột"}</span>
-    </Button>
   );
 }
 
@@ -473,6 +500,176 @@ function ConvertPane({
   return (
     <div className="min-h-0 flex-1 overflow-auto">
       <JsonEditor value={result.output} readOnly lang={toLang} height="100%" style={{ height: "100%" }} />
+    </div>
+  );
+}
+
+function FormatHeaderActions({
+  input,
+  showQuery,
+  setShowQuery,
+  showStats,
+  setShowStats,
+  updateInputOnAction,
+  setUpdateInputOnAction,
+  onRepair,
+  onSort,
+  onFormat,
+  onMinify,
+}: {
+  input: string;
+  showQuery: boolean;
+  setShowQuery: (value: boolean) => void;
+  showStats: boolean;
+  setShowStats: (value: boolean) => void;
+  updateInputOnAction: boolean;
+  setUpdateInputOnAction: (value: boolean) => void;
+  onRepair: () => void;
+  onSort: () => void;
+  onFormat: () => void;
+  onMinify: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <label
+        className="mr-1 flex h-7 shrink-0 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/25 px-2 text-xs text-[var(--muted-foreground)]"
+        title="Ghi kết quả action vào input"
+      >
+        <input
+          type="checkbox"
+          checked={updateInputOnAction}
+          onChange={(e) => setUpdateInputOnAction(e.target.checked)}
+          className="size-3 accent-[var(--primary)]"
+        />
+        <span className="hidden sm:inline">Update input</span>
+      </label>
+      <Button onClick={onFormat} disabled={!input} size="icon" className="size-7" title="Format">
+        <Wand2 className="size-3.5" />
+      </Button>
+      <Button onClick={onMinify} disabled={!input} variant="secondary" size="icon" className="size-7" title="Minify">
+        <Minimize2 className="size-3.5" />
+      </Button>
+      <Button onClick={onRepair} disabled={!input} variant="secondary" size="icon" className="size-7" title="Repair JSON">
+        <Wrench className="size-3.5" />
+      </Button>
+      <Button onClick={onSort} disabled={!input} variant="secondary" size="icon" className="size-7" title="Sort keys">
+        <SortAsc className="size-3.5" />
+      </Button>
+      <Button
+        onClick={() => setShowStats(!showStats)}
+        variant={showStats ? "default" : "secondary"}
+        size="icon"
+        className="size-7"
+        title={showStats ? "Ẩn thống kê" : "Hiện thống kê"}
+      >
+        <Info className="size-3.5" />
+      </Button>
+      <Button
+        onClick={() => setShowQuery(!showQuery)}
+        variant={showQuery ? "default" : "secondary"}
+        size="icon"
+        className="size-7"
+        title={showQuery ? "Ẩn query" : "Mở query"}
+      >
+        <Search className="size-3.5" />
+      </Button>
+    </div>
+  );
+}
+
+function ToolsPane({
+  input,
+  output,
+  queryPath,
+  setQueryPath,
+  queryResult,
+  stats,
+  showQuery,
+  showStats,
+}: {
+  input: string;
+  output: string;
+  queryPath: string;
+  setQueryPath: (path: string) => void;
+  queryResult: { ok: true; output: string } | { ok: false; error: string } | null;
+  stats:
+    | { ok: true; data: ReturnType<typeof analyzeJson> }
+    | { ok: false; error: string }
+    | null;
+  showQuery: boolean;
+  showStats: boolean;
+}) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      {showQuery && (
+      <div className="shrink-0 border-b border-[var(--border)] p-3">
+        <div className="flex items-center gap-2">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
+            <input
+              value={queryPath}
+              onChange={(e) => setQueryPath(e.target.value)}
+              placeholder="$.users[*].email"
+              className="h-8 w-full rounded-md border border-[var(--border)] bg-[var(--muted)]/25 pl-7 pr-2 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+              spellCheck={false}
+            />
+          </div>
+        </div>
+      </div>
+      )}
+
+      {showStats && stats?.ok && (
+        <div className="grid shrink-0 grid-cols-4 gap-px border-b border-[var(--border)] bg-[var(--border)] text-xs">
+          <Stat label="Keys" value={stats.data.keys} />
+          <Stat label="Objects" value={stats.data.objects} />
+          <Stat label="Arrays" value={stats.data.arrays} />
+          <Stat label="Depth" value={stats.data.maxDepth} />
+        </div>
+      )}
+      {showStats && stats?.ok === false && (
+        <div className="shrink-0 border-b border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-400">
+          JSON không hợp lệ: {stats.error}
+        </div>
+      )}
+
+      <div className={cn("grid min-h-0 flex-1 overflow-hidden", showQuery ? "grid-rows-2" : "grid-rows-1")}>
+        {showQuery && (
+        <div className="flex min-h-0 flex-col overflow-hidden">
+          <PaneHeader label="Query result" right={queryResult?.ok ? <CopyButton text={queryResult.output} /> : null} />
+          {!input.trim() ? (
+            <EmptyState message="Paste JSON để repair, sort hoặc query." />
+          ) : !queryPath.trim() ? (
+            <EmptyState message="Nhập JSON path, ví dụ $.tools[*].id." />
+          ) : queryResult?.ok ? (
+            <JsonEditor value={queryResult.output} readOnly lang="json" height="100%" style={{ height: "100%" }} />
+          ) : (
+            <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
+              <div className="font-medium text-red-400">Query thất bại</div>
+              <p className="mt-1 text-[var(--foreground)]">
+                {queryResult?.ok === false ? queryResult.error : stats?.ok === false ? stats.error : "Không có kết quả."}
+              </p>
+            </div>
+          )}
+        </div>
+        )}
+        <div className="flex min-h-0 flex-col overflow-hidden border-t border-[var(--border)]">
+          <PaneHeader label="Action output" right={output ? <CopyButton text={output} /> : null} />
+          {output ? (
+            <JsonEditor value={output} readOnly lang="json" height="100%" style={{ height: "100%" }} />
+          ) : (
+            <EmptyState message="Repair, sort, format hoặc minify để tạo output." />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="bg-[var(--card)] px-3 py-2">
+      <div className="font-mono text-sm font-semibold">{value}</div>
+      <div className="text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">{label}</div>
     </div>
   );
 }
