@@ -34,8 +34,8 @@ export default function ConfigTool() {
       <div className="flex justify-between border-b p-3">
         <span className="flex gap-2 text-sm"><Settings2 className="size-4" /><b>ENV / Config</b></span>
         <select value={mode} onChange={(e) => setMode(e.target.value as "env-json" | "json-env")} className="rounded border bg-transparent px-2 text-xs">
-          <option value="env-json">.env -> JSON</option>
-          <option value="json-env">JSON -> .env</option>
+          <option value="env-json">.env → JSON</option>
+          <option value="json-env">JSON → .env</option>
         </select>
       </div>
       <div className="grid flex-1 md:grid-cols-2">
