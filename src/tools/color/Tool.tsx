@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import { colord, extend } from "colord";
 import namesPlugin from "colord/plugins/names";
 import a11yPlugin from "colord/plugins/a11y";
-import { Eraser, Palette } from "lucide-react";
+import { Copy, Eraser, Palette, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
+import { cn } from "@/lib/cn";
 
 extend([namesPlugin, a11yPlugin]);
 
@@ -27,11 +28,46 @@ function format(input: string) {
 }
 
 const PRESETS = ["#fb923c", "#e879f9", "#818cf8", "#10b981", "#0ea5e9", "#f43f5e"];
+const GRADIENT_PRESETS = [
+  ["#0ea5e9", "#10b981"],
+  ["#f43f5e", "#f59e0b"],
+  ["#111827", "#818cf8"],
+  ["#22c55e", "#facc15"],
+  ["#ec4899", "#06b6d4"],
+];
+type GradientType = "linear" | "radial" | "conic";
 
 export default function ColorTool() {
   const [input, setInput] = useState("#fb923c");
+  const [gradientType, setGradientType] = useState<GradientType>("linear");
+  const [angle, setAngle] = useState(90);
+  const [stops, setStops] = useState([
+    { color: "#0ea5e9", pos: 0 },
+    { color: "#10b981", pos: 100 },
+  ]);
 
   const parsed = useMemo(() => format(input), [input]);
+  const gradientCss = useMemo(() => {
+    const sorted = [...stops].sort((a, b) => a.pos - b.pos);
+    const stopText = sorted.map((stop) => `${stop.color} ${stop.pos}%`).join(", ");
+    if (gradientType === "radial") return `radial-gradient(circle, ${stopText})`;
+    if (gradientType === "conic") return `conic-gradient(from ${angle}deg, ${stopText})`;
+    return `linear-gradient(${angle}deg, ${stopText})`;
+  }, [angle, gradientType, stops]);
+
+  const updateStop = (index: number, patch: Partial<{ color: string; pos: number }>) => {
+    setStops((current) => current.map((stop, i) => (i === index ? { ...stop, ...patch } : stop)));
+  };
+
+  const addStop = () => {
+    setStops((current) => [...current, { color: parsed?.hex ?? "#ffffff", pos: 50 }].slice(0, 6));
+  };
+
+  const randomGradient = () => {
+    const preset = GRADIENT_PRESETS[Math.floor(Math.random() * GRADIENT_PRESETS.length)];
+    setStops(preset.map((color, index) => ({ color, pos: index * 100 })));
+    setAngle([45, 90, 135, 180, 225][Math.floor(Math.random() * 5)]);
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -109,6 +145,84 @@ export default function ColorTool() {
             </div>
           </>
         )}
+
+        <div className="border-t border-[var(--border)] pt-4">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="text-sm font-medium">Gradient</div>
+            <div className="flex items-center gap-1">
+              <Button variant="secondary" size="icon" className="size-8" onClick={randomGradient} title="Random gradient">
+                <Shuffle className="size-3.5" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="size-8"
+                onClick={() => navigator.clipboard.writeText(`background: ${gradientCss};`)}
+                title="Copy CSS"
+              >
+                <Copy className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+            <div
+              className="min-h-44 rounded-lg border border-[var(--border)] shadow-lg"
+              style={{ background: gradientCss }}
+            />
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-1 text-xs">
+                {(["linear", "radial", "conic"] as GradientType[]).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setGradientType(type)}
+                    className={cn(
+                      "rounded-md px-2 py-1.5 capitalize",
+                      gradientType === type ? "bg-[var(--card)] shadow-sm" : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    )}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
+              {gradientType !== "radial" && (
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-xs font-medium">Angle</span>
+                  <input type="range" min={0} max={360} value={angle} onChange={(e) => setAngle(Number(e.target.value))} className="accent-[var(--primary)]" />
+                  <span className="self-end text-xs text-[var(--muted-foreground)]">{angle}deg</span>
+                </label>
+              )}
+
+              <div className="space-y-2">
+                {stops.map((stop, index) => (
+                  <div key={index} className="grid grid-cols-[36px_1fr_64px_28px] items-center gap-2">
+                    <input type="color" value={stop.color} onChange={(e) => updateStop(index, { color: e.target.value })} className="h-8 w-9 cursor-pointer rounded-md border border-[var(--border)] bg-transparent" />
+                    <input value={stop.color} onChange={(e) => updateStop(index, { color: e.target.value })} className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 px-2 font-mono text-xs" />
+                    <input type="number" min={0} max={100} value={stop.pos} onChange={(e) => updateStop(index, { pos: Number(e.target.value) })} className="h-8 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 px-2 text-xs" />
+                    <button
+                      onClick={() => setStops((current) => current.filter((_, i) => i !== index))}
+                      disabled={stops.length <= 2}
+                      className="h-8 rounded-md border border-[var(--border)] text-xs disabled:opacity-40"
+                      title="Remove stop"
+                    >
+                      -
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <Button variant="secondary" size="sm" onClick={addStop} disabled={stops.length >= 6}>
+                Add stop
+              </Button>
+
+              <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-3 py-2">
+                <div className="text-[10px] uppercase tracking-widest text-[var(--muted-foreground)]">CSS</div>
+                <div className="mt-1 break-all font-mono text-xs">background: {gradientCss};</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

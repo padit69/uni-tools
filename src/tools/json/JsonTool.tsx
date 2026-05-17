@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
   Copy,
@@ -7,6 +7,7 @@ import {
   FileWarning,
   Info,
   Minimize2,
+  RefreshCw,
   Search,
   SortAsc,
   Wand2,
@@ -24,6 +25,7 @@ import { convert, type Format } from "./convert";
 import { repairJson } from "./repair";
 import { analyzeJson, queryJson } from "./query";
 import { useToolHistory } from "@/hooks/useToolHistory";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
 
 const SAMPLE = `{
@@ -48,8 +50,11 @@ export default function JsonTool() {
   const [to, setTo] = useState<Format>("yaml");
   const [queryPath, setQueryPath] = useState("$.tools[*].id");
   const [updateInputOnAction, setUpdateInputOnAction] = useState(false);
+  const [autoFormat, setAutoFormat] = useState(false);
   const [showQuery, setShowQuery] = useState(false);
   const [showStats, setShowStats] = useState(false);
+  const [inputWidth, setInputWidth] = useLocalStorage("json-pane-input-width", 50);
+  const splitRef = useRef<HTMLDivElement>(null);
 
   const history = useToolHistory("json");
 
@@ -92,6 +97,20 @@ export default function JsonTool() {
       return { ok: false as const, error: (e as Error).message };
     }
   }, [tab, input]);
+
+  useEffect(() => {
+    if (!autoFormat || tab !== "format" || !input.trim()) return;
+    const timer = window.setTimeout(() => {
+      try {
+        const out = formatJson(input, indent);
+        setOutput(out);
+        if (updateInputOnAction && out !== input) setInput(out);
+      } catch {
+        // Ignore partial JSON while the user is still typing.
+      }
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [autoFormat, tab, input, indent, updateInputOnAction]);
 
   /* ---------- Actions ---------- */
 
@@ -147,6 +166,26 @@ export default function JsonTool() {
   const handleClear = () => {
     setInput("");
     setOutput("");
+  };
+
+  const startResize = (event: React.PointerEvent<HTMLDivElement>) => {
+    const container = splitRef.current;
+    if (!container) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const rect = container.getBoundingClientRect();
+      const next = ((moveEvent.clientX - rect.left) / rect.width) * 100;
+      setInputWidth(Math.min(75, Math.max(25, Math.round(next))));
+    };
+
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
   };
 
   const handleSwap = () => {
@@ -207,16 +246,18 @@ export default function JsonTool() {
         </div>
 
         <div
+          ref={splitRef}
           className={cn(
             "grid flex-1 overflow-hidden grid-cols-1",
-            showOutputPane && "md:grid-cols-2"
+            showOutputPane && "md:grid-cols-[var(--json-input-width)_6px_minmax(0,1fr)]"
           )}
+          style={{ "--json-input-width": `${inputWidth}%` } as React.CSSProperties}
         >
           {/* Input pane */}
           <div
             className={cn(
               "flex flex-col overflow-hidden",
-              showOutputPane && "border-b border-[var(--border)] md:border-b-0 md:border-r"
+              showOutputPane && "border-b border-[var(--border)] md:border-b-0"
             )}
           >
             <PaneHeader
@@ -240,6 +281,12 @@ export default function JsonTool() {
 
           {/* Output pane */}
           {showOutputPane && (
+          <>
+          <div
+            className="hidden cursor-col-resize bg-[var(--border)] transition-colors hover:bg-[var(--primary)] md:block"
+            onPointerDown={startResize}
+            title="Kéo để đổi độ rộng input/output"
+          />
           <div className="flex flex-col overflow-hidden">
             <TabsContent value="format" className="m-0 flex h-full flex-col">
               <PaneHeader
@@ -251,6 +298,8 @@ export default function JsonTool() {
                     setShowQuery={setShowQuery}
                     showStats={showStats}
                     setShowStats={setShowStats}
+                    autoFormat={autoFormat}
+                    setAutoFormat={setAutoFormat}
                     updateInputOnAction={updateInputOnAction}
                     setUpdateInputOnAction={setUpdateInputOnAction}
                     onRepair={handleRepair}
@@ -290,6 +339,7 @@ export default function JsonTool() {
               <ConvertPane result={convertResult} toLang={formatToLang(to)} />
             </TabsContent>
           </div>
+          </>
           )}
         </div>
       </Tabs>
@@ -510,6 +560,8 @@ function FormatHeaderActions({
   setShowQuery,
   showStats,
   setShowStats,
+  autoFormat,
+  setAutoFormat,
   updateInputOnAction,
   setUpdateInputOnAction,
   onRepair,
@@ -522,6 +574,8 @@ function FormatHeaderActions({
   setShowQuery: (value: boolean) => void;
   showStats: boolean;
   setShowStats: (value: boolean) => void;
+  autoFormat: boolean;
+  setAutoFormat: (value: boolean) => void;
   updateInputOnAction: boolean;
   setUpdateInputOnAction: (value: boolean) => void;
   onRepair: () => void;
@@ -543,6 +597,15 @@ function FormatHeaderActions({
         />
         <span className="hidden sm:inline">Update input</span>
       </label>
+      <Button
+        onClick={() => setAutoFormat(!autoFormat)}
+        variant={autoFormat ? "default" : "secondary"}
+        size="icon"
+        className="size-7"
+        title={autoFormat ? "Tắt auto format" : "Bật auto format"}
+      >
+        <RefreshCw className="size-3.5" />
+      </Button>
       <Button onClick={onFormat} disabled={!input} size="icon" className="size-7" title="Format">
         <Wand2 className="size-3.5" />
       </Button>
