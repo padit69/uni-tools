@@ -42,9 +42,9 @@ const TEMPS: UnitDef[] = [
 ];
 
 const CATEGORIES: Record<Category, { label: string; units: UnitDef[] }> = {
-  length: { label: "Chiều dài", units: LENGTHS },
-  weight: { label: "Khối lượng", units: WEIGHTS },
-  temperature: { label: "Nhiệt độ", units: TEMPS },
+  length: { label: "Length", units: LENGTHS },
+  weight: { label: "Weight", units: WEIGHTS },
+  temperature: { label: "Temperature", units: TEMPS },
 };
 
 function fmt(n: number): string {
@@ -126,7 +126,7 @@ export default function UnitTool() {
 
         {!computed && value && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
-            "{value}" không phải số hợp lệ.
+            "{value}" is not a valid number.
           </div>
         )}
 

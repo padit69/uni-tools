@@ -9,7 +9,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } fr
 import { useI18n } from "@/i18n";
 
 export default function Home() {
-  const { t } = useI18n();
+  const { t, toolDesc } = useI18n();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -37,7 +37,7 @@ export default function Home() {
           uni · tool
         </h1>
         <p className="mt-3 max-w-xl text-balance text-sm text-[var(--muted-foreground)] md:text-base">
-          Một nơi cho mọi tool dev hay dùng. JSON, encode, generator, converter, text utilities — và sẽ thêm nữa.
+          {t("app.description")}
         </p>
         <div className="mt-5 flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
           <span>{t("app.quickSearchHint.before")}</span>
@@ -69,7 +69,7 @@ export default function Home() {
                   </span>
                 </div>
                 <p className="line-clamp-2 text-xs text-[var(--muted-foreground)]">
-                  {t.description}
+                  {toolDesc(t.id, t.description)}
                 </p>
               </div>
             </Link>
@@ -93,7 +93,7 @@ export default function Home() {
               </div>
             </div>
             <span className="inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] shadow-sm transition group-hover:translate-x-0.5">
-              Gửi yêu cầu
+              {t("cta.button")}
               <ArrowRight className="ml-1.5 size-4" />
             </span>
           </div>
@@ -104,19 +104,19 @@ export default function Home() {
         <DialogContent className="p-5">
           <DialogTitle className="text-lg font-semibold">{t("feedback.title")}</DialogTitle>
           <DialogDescription className="mt-1 text-sm text-[var(--muted-foreground)]">
-            Mô tả tool bạn muốn thêm, use-case, input/output mong muốn. Form này mở email client hoặc copy nội dung để gửi nhanh.
+            {t("feedback.desc")}
           </DialogDescription>
           <div className="mt-4 grid gap-3">
             <label className="grid gap-1.5 text-xs font-medium">
-              Tên / team
+              {t("feedback.name")}
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("feedback.namePlaceholder")} className="h-9 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
             </label>
             <label className="grid gap-1.5 text-xs font-medium">
-              Liên hệ
+              {t("feedback.contact")}
               <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder={t("feedback.contactPlaceholder")} className="h-9 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
             </label>
             <label className="grid gap-1.5 text-xs font-medium">
-              Nội dung góp ý
+              {t("feedback.idea")}
               <textarea value={idea} onChange={(e) => setIdea(e.target.value)} placeholder={t("feedback.ideaPlaceholder")} className="min-h-32 resize-y rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
             </label>
           </div>
@@ -124,7 +124,7 @@ export default function Home() {
             <DialogClose asChild><Button variant="ghost">{t("feedback.close")}</Button></DialogClose>
             <Button variant="secondary" onClick={copyRequest} disabled={!idea.trim()}>{t("feedback.copy")}</Button>
             <Button asChild disabled={!idea.trim()}>
-              <a href={mailto} onClick={() => setOpen(false)}><Send className="size-3.5" /> Gửi góp ý</a>
+              <a href={mailto} onClick={() => setOpen(false)}><Send className="size-3.5" /> {t("feedback.send")}</a>
             </Button>
           </div>
         </DialogContent>

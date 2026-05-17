@@ -37,7 +37,7 @@ function ValueLeaf({ value }: { value: JsonValue }) {
 
 function copyPath(path: string) {
   navigator.clipboard.writeText(path).then(() => {
-    toast.success("Đã copy path", { description: path, duration: 1500 });
+    toast.success("Copied path", { description: path, duration: 1500 });
   });
 }
 

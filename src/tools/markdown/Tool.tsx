@@ -7,25 +7,25 @@ import { CopyButton } from "@/components/tool/CopyButton";
 
 const SAMPLE = `# Uni Tool
 
-A bộ công cụ dev đa năng, **chạy 100% trên trình duyệt**.
+A versatile developer toolbox, **runs 100% in your browser**.
 
-## Tính năng
+## Features
 
 - JSON format, validate, tree, convert
 - Encode/decode (Base64, URL, JWT)
 - Generators (UUID, hash, QR, lorem)
-- ...và còn nữa.
+- ...and more.
 
 ## Code
 
 \`\`\`ts
-const greet = (name: string) => \`Xin chào, \${name}!\`;
+const greet = (name: string) => \`Hello, \${name}!\`;
 console.log(greet("uni-tool"));
 \`\`\`
 
-> Privacy first — không backend, không tracking.
+> Privacy first — no backend, no tracking.
 
-[Trang chủ](https://example.com)
+[Home](https://example.com)
 `;
 
 export default function MarkdownTool() {
@@ -49,7 +49,7 @@ export default function MarkdownTool() {
         <div className="flex items-center gap-2">
           <CopyButton text={html} label="Copy HTML" />
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>

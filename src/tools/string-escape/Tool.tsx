@@ -42,7 +42,7 @@ export default function StringEscapeTool() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ModeSelector mode={mode} onChange={setMode} />
-          <Button variant="ghost" size="sm" onClick={handleSwap} title="Đảo chiều" className="h-7 px-2 text-xs">
+          <Button variant="ghost" size="sm" onClick={handleSwap} title="Swap direction" className="h-7 px-2 text-xs">
             <ArrowRightLeft className="size-3.5" />
             Swap
           </Button>
@@ -58,10 +58,10 @@ export default function StringEscapeTool() {
             ))}
           </select>
           <Button variant="ghost" size="sm" onClick={() => setInput(SAMPLE)} disabled={!!input}>
-            Ví dụ
+            Example
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function StringEscapeTool() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "encode" ? "Nhập text..." : "Paste escaped string..."}
+            placeholder={mode === "encode" ? "Enter text..." : "Paste escaped string..."}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
@@ -89,7 +89,7 @@ export default function StringEscapeTool() {
               <pre className="whitespace-pre-wrap break-words p-3 font-mono text-sm">{result.output}</pre>
             ) : (
               <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
-                <div className="font-medium text-red-400">Lỗi</div>
+                <div className="font-medium text-red-400">Error</div>
                 <p className="mt-1">{result.error}</p>
               </div>
             )}
@@ -136,8 +136,8 @@ function EmptyHint({ mode, lang }: { mode: Mode; lang: Lang }) {
   return (
     <div className="flex h-full items-center justify-center p-6 text-center text-xs text-[var(--muted-foreground)]">
       {mode === "encode"
-        ? `Nhập text vào pane trái để escape sang ${LANG_LABEL[lang]}.`
-        : `Paste escaped string ${LANG_LABEL[lang]} để unescape về raw text.`}
+        ? `Enter text in the left pane to escape into ${LANG_LABEL[lang]}.`
+        : `Paste escaped string ${LANG_LABEL[lang]} to unescape back to raw text.`}
     </div>
   );
 }

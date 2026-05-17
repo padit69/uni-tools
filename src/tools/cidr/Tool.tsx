@@ -5,7 +5,7 @@ import { CopyButton } from "@/components/tool/CopyButton";
 type Result = { ok: true; ip: number; prefix: number; mask: number; net: number; broadcast: number; first: number; last: number; total: number; usable: number } | { ok: false; error: string };
 function ipToInt(ip: string) { const p = ip.trim().split("."); if (p.length !== 4) return null; let n = 0; for (const x of p) { if (!/^\d+$/.test(x)) return null; const v = Number(x); if (v < 0 || v > 255) return null; n = (n << 8) + v; } return n >>> 0; }
 function intToIp(n: number) { return [24,16,8,0].map((s)=>String((n >>> s) & 255)).join("."); }
-function parse(input: string): Result { const m = input.trim().match(/^([^/]+)\/(\d{1,2})$/); if (!m) return { ok:false, error:"Nhập dạng IPv4/CIDR, ví dụ 192.168.1.10/24"}; const ip = ipToInt(m[1]); const prefix = Number(m[2]); if (ip == null) return {ok:false,error:"IPv4 không hợp lệ"}; if (prefix < 0 || prefix > 32) return {ok:false,error:"Prefix phải từ 0 đến 32"}; const mask = prefix === 0 ? 0 : (0xffffffff << (32-prefix)) >>> 0; const net = (ip & mask) >>> 0; const broadcast = (net | (~mask >>> 0)) >>> 0; const total = 2 ** (32-prefix); const usable = prefix >= 31 ? total : Math.max(0,total-2); const first = prefix >= 31 ? net : net + 1; const last = prefix >= 31 ? broadcast : broadcast - 1; return {ok:true, ip, prefix, mask, net, broadcast, first, last, total, usable}; }
+function parse(input: string): Result { const m = input.trim().match(/^([^/]+)\/(\d{1,2})$/); if (!m) return { ok:false, error:"Enter IPv4/CIDR format, e.g. 192.168.1.10/24"}; const ip = ipToInt(m[1]); const prefix = Number(m[2]); if (ip == null) return {ok:false,error:"IPv4 invalid"}; if (prefix < 0 || prefix > 32) return {ok:false,error:"Prefix phải từ 0 đến 32"}; const mask = prefix === 0 ? 0 : (0xffffffff << (32-prefix)) >>> 0; const net = (ip & mask) >>> 0; const broadcast = (net | (~mask >>> 0)) >>> 0; const total = 2 ** (32-prefix); const usable = prefix >= 31 ? total : Math.max(0,total-2); const first = prefix >= 31 ? net : net + 1; const last = prefix >= 31 ? broadcast : broadcast - 1; return {ok:true, ip, prefix, mask, net, broadcast, first, last, total, usable}; }
 
 export default function CidrTool() {
   const [cidr, setCidr] = useState("192.168.1.10/24");
@@ -20,7 +20,7 @@ export default function CidrTool() {
         <label className="flex flex-col gap-1.5"><span className="text-xs font-medium">Check IP in range</span><input value={checkIp} onChange={(e)=>setCheckIp(e.target.value)} className="h-10 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 font-mono text-sm outline-none"/></label>
       </div>
       {!result.ok ? <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-400">{result.error}</div> : <>
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 p-3 text-sm">IP <span className="font-mono">{checkIp}</span> {contains == null ? "không hợp lệ" : contains ? "nằm trong" : "không nằm trong"} <span className="font-mono">{cidr}</span></div>
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 p-3 text-sm">IP <span className="font-mono">{checkIp}</span> {contains == null ? "invalid" : contains ? "is inside" : "không is inside"} <span className="font-mono">{cidr}</span></div>
         <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
           <Row label="Network" value={`${intToIp(result.net)}/${result.prefix}`} />
           <Row label="Subnet mask" value={intToIp(result.mask)} />

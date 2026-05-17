@@ -67,7 +67,7 @@ function build(pattern: string, flags: string, test: string): BuildResult | Buil
 export default function RegexTool() {
   const [pattern, setPattern] = useState("\\b\\w+@[\\w.-]+\\b");
   const [flags, setFlags] = useState<Set<string>>(new Set(["g"]));
-  const [test, setTest] = useState("Liên hệ alice@example.com hoặc bob@test.io để biết thêm.");
+  const [test, setTest] = useState("Contact alice@example.com or bob@test.io to learn more.");
 
   const result = useMemo(
     () => build(pattern, [...flags].join(""), test),
@@ -117,7 +117,7 @@ export default function RegexTool() {
           }}
           disabled={!pattern && !test}
         >
-          <Eraser className="size-3.5" /> Xóa
+          <Eraser className="size-3.5" /> Clear
         </Button>
       </div>
 
@@ -165,7 +165,7 @@ export default function RegexTool() {
           <textarea
             value={test}
             onChange={(e) => setTest(e.target.value)}
-            placeholder="Nhập text để test regex..."
+            placeholder="Enter text to test regex..."
             className="min-h-32 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
             spellCheck={false}
           />

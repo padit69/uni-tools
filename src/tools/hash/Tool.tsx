@@ -47,11 +47,11 @@ export default function HashTool() {
         <div className="text-sm">
           <span className="font-medium">Hash</span>
           <span className="ml-2 text-xs text-[var(--muted-foreground)]">
-            — Web Crypto, hash chạy live
+            — Web Crypto, hash updates live
           </span>
         </div>
         <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-          <Eraser className="size-3.5" /> Xóa
+          <Eraser className="size-3.5" /> Clear
         </Button>
       </div>
 
@@ -65,7 +65,7 @@ export default function HashTool() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Nhập text cần hash..."
+            placeholder="Enter text to hash..."
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
@@ -86,7 +86,7 @@ export default function HashTool() {
             </div>
           ))}
           <p className="px-1 text-[10px] text-[var(--muted-foreground)]">
-            MD5 không có do Web Crypto không hỗ trợ. Dùng SHA-256+ cho mọi mục đích bảo mật.
+            MD5 is not available because Web Crypto does not support it. Use SHA-256+ for security-sensitive use cases.
           </p>
         </div>
       </div>

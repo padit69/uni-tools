@@ -60,8 +60,8 @@ export default function UrlTool() {
                 )}
                 title={
                   s === "component"
-                    ? "encodeURIComponent — encode dấu : / ? & = etc"
-                    : "encodeURI — giữ ký tự đặc biệt URL"
+                    ? "encodeURIComponent — encodes : / ? & = etc"
+                    : "encodeURI — keeps URL special characters"
                 }
               >
                 {s === "component" ? "Component" : "URI"}
@@ -72,7 +72,7 @@ export default function UrlTool() {
             <ArrowRightLeft className="size-3.5" /> Swap
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function UrlTool() {
         </div>
         <div className="flex flex-col overflow-hidden">
           <PaneHeader
-            label={result.ok ? (mode === "encode" ? "Encoded" : "Plain") : "Lỗi"}
+            label={result.ok ? (mode === "encode" ? "Encoded" : "Plain") : "Error"}
             right={result.ok ? <CopyButton text={result.output} /> : null}
           />
           {result.ok ? (

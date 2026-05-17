@@ -53,7 +53,7 @@ export default function HmacTool() {
           <select value={output} onChange={(e) => setOutput(e.target.value as Output)} className="h-8 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 text-xs">
             <option value="hex">HEX</option><option value="base64">Base64</option>
           </select>
-          <Button variant="ghost" size="sm" onClick={() => { setMessage(""); setSecret(""); }} disabled={!message && !secret}><Eraser className="size-3.5"/> Xóa</Button>
+          <Button variant="ghost" size="sm" onClick={() => { setMessage(""); setSecret(""); }} disabled={!message && !secret}><Eraser className="size-3.5"/> Clear</Button>
         </div>
       </div>
       <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
@@ -63,7 +63,7 @@ export default function HmacTool() {
         </div>
         <div className="flex flex-col gap-3 overflow-y-auto p-4">
           {ALGOS.map((a) => <Result key={a} label={`HMAC ${a}`} value={results[a]} />)}
-          {sampleHeader && <Result label="Webhook header mẫu" value={sampleHeader} />}
+          {sampleHeader && <Result label="Sample webhook header" value={sampleHeader} />}
         </div>
       </div>
     </div>

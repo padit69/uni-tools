@@ -159,12 +159,12 @@ export default function QrTool() {
   const copyDataUrl = () => {
     if (generator === "barcode") {
       navigator.clipboard.writeText(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(barcodeSvg)}`);
-      toast.success("Đã copy SVG data URL");
+      toast.success("Copied SVG data URL");
       return;
     }
     if (!canvasRef.current) return;
     navigator.clipboard.writeText(canvasRef.current.toDataURL("image/png"));
-    toast.success("Đã copy PNG data URL");
+    toast.success("Copied PNG data URL");
   };
 
   const scanImage = async (file: File | undefined) => {
@@ -173,7 +173,7 @@ export default function QrTool() {
     setScanError(null);
     const Detector = (window as unknown as { BarcodeDetector?: new (options?: unknown) => { detect: (source: ImageBitmap) => Promise<Array<{ rawValue: string; format: string }>> } }).BarcodeDetector;
     if (!Detector) {
-      setScanError("Trình duyệt này chưa hỗ trợ BarcodeDetector. Hãy thử Chrome/Edge mới hơn.");
+      setScanError("This browser does not support BarcodeDetector yet. Try a recent Chrome/Edge.");
       return;
     }
     try {
@@ -183,7 +183,7 @@ export default function QrTool() {
       });
       const codes = await detector.detect(bitmap);
       setScanResult(codes.map((code) => `${code.format}: ${code.rawValue}`));
-      if (codes.length === 0) setScanError("Không đọc được QR/barcode trong ảnh này.");
+      if (codes.length === 0) setScanError("Could not read a QR/barcode from this image.");
     } catch (e) {
       setScanError((e as Error).message);
     }
@@ -207,7 +207,7 @@ export default function QrTool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm font-medium">QR / Barcode</div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="size-8" onClick={() => setText("")} disabled={!payload} title="Xóa nội dung">
+          <Button variant="ghost" size="icon" className="size-8" onClick={() => setText("")} disabled={!payload} title="Clear content">
             <Eraser className="size-3.5" />
           </Button>
           <Button variant="secondary" size="icon" className="size-8" onClick={copyDataUrl} disabled={!payload || !!error} title="Copy PNG data URL">
@@ -316,10 +316,10 @@ export default function QrTool() {
             <div className="flex items-center gap-2">
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleLogo(e.target.files?.[0])} />
               <Button variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
-                <ImagePlus className="size-3.5" /> Chọn logo
+                <ImagePlus className="size-3.5" /> Choose logo
               </Button>
               <Button variant="ghost" size="sm" onClick={() => setLogo(null)} disabled={!logo}>
-                Bỏ logo
+                Remove logo
               </Button>
             </div>
             <input type="range" min={10} max={30} value={logoSize} onChange={(e) => setLogoSize(Number(e.target.value))} className="w-full accent-[var(--primary)]" disabled={!logo} />
@@ -350,7 +350,7 @@ export default function QrTool() {
               <div className="flex items-center gap-1">
                 <input ref={scanRef} type="file" accept="image/*" className="hidden" onChange={(e) => scanImage(e.target.files?.[0])} />
                 <Button variant="secondary" size="sm" onClick={() => scanRef.current?.click()}>
-                  <ImagePlus className="size-3.5" /> Chọn ảnh
+                  <ImagePlus className="size-3.5" /> Choose image
                 </Button>
               </div>
             </div>
@@ -379,7 +379,7 @@ export default function QrTool() {
               </div>
             ) : (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                Upload ảnh chứa QR hoặc barcode để đọc nội dung.
+                Upload an image containing a QR code or barcode to decode it.
               </div>
             )}
           </div>
@@ -462,7 +462,7 @@ function TextArea({ label, value, onChange }: { label: string; value: string; on
   return (
     <label className="flex flex-col gap-1.5">
       <span className="text-xs font-medium">{label}</span>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder="URL, text, hoặc bất kỳ chuỗi nào..." className="min-h-28 resize-y rounded-lg border border-[var(--border)] bg-transparent p-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" spellCheck={false} />
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder="URL, text, or any string..." className="min-h-28 resize-y rounded-lg border border-[var(--border)] bg-transparent p-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" spellCheck={false} />
     </label>
   );
 }
@@ -503,11 +503,11 @@ const CODE128_PATTERNS = [
 ];
 
 function createCode128Svg(value: string, options: { dark: string; light: string; width: number; height: number }) {
-  if (!value) throw new Error("Barcode value trống.");
+  if (!value) throw new Error("Barcode value is empty.");
   const codes = [104];
   for (const char of value) {
     const code = char.charCodeAt(0);
-    if (code < 32 || code > 126) throw new Error("Code 128 B chỉ hỗ trợ ASCII 32-126.");
+    if (code < 32 || code > 126) throw new Error("Code 128 B only supports ASCII 32-126.");
     codes.push(code - 32);
   }
   let checksum = codes[0];
@@ -565,7 +565,7 @@ async function downloadSvgAsPng(svg: string, filename: string) {
   const image = new Image();
   await new Promise<void>((resolve, reject) => {
     image.onload = () => resolve();
-    image.onerror = () => reject(new Error("Không render được barcode PNG."));
+    image.onerror = () => reject(new Error("Could not render barcode PNG."));
     image.src = url;
   });
   const canvas = document.createElement("canvas");

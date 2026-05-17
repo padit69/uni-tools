@@ -49,7 +49,7 @@ export default function PostmanDocsTool() {
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       convertText(await res.text());
     } catch (e) {
-      setError(`Không load được URL: ${(e as Error).message}. Nếu bị CORS, hãy tải file JSON rồi import bằng file.`);
+      setError(`Could not load URL: ${(e as Error).message}. If CORS blocks it, download the JSON file and import it as a file.`);
     }
   };
 
@@ -122,7 +122,7 @@ export default function PostmanDocsTool() {
 
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[var(--border)] bg-[var(--muted)]/15 p-6 text-center text-xs text-[var(--muted-foreground)] hover:bg-[var(--muted)]/25">
             <Upload className="size-5" />
-            <span>Chọn Postman / Swagger / OpenAPI file</span>
+            <span>Choose Postman / Swagger / OpenAPI file</span>
             <input type="file" accept="application/json,.json,.yaml,.yml" className="hidden" onChange={(e) => loadFile(e.target.files?.[0])} />
           </label>
 
@@ -181,11 +181,11 @@ export default function PostmanDocsTool() {
             )}
             {files.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                Import collection để tạo README.md và Markdown files.
+                Import a collection to generate README.md and Markdown files.
               </div>
             ) : visibleFiles.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                Không có file hoặc folder khớp search.
+                No files or folders match the search.
               </div>
             ) : (
               viewMode === "list" ? (
@@ -226,7 +226,7 @@ export default function PostmanDocsTool() {
             <textarea value={current.content} readOnly className="min-h-0 flex-1 resize-none bg-transparent p-4 font-mono text-xs focus:outline-none" />
           ) : (
             <div className="flex flex-1 items-center justify-center p-6 text-xs text-[var(--muted-foreground)]">
-              Chưa có markdown preview.
+              No markdown preview yet.
             </div>
           )}
         </div>
@@ -406,13 +406,13 @@ function parseSpec(text: string): AnyRecord {
     const parsed = yaml.load(text);
     if (isRecord(parsed)) return parsed;
   }
-  throw new Error("File không phải JSON/YAML object hợp lệ.");
+  throw new Error("File is not a valid JSON/YAML object.");
 }
 
 function convertAnySpec(source: AnyRecord): MdFile[] {
   if (source.openapi || source.swagger) return convertOpenApi(source);
   if (source.info && source.item) return convertCollection(source);
-  throw new Error("Không nhận diện được Postman collection hoặc Swagger/OpenAPI spec.");
+  throw new Error("Could not detect a Postman collection or Swagger/OpenAPI spec.");
 }
 
 function prefixFiles(files: MdFile[], prefix: string): MdFile[] {

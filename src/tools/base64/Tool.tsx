@@ -15,7 +15,7 @@ function decode(s: string): string {
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     return new TextDecoder().decode(bytes);
   } catch {
-    throw new Error("Chuỗi Base64 không hợp lệ");
+    throw new Error("Invalid Base64 string");
   }
 }
 
@@ -53,7 +53,7 @@ export default function Base64Tool() {
             <ArrowRightLeft className="size-3.5" /> Swap
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>
@@ -64,14 +64,14 @@ export default function Base64Tool() {
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === "encode" ? "Nhập text cần encode..." : "Paste chuỗi Base64..."}
+            placeholder={mode === "encode" ? "Enter text to encode..." : "Paste Base64 string..."}
             className="min-h-0 flex-1 resize-none bg-transparent p-3 font-mono text-sm focus:outline-none"
             spellCheck={false}
           />
         </div>
         <div className="flex flex-col overflow-hidden">
           <PaneHeader
-            label={result.ok ? (mode === "encode" ? "Base64" : "Plain text") : "Lỗi"}
+            label={result.ok ? (mode === "encode" ? "Base64" : "Plain text") : "Error"}
             right={result.ok ? <CopyButton text={result.output} /> : null}
           />
           <OutputBody result={result} />

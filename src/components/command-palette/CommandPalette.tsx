@@ -9,7 +9,7 @@ import { useI18n } from "@/i18n";
 
 export function CommandPalette() {
   const { isOpen, setOpen, close } = useCommandPalette();
-  const { t } = useI18n();
+  const { t, toolDesc } = useI18n();
   const navigate = useNavigate();
   useCommandPaletteHotkey();
 
@@ -60,7 +60,7 @@ export function CommandPalette() {
                   return (
                     <Command.Item
                       key={t.id}
-                      value={`${t.name} ${t.keywords.join(" ")} ${t.description}`}
+                      value={`${t.name} ${t.keywords.join(" ")} ${toolDesc(t.id, t.description)}`}
                       onSelect={() => onSelect(t.slug)}
                       className="group flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm aria-selected:bg-[var(--muted)]"
                     >
@@ -70,7 +70,7 @@ export function CommandPalette() {
                       <div className="flex flex-1 flex-col">
                         <span className="font-medium">{t.name}</span>
                         <span className="line-clamp-1 text-xs text-[var(--muted-foreground)]">
-                          {t.description}
+                          {toolDesc(t.id, t.description)}
                         </span>
                       </div>
                       {t.shortcut && (

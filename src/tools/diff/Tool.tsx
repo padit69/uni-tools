@@ -54,8 +54,8 @@ export default function DiffTool() {
             value={granularity}
             onChange={setGranularity}
             options={[
-              { value: "lines", label: "Dòng" },
-              { value: "words", label: "Từ" },
+              { value: "lines", label: "Lines" },
+              { value: "words", label: "Words" },
             ]}
           />
           <SegmentedControl
@@ -82,7 +82,7 @@ export default function DiffTool() {
               onChange={(e) => setHideUnchanged(e.target.checked)}
               className="size-3 accent-[var(--primary)]"
             />
-            Chỉ thay đổi
+            Changes only
           </label>
           <Button
             variant="ghost"
@@ -93,7 +93,7 @@ export default function DiffTool() {
             }}
             disabled={!left && !right}
           >
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function DiffTool() {
       {/* Inputs */}
       <div className="grid shrink-0 basis-[40%] grid-cols-1 overflow-hidden md:grid-cols-2">
         <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
-          <PaneHeader label="Bên trái" />
+          <PaneHeader label="Left" />
           <textarea
             value={left}
             onChange={(e) => setLeft(e.target.value)}
@@ -111,7 +111,7 @@ export default function DiffTool() {
           />
         </div>
         <div className="flex flex-col overflow-hidden">
-          <PaneHeader label="Bên phải" />
+          <PaneHeader label="Right" />
           <textarea
             value={right}
             onChange={(e) => setRight(e.target.value)}
@@ -125,12 +125,12 @@ export default function DiffTool() {
       {/* Diff result */}
       <div className="flex min-h-0 flex-1 flex-col border-t border-[var(--border)]">
         <PaneHeader
-          label={viewMode === "split" ? "So sánh — Side by side" : "So sánh — Unified"}
+          label={viewMode === "split" ? "Compare — Side by side" : "Compare — Unified"}
         />
         <div className="min-h-0 flex-1 overflow-auto">
           {!left && !right ? (
             <div className="flex h-full items-center justify-center p-6 text-xs text-[var(--muted-foreground)]">
-              Nhập text vào hai pane bên trên để so sánh.
+              Enter text in both panes above to compare.
             </div>
           ) : viewMode === "split" ? (
             <SplitDiff pairs={linePairs} hideUnchanged={hideUnchanged} granularity={granularity} />

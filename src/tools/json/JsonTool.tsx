@@ -27,6 +27,7 @@ import { analyzeJson, queryJson } from "./query";
 import { useToolHistory } from "@/hooks/useToolHistory";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 const SAMPLE = `{
   "name": "uni-tool",
@@ -42,6 +43,7 @@ const SAMPLE = `{
 type Tab = "format" | "validate" | "tree" | "convert";
 
 export default function JsonTool() {
+  const { t } = useI18n();
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [tab, setTab] = useState<Tab>("format");
@@ -124,9 +126,9 @@ export default function JsonTool() {
       const out = formatJson(input, indent);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Đã format");
+      toast.success("Formatted");
     } catch (e) {
-      toast.error("JSON không hợp lệ", { description: (e as Error).message });
+      toast.error(t("json.invalidJson"), { description: (e as Error).message });
     }
   };
 
@@ -135,9 +137,9 @@ export default function JsonTool() {
       const out = minifyJson(input);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Đã minify");
+      toast.success("Minified");
     } catch (e) {
-      toast.error("JSON không hợp lệ", { description: (e as Error).message });
+      toast.error(t("json.invalidJson"), { description: (e as Error).message });
     }
   };
 
@@ -146,9 +148,9 @@ export default function JsonTool() {
       const out = sortJson(input, indent);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Đã sort key");
+      toast.success("Sorted keys");
     } catch (e) {
-      toast.error("JSON không hợp lệ", { description: (e as Error).message });
+      toast.error(t("json.invalidJson"), { description: (e as Error).message });
     }
   };
 
@@ -157,9 +159,9 @@ export default function JsonTool() {
       const out = repairJson(input, indent);
       history.push(input);
       applyActionOutput(out);
-      toast.success("Đã repair JSON");
+      toast.success("Repaired JSON");
     } catch (e) {
-      toast.error("Không repair được", { description: (e as Error).message });
+      toast.error("Could not repair", { description: (e as Error).message });
     }
   };
 
@@ -208,15 +210,15 @@ export default function JsonTool() {
           <TabsList>
             <TabsTrigger value="format">
               <Wand2 className="size-3.5" />
-              Format
+              {t("json.output.format")}
             </TabsTrigger>
             <TabsTrigger value="validate">
               <FileWarning className="size-3.5" />
-              Validate
+              {t("json.valid")}
             </TabsTrigger>
             <TabsTrigger value="tree">
               <FileCode className="size-3.5" />
-              Tree
+              {t("json.tree")}
             </TabsTrigger>
             <TabsTrigger value="convert">
               <ArrowRightLeft className="size-3.5" />
@@ -234,13 +236,13 @@ export default function JsonTool() {
               size="sm"
               onClick={() => setInput(SAMPLE)}
               disabled={!!input}
-              title="Chèn ví dụ"
+              title={t("json.insertSample")}
             >
-              Ví dụ
+              {t("json.example")}
             </Button>
             <Button variant="ghost" size="sm" onClick={handleClear} disabled={!input && !output}>
               <Eraser className="size-3.5" />
-              Xóa
+              {t("json.clear")}
             </Button>
           </div>
         </div>
@@ -261,7 +263,7 @@ export default function JsonTool() {
             )}
           >
             <PaneHeader
-              label="Input"
+              label={t("json.input")}
               right={
                 <ValidationBadge ok={validation.ok} count={validation.errors.length} hasInput={!!input} />
               }
@@ -272,7 +274,7 @@ export default function JsonTool() {
                 onChange={setInput}
                 lang={tab === "convert" ? formatToLang(from) : "json"}
                 withLinter={tab === "validate" || tab === "format"}
-                placeholder="Paste JSON vào đây..."
+                placeholder={t("json.emptyTree")}
                 height="100%"
                 style={{ height: "100%" }}
               />
@@ -285,12 +287,12 @@ export default function JsonTool() {
           <div
             className="hidden cursor-col-resize bg-[var(--border)] transition-colors hover:bg-[var(--primary)] md:block"
             onPointerDown={startResize}
-            title="Kéo để đổi độ rộng input/output"
+            title={t("json.dragResize")}
           />
           <div className="flex flex-col overflow-hidden">
             <TabsContent value="format" className="m-0 flex h-full flex-col">
               <PaneHeader
-                label="Format"
+                label={t("json.output.format")}
                 right={
                   <FormatHeaderActions
                     input={input}
@@ -322,12 +324,12 @@ export default function JsonTool() {
             </TabsContent>
 
             <TabsContent value="validate" className="m-0 flex h-full flex-col">
-              <PaneHeader label={validation.ok && input ? "Hợp lệ" : "Errors"} />
+              <PaneHeader label={validation.ok && input ? t("json.valid") : t("json.errors")} />
               <ValidatePane input={input} result={validation} />
             </TabsContent>
 
             <TabsContent value="tree" className="m-0 flex h-full flex-col">
-              <PaneHeader label="Tree" />
+              <PaneHeader label={t("json.tree")} />
               <TreePane data={treeData} hasInput={!!input.trim()} />
             </TabsContent>
 
@@ -375,23 +377,24 @@ function CopyButton({ text }: { text: string }) {
       className="h-7 text-xs"
     >
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {copied ? "Đã copy" : "Copy"}
+      {copied ? "Copied" : "Copy"}
     </Button>
   );
 }
 
 function ValidationBadge({ ok, count, hasInput }: { ok: boolean; count: number; hasInput: boolean }) {
+  const { t } = useI18n();
   if (!hasInput) return null;
   if (ok) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
-        <Check className="size-3" /> Valid
+        <Check className="size-3" /> {t("json.valid")}
       </span>
     );
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-medium text-red-400">
-      {count} lỗi
+      {count} {t("json.errorsCount")}
     </span>
   );
 }
@@ -469,8 +472,9 @@ function ValidatePane({
   input: string;
   result: ReturnType<typeof validateJson>;
 }) {
+  const { t } = useI18n();
   if (!input.trim()) {
-    return <EmptyState message="Paste JSON vào pane bên trái để kiểm tra." />;
+    return <EmptyState message={t("json.emptyValidate")} />;
   }
   if (result.ok) {
     return (
@@ -478,9 +482,9 @@ function ValidatePane({
         <div className="grid size-12 place-items-center rounded-full bg-emerald-500/15 text-emerald-400">
           <Check className="size-6" />
         </div>
-        <p className="text-sm font-medium">JSON hợp lệ</p>
+        <p className="text-sm font-medium">{t("json.validJson")}</p>
         <p className="text-xs text-[var(--muted-foreground)]">
-          Không phát hiện lỗi cú pháp.
+          {t("json.noSyntaxErrors")}
         </p>
       </div>
     );
@@ -515,14 +519,15 @@ function TreePane({
   data: { ok: true; data: unknown } | { ok: false; error: string } | null;
   hasInput: boolean;
 }) {
+  const { t } = useI18n();
   if (!hasInput) {
-    return <EmptyState message="Paste JSON để xem dạng cây." />;
+    return <EmptyState message={t("json.emptyTree")} />;
   }
-  if (!data) return <EmptyState message="Đang xử lý..." />;
+  if (!data) return <EmptyState message={t("json.processing")} />;
   if (!data.ok) {
     return (
       <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
-        <div className="font-medium text-red-400">JSON không hợp lệ</div>
+        <div className="font-medium text-red-400">{t("json.invalidJson")}</div>
         <p className="mt-1 text-[var(--foreground)]">{data.error}</p>
       </div>
     );
@@ -538,11 +543,12 @@ function ConvertPane({
   result: { ok: true; output: string } | { ok: false; error: string } | null;
   toLang: "json" | "yaml" | "xml" | "text";
 }) {
-  if (!result) return <EmptyState message="Paste input và chọn From/To để convert." />;
+  const { t } = useI18n();
+  if (!result) return <EmptyState message={t("json.emptyConvert")} />;
   if (!result.ok) {
     return (
       <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
-        <div className="font-medium text-red-400">Convert thất bại</div>
+        <div className="font-medium text-red-400">{t("json.conversionFailed")}</div>
         <p className="mt-1 text-[var(--foreground)]">{result.error}</p>
       </div>
     );
@@ -583,11 +589,12 @@ function FormatHeaderActions({
   onFormat: () => void;
   onMinify: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex items-center gap-1">
       <label
         className="mr-1 flex h-7 shrink-0 items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/25 px-2 text-xs text-[var(--muted-foreground)]"
-        title="Ghi kết quả action vào input"
+        title={t("json.writeOutput")}
       >
         <input
           type="checkbox"
@@ -595,18 +602,18 @@ function FormatHeaderActions({
           onChange={(e) => setUpdateInputOnAction(e.target.checked)}
           className="size-3 accent-[var(--primary)]"
         />
-        <span className="hidden sm:inline">Update input</span>
+        <span className="hidden sm:inline">{t("json.updateInput")}</span>
       </label>
       <Button
         onClick={() => setAutoFormat(!autoFormat)}
         variant={autoFormat ? "default" : "secondary"}
         size="icon"
         className="size-7"
-        title={autoFormat ? "Tắt auto format" : "Bật auto format"}
+        title={autoFormat ? t("json.disableAutoFormat") : t("json.enableAutoFormat")}
       >
         <RefreshCw className="size-3.5" />
       </Button>
-      <Button onClick={onFormat} disabled={!input} size="icon" className="size-7" title="Format">
+      <Button onClick={onFormat} disabled={!input} size="icon" className="size-7" title={t("json.output.format")}>
         <Wand2 className="size-3.5" />
       </Button>
       <Button onClick={onMinify} disabled={!input} variant="secondary" size="icon" className="size-7" title="Minify">
@@ -623,7 +630,7 @@ function FormatHeaderActions({
         variant={showStats ? "default" : "secondary"}
         size="icon"
         className="size-7"
-        title={showStats ? "Ẩn thống kê" : "Hiện thống kê"}
+        title={showStats ? t("json.hideStats") : t("json.showStats")}
       >
         <Info className="size-3.5" />
       </Button>
@@ -632,7 +639,7 @@ function FormatHeaderActions({
         variant={showQuery ? "default" : "secondary"}
         size="icon"
         className="size-7"
-        title={showQuery ? "Ẩn query" : "Mở query"}
+        title={showQuery ? t("json.hideQuery") : t("json.openQuery")}
       >
         <Search className="size-3.5" />
       </Button>
@@ -662,6 +669,7 @@ function ToolsPane({
   showQuery: boolean;
   showStats: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       {showQuery && (
@@ -691,36 +699,36 @@ function ToolsPane({
       )}
       {showStats && stats?.ok === false && (
         <div className="shrink-0 border-b border-red-500/30 bg-red-500/5 px-3 py-2 text-xs text-red-400">
-          JSON không hợp lệ: {stats.error}
+          {t("json.invalidJsonPrefix")}: {stats.error}
         </div>
       )}
 
       <div className={cn("grid min-h-0 flex-1 overflow-hidden", showQuery ? "grid-rows-2" : "grid-rows-1")}>
         {showQuery && (
         <div className="flex min-h-0 flex-col overflow-hidden">
-          <PaneHeader label="Query result" right={queryResult?.ok ? <CopyButton text={queryResult.output} /> : null} />
+          <PaneHeader label={t("json.queryResult")} right={queryResult?.ok ? <CopyButton text={queryResult.output} /> : null} />
           {!input.trim() ? (
-            <EmptyState message="Paste JSON để repair, sort hoặc query." />
+            <EmptyState message={t("json.emptyQueryBase")} />
           ) : !queryPath.trim() ? (
-            <EmptyState message="Nhập JSON path, ví dụ $.tools[*].id." />
+            <EmptyState message={t("json.emptyPath")} />
           ) : queryResult?.ok ? (
             <JsonEditor value={queryResult.output} readOnly lang="json" height="100%" style={{ height: "100%" }} />
           ) : (
             <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
-              <div className="font-medium text-red-400">Query thất bại</div>
+              <div className="font-medium text-red-400">{t("json.queryFailed")}</div>
               <p className="mt-1 text-[var(--foreground)]">
-                {queryResult?.ok === false ? queryResult.error : stats?.ok === false ? stats.error : "Không có kết quả."}
+                {queryResult?.ok === false ? queryResult.error : stats?.ok === false ? stats.error : t("json.noResults")}
               </p>
             </div>
           )}
         </div>
         )}
         <div className="flex min-h-0 flex-col overflow-hidden border-t border-[var(--border)]">
-          <PaneHeader label="Action output" right={output ? <CopyButton text={output} /> : null} />
+          <PaneHeader label={t("json.actionOutput")} right={output ? <CopyButton text={output} /> : null} />
           {output ? (
             <JsonEditor value={output} readOnly lang="json" height="100%" style={{ height: "100%" }} />
           ) : (
-            <EmptyState message="Repair, sort, format hoặc minify để tạo output." />
+            <EmptyState message={t("json.emptyActionOutput")} />
           )}
         </div>
       </div>

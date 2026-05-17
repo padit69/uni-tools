@@ -90,7 +90,7 @@ export default function LoremTool() {
                   unit === u ? "bg-[var(--card)] shadow-sm" : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                 )}
               >
-                {u === "paragraphs" ? "Đoạn" : u === "sentences" ? "Câu" : "Từ"}
+                {u === "paragraphs" ? "Paragraphs" : u === "sentences" ? "Sentences" : "Words"}
               </button>
             ))}
           </div>
@@ -101,12 +101,12 @@ export default function LoremTool() {
               onChange={(e) => setStartLorem(e.target.checked)}
               className="size-3 accent-[var(--primary)]"
             />
-            Bắt đầu với "Lorem ipsum..."
+            Start with "Lorem ipsum..."
           </label>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setSeed((s) => s + 1)}>
-            <RefreshCw className="size-3.5" /> Tạo mới
+            <RefreshCw className="size-3.5" /> Generate
           </Button>
           <CopyButton text={output} />
         </div>

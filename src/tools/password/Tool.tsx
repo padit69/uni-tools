@@ -55,7 +55,7 @@ export default function PasswordTool() {
       }
       setItems(list);
     } catch (e) {
-      toast.error("Lỗi", { description: (e as Error).message });
+      toast.error("Error", { description: (e as Error).message });
     }
   };
 
@@ -78,7 +78,7 @@ export default function PasswordTool() {
         <div className="flex items-center gap-2">
           <ModeSwitch value={mode} onChange={setMode} />
           <label className="flex items-center gap-1.5 text-xs">
-            <span className="text-[var(--muted-foreground)]">Số lượng</span>
+            <span className="text-[var(--muted-foreground)]">Count</span>
             <input
               type="number"
               min={1}
@@ -93,7 +93,7 @@ export default function PasswordTool() {
           </label>
           <Button onClick={regen} size="sm">
             <RefreshCw className="size-3.5" />
-            Tạo mới
+            Generate
           </Button>
           <CopyButton text={allText} label="Copy all" disabled={!items.length} />
         </div>
@@ -112,7 +112,7 @@ export default function PasswordTool() {
       <div className="min-h-0 flex-1 overflow-auto p-3">
         {items.length === 0 ? (
           <div className="flex h-full items-center justify-center text-xs text-[var(--muted-foreground)]">
-            Bấm "Tạo mới" để sinh password.
+            Click "Generate" to create passwords.
           </div>
         ) : (
           <ul className="flex flex-col gap-1">
@@ -230,7 +230,7 @@ function RandomOptionsPanel({
           onChange={(v) => setOpts({ ...opts, symbol: v })}
         />
         <Toggle
-          label="Bỏ ký tự khó đọc"
+          label="Exclude ambiguous characters"
           checked={opts.excludeAmbiguous}
           onChange={(v) => setOpts({ ...opts, excludeAmbiguous: v })}
         />
@@ -249,7 +249,7 @@ function PassphraseOptionsPanel({
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs">
       <label className="flex items-center gap-2">
-        <span className="text-[var(--muted-foreground)]">Số từ</span>
+        <span className="text-[var(--muted-foreground)]">Word count</span>
         <input
           type="number"
           min={2}
@@ -263,7 +263,7 @@ function PassphraseOptionsPanel({
         />
       </label>
       <label className="flex items-center gap-2">
-        <span className="text-[var(--muted-foreground)]">Phân cách</span>
+        <span className="text-[var(--muted-foreground)]">Separator</span>
         <div className="flex gap-0.5 rounded-md border border-[var(--border)] bg-[var(--muted)]/40 p-0.5">
           {SEPARATORS.map((s) => (
             <button
@@ -282,12 +282,12 @@ function PassphraseOptionsPanel({
         </div>
       </label>
       <Toggle
-        label="Viết hoa chữ đầu"
+        label="Capitalize first letter"
         checked={pp.capitalize}
         onChange={(v) => setPp({ ...pp, capitalize: v })}
       />
       <Toggle
-        label="Thêm số"
+        label="Add number"
         checked={pp.includeNumber}
         onChange={(v) => setPp({ ...pp, includeNumber: v })}
       />
@@ -360,11 +360,11 @@ function PasswordRow({
 
 function StrengthBadge({ strength, bits }: { strength: Strength; bits: number }) {
   const meta: Record<Strength, { label: string; cls: string }> = {
-    "very-weak": { label: "Rất yếu", cls: "bg-red-500/15 text-red-400" },
-    weak: { label: "Yếu", cls: "bg-orange-500/15 text-orange-400" },
-    fair: { label: "Khá", cls: "bg-yellow-500/15 text-yellow-400" },
-    strong: { label: "Mạnh", cls: "bg-emerald-500/15 text-emerald-400" },
-    "very-strong": { label: "Rất mạnh", cls: "bg-emerald-500/20 text-emerald-300" },
+    "very-weak": { label: "Very weak", cls: "bg-red-500/15 text-red-400" },
+    weak: { label: "Weak", cls: "bg-orange-500/15 text-orange-400" },
+    fair: { label: "Fair", cls: "bg-yellow-500/15 text-yellow-400" },
+    strong: { label: "Strong", cls: "bg-emerald-500/15 text-emerald-400" },
+    "very-strong": { label: "Very strong", cls: "bg-emerald-500/20 text-emerald-300" },
   };
   const m = meta[strength];
   return (

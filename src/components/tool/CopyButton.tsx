@@ -2,6 +2,7 @@ import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 import { Button, type ButtonProps } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { useI18n } from "@/i18n";
 
 interface CopyButtonProps extends Omit<ButtonProps, "onClick" | "children"> {
   text: string;
@@ -19,6 +20,7 @@ export function CopyButton({
   disabled,
   ...props
 }: CopyButtonProps) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const Icon = copied ? Check : Copy;
 
@@ -39,7 +41,7 @@ export function CopyButton({
       {...props}
     >
       <Icon className="size-3.5" />
-      {!iconOnly && (copied ? "Đã copy" : label)}
+      {!iconOnly && (copied ? t("copy.copied") : label)}
     </Button>
   );
 }

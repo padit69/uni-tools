@@ -233,7 +233,7 @@ export default function CurlTool() {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm font-medium">Curl Tester</div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="size-8" onClick={clear} disabled={!url && !body && !response} title="Xóa">
+          <Button variant="ghost" size="icon" className="size-8" onClick={clear} disabled={!url && !body && !response} title="Clear">
             <Eraser className="size-3.5" />
           </Button>
           <Button variant="secondary" size="icon" className="size-8" onClick={() => navigator.clipboard.writeText(curlText || curl)} disabled={!url && !curlText} title="Copy curl">
@@ -314,7 +314,7 @@ export default function CurlTool() {
           )}
           {canHaveBody && bodyMode === "json" && body.trim() && !looksJson(body) && (
             <div className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-xs text-amber-400">
-              Body hiện chưa phải JSON hợp lệ.
+              Body is not valid JSON yet.
             </div>
           )}
 
@@ -343,7 +343,7 @@ export default function CurlTool() {
           <div className="space-y-2">
             {history.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
-                Chưa có history.
+                No history yet.
               </div>
             ) : (
               history.map((item) => (
@@ -375,12 +375,12 @@ export default function CurlTool() {
           </div>
 
           {!response ? (
-            <Empty message="Send request để xem response." />
+            <Empty message="Send request to see the response." />
           ) : response.error ? (
             <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
               {response.error}
               <div className="mt-2 text-[var(--muted-foreground)]">
-                Browser fetch bị giới hạn bởi CORS. Nếu endpoint không cho phép CORS, hãy copy curl và chạy trong terminal.
+                Browser fetch is limited by CORS. If the endpoint does not allow CORS, copy the curl command and run it in a terminal.
               </div>
             </div>
           ) : (
@@ -559,7 +559,7 @@ function tokenizeCurl(input: string) {
     current += char;
   }
 
-  if (quote) throw new Error("Curl command thiếu dấu quote đóng.");
+  if (quote) throw new Error("Curl command is missing a closing quote.");
   if (escaped) current += "\\";
   if (current) tokens.push(current);
   return tokens;
@@ -567,7 +567,7 @@ function tokenizeCurl(input: string) {
 
 function parseCurl(input: string): { url: string; method: Method; headers: HeaderRow[]; body?: string; formRows: FormRow[] } {
   const tokens = tokenizeCurl(input.trim());
-  if (tokens[0] !== "curl") throw new Error("Command phải bắt đầu bằng curl.");
+  if (tokens[0] !== "curl") throw new Error("Command must start with curl.");
 
   let url = "";
   let method: Method | null = null;
@@ -617,7 +617,7 @@ function parseCurl(input: string): { url: string; method: Method; headers: Heade
     }
   }
 
-  if (!url) throw new Error("Không tìm thấy URL trong curl command.");
+  if (!url) throw new Error("Could not find a URL in the curl command.");
   return {
     url,
     method: method ?? "GET",
@@ -630,13 +630,13 @@ function parseCurl(input: string): { url: string; method: Method; headers: Heade
 function normalizeMethod(value: string | undefined): Method {
   const upper = value?.toUpperCase();
   if (upper && METHODS.includes(upper as Method)) return upper as Method;
-  throw new Error(`HTTP method không hỗ trợ: ${value ?? ""}`);
+  throw new Error(`Unsupported HTTP method: ${value ?? ""}`);
 }
 
 function parseHeader(value: string | undefined) {
-  if (!value) throw new Error("Header thiếu giá trị.");
+  if (!value) throw new Error("Header is missing a value.");
   const index = value.indexOf(":");
-  if (index === -1) throw new Error(`Header không hợp lệ: ${value}`);
+  if (index === -1) throw new Error(`Invalid header: ${value}`);
   return {
     key: value.slice(0, index).trim(),
     value: value.slice(index + 1).trim(),
@@ -644,9 +644,9 @@ function parseHeader(value: string | undefined) {
 }
 
 function parseFormRow(value: string | undefined, id: number): FormRow {
-  if (!value) throw new Error("Form field thiếu giá trị.");
+  if (!value) throw new Error("Form field is missing a value.");
   const index = value.indexOf("=");
-  if (index === -1) throw new Error(`Form field không hợp lệ: ${value}`);
+  if (index === -1) throw new Error(`Invalid form field: ${value}`);
   return {
     id,
     key: value.slice(0, index),

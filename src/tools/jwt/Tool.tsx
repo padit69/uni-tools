@@ -13,9 +13,9 @@ interface Decoded {
 
 function decode(token: string): Decoded {
   const trimmed = token.trim();
-  if (!trimmed) throw new Error("Token rỗng");
+  if (!trimmed) throw new Error("Empty token");
   const parts = trimmed.split(".");
-  if (parts.length !== 3) throw new Error("JWT phải có 3 phần ngăn cách bằng dấu '.'");
+  if (parts.length !== 3) throw new Error("JWT must have 3 parts separated by '.'");
   const header = decodeProtectedHeader(trimmed) as Record<string, unknown>;
   const payload = decodeJwt(trimmed) as Record<string, unknown>;
   return { header, payload, signature: parts[2] };
@@ -42,14 +42,14 @@ export default function JwtTool() {
         <div className="flex items-center gap-2 text-sm">
           <KeyRound className="size-4 text-[var(--muted-foreground)]" />
           <span className="font-medium">JWT Decoder</span>
-          <span className="text-xs text-[var(--muted-foreground)]">— chỉ decode, không verify</span>
+          <span className="text-xs text-[var(--muted-foreground)]">— decode only, no verification</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setToken(SAMPLE)} disabled={!!token}>
-            Ví dụ
+            Example
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setToken("")} disabled={!token}>
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function JwtTool() {
         </div>
 
         <div className="flex flex-col overflow-y-auto">
-          {!decoded && <Empty>Paste JWT để xem nội dung.</Empty>}
+          {!decoded && <Empty>Paste a JWT to inspect its contents.</Empty>}
           {decoded?.ok === false && (
             <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
               {decoded.error}

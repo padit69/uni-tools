@@ -46,7 +46,7 @@ export default function UuidTool() {
             }}
           />
           <label className="flex items-center gap-1.5 text-xs">
-            <span className="text-[var(--muted-foreground)]">Số lượng</span>
+            <span className="text-[var(--muted-foreground)]">Count</span>
             <input
               type="number"
               min={1}
@@ -62,9 +62,9 @@ export default function UuidTool() {
         </div>
         <div className="flex items-center gap-2">
           <Checkbox label="UPPERCASE" checked={uppercase} onChange={setUppercase} />
-          <Checkbox label="Có dấu -" checked={hyphens} onChange={setHyphens} />
+          <Checkbox label="Include hyphens" checked={hyphens} onChange={setHyphens} />
           <Button onClick={regen} size="sm">
-            <RefreshCw className="size-3.5" /> Tạo mới
+            <RefreshCw className="size-3.5" /> Generate
           </Button>
           <CopyButton text={allText} label="Copy all" />
         </div>

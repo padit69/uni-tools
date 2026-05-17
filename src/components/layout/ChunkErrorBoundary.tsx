@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button } from "@/components/ui/Button";
+import { useI18n } from "@/i18n";
 
 type Props = { children: ReactNode };
 type State = { error: Error | null };
@@ -27,37 +28,39 @@ export class ChunkErrorBoundary extends Component<Props, State> {
   render() {
     const { error } = this.state;
     if (!error) return this.props.children;
+    return <ChunkErrorFallback error={error} />;
+  }
+}
 
-    const chunkError = isChunkLoadError(error);
+function ChunkErrorFallback({ error }: { error: Error }) {
+  const { t } = useI18n();
+  const chunkError = isChunkLoadError(error);
 
-    return (
-      <div className="flex h-full items-center justify-center p-6 text-center">
-        <div className="max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-xl">
-          <div className="text-sm font-semibold">
-            {chunkError ? "Cần tải lại phiên bản mới" : "Tool bị lỗi"}
-          </div>
-          <p className="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
-            {chunkError
-              ? "Trình duyệt hoặc Cloudflare đang giữ file JS cũ sau khi deploy. Bấm tải lại để lấy bản mới nhất."
-              : error.message}
-          </p>
-          <div className="mt-4 flex justify-center gap-2">
-            <Button size="sm" onClick={() => window.location.reload()}>
-              Tải lại
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => {
-                localStorage.clear();
-                window.location.reload();
-              }}
-            >
-              Xóa cache local
-            </Button>
-          </div>
+  return (
+    <div className="flex h-full items-center justify-center p-6 text-center">
+      <div className="max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-xl">
+        <div className="text-sm font-semibold">
+          {chunkError ? t("error.chunkTitle") : t("error.toolTitle")}
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-[var(--muted-foreground)]">
+          {chunkError ? t("error.chunkDesc") : error.message}
+        </p>
+        <div className="mt-4 flex justify-center gap-2">
+          <Button size="sm" onClick={() => window.location.reload()}>
+            {t("error.reload")}
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              localStorage.clear();
+              window.location.reload();
+            }}
+          >
+            {t("error.clearCache")}
+          </Button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }

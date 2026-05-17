@@ -54,14 +54,14 @@ export default function TimestampTool() {
         <div className="flex items-center gap-2 text-sm">
           <Clock className="size-4 text-[var(--muted-foreground)]" />
           <span className="font-medium">Timestamp Converter</span>
-          <span className="text-xs text-[var(--muted-foreground)]">— auto-detect Unix s/ms hoặc date string</span>
+          <span className="text-xs text-[var(--muted-foreground)]">— auto-detect Unix s/ms or date string</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setInput(String(Math.floor(Date.now() / 1000)))}>
             Now
           </Button>
           <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-            <Eraser className="size-3.5" /> Xóa
+            <Eraser className="size-3.5" /> Clear
           </Button>
         </div>
       </div>
@@ -70,14 +70,14 @@ export default function TimestampTool() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="1735689600  ·  1735689600000  ·  2025-01-01T00:00:00Z  ·  để trống = now"
+          placeholder="1735689600  ·  1735689600000  ·  2025-01-01T00:00:00Z  ·  empty = now"
           className="h-10 w-full rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-3 font-mono text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
           spellCheck={false}
         />
 
         {!parsed && input.trim() && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
-            Không parse được "{input}". Thử dạng Unix timestamp hoặc ISO 8601.
+            Could not parse "{input}". Try a Unix timestamp or ISO 8601.
           </div>
         )}
 

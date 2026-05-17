@@ -77,7 +77,7 @@ export default function ColorTool() {
           <span className="font-medium">Color Converter</span>
         </div>
         <Button variant="ghost" size="sm" onClick={() => setInput("")} disabled={!input}>
-          <Eraser className="size-3.5" /> Xóa
+          <Eraser className="size-3.5" /> Clear
         </Button>
       </div>
 
@@ -113,7 +113,7 @@ export default function ColorTool() {
 
         {!parsed && input.trim() && (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">
-            "{input}" không phải màu hợp lệ.
+            "{input}" is not a valid color.
           </div>
         )}
 
