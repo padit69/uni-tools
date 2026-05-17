@@ -2,14 +2,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Copy, Eraser, Play, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { JsonEditor } from "@/tools/json/JsonEditor";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
+type BodyMode = "none" | "json" | "raw" | "form-data";
 
 interface HeaderRow {
   id: number;
   key: string;
   value: string;
+  enabled: boolean;
+}
+
+interface FormRow {
+  id: number;
+  key: string;
+  value: string;
+  kind: "text" | "file";
+  file?: File;
   enabled: boolean;
 }
 
@@ -23,6 +34,18 @@ interface ResponseState {
   error?: string;
 }
 
+interface CurlHistoryItem {
+  id: string;
+  name: string;
+  savedAt: number;
+  url: string;
+  method: Method;
+  headers: HeaderRow[];
+  bodyMode: BodyMode;
+  body: string;
+  formRows: Array<Omit<FormRow, "file">>;
+}
+
 const METHODS: Method[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"];
 
 export default function CurlTool() {
@@ -31,11 +54,16 @@ export default function CurlTool() {
   const [headers, setHeaders] = useState<HeaderRow[]>([
     { id: 1, key: "Accept", value: "application/json", enabled: true },
   ]);
+  const [bodyMode, setBodyMode] = useState<BodyMode>("none");
   const [body, setBody] = useState(`{\n  "hello": "world"\n}`);
+  const [formRows, setFormRows] = useState<FormRow[]>([
+    { id: 1, key: "name", value: "Ada", kind: "text", enabled: true },
+  ]);
   const [curlText, setCurlText] = useState("");
   const [parseError, setParseError] = useState<string | null>(null);
   const [response, setResponse] = useState<ResponseState | null>(null);
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useLocalStorage<CurlHistoryItem[]>("curl-history", []);
   const editingCurlRef = useRef(false);
 
   const activeHeaders = useMemo(() => {
@@ -46,8 +74,12 @@ export default function CurlTool() {
   }, [headers]);
 
   const canHaveBody = method !== "GET" && method !== "HEAD";
-  const requestBody = canHaveBody && body.trim() ? body : undefined;
-  const curl = useMemo(() => buildCurl({ url, method, headers: activeHeaders, body: requestBody }), [activeHeaders, method, requestBody, url]);
+  const activeFormRows = useMemo(() => formRows.filter((row) => row.enabled && row.key.trim()), [formRows]);
+  const requestBody = canHaveBody && bodyMode !== "none" && bodyMode !== "form-data" && body.trim() ? body : undefined;
+  const curl = useMemo(
+    () => buildCurl({ url, method, headers: activeHeaders, body: requestBody, formRows: canHaveBody && bodyMode === "form-data" ? activeFormRows : [] }),
+    [activeFormRows, activeHeaders, bodyMode, canHaveBody, method, requestBody, url]
+  );
 
   useEffect(() => {
     if (editingCurlRef.current) {
@@ -59,18 +91,28 @@ export default function CurlTool() {
 
   const send = async () => {
     if (!url.trim()) return;
+    saveHistory();
     setLoading(true);
     setResponse(null);
     const started = performance.now();
     try {
       const nextHeaders = { ...activeHeaders };
-      if (requestBody && !hasHeader(nextHeaders, "content-type")) {
+      let fetchBody: BodyInit | undefined = requestBody;
+      if (canHaveBody && bodyMode === "form-data") {
+        const formData = new FormData();
+        activeFormRows.forEach((row) => {
+          if (row.kind === "file" && row.file) formData.append(row.key, row.file);
+          else formData.append(row.key, row.value);
+        });
+        fetchBody = formData;
+        removeHeader(nextHeaders, "content-type");
+      } else if (bodyMode === "json" && requestBody && !hasHeader(nextHeaders, "content-type")) {
         nextHeaders["Content-Type"] = "application/json";
       }
       const res = await fetch(url, {
         method,
         headers: nextHeaders,
-        body: requestBody,
+        body: fetchBody,
       });
       const text = await res.text();
       setResponse({
@@ -104,9 +146,52 @@ export default function CurlTool() {
     setHeaders((current) => [...current, { id: Date.now(), key: "", value: "", enabled: true }]);
   };
 
+  const currentHistoryItem = (): CurlHistoryItem => ({
+    id: `${Date.now()}`,
+    name: `${method} ${url || "Untitled request"}`,
+    savedAt: Date.now(),
+    url,
+    method,
+    headers,
+    bodyMode,
+    body,
+    formRows: formRows.map(({ file: _file, ...row }) => row),
+  });
+
+  const saveHistory = () => {
+    if (!url.trim()) return;
+    const item = currentHistoryItem();
+    saveHistoryItem(item);
+  };
+
+  const saveHistoryItem = (item: CurlHistoryItem) => {
+    setHistory((current) => {
+      const same = current.filter((entry) => !(entry.method === item.method && entry.url === item.url));
+      return [item, ...same].slice(0, 20);
+    });
+  };
+
+  const loadHistory = (item: CurlHistoryItem) => {
+    editingCurlRef.current = false;
+    setUrl(item.url);
+    setMethod(item.method);
+    setHeaders(item.headers);
+    setBodyMode(item.bodyMode);
+    setBody(item.body);
+    setFormRows(item.formRows.map((row) => ({ ...row, file: undefined })));
+    setResponse(null);
+    setParseError(null);
+  };
+
+  const deleteHistory = (id: string) => {
+    setHistory((current) => current.filter((item) => item.id !== id));
+  };
+
   const clear = () => {
     setUrl("");
     setBody("");
+    setBodyMode("none");
+    setFormRows([]);
     setCurlText("");
     setParseError(null);
     setResponse(null);
@@ -120,6 +205,8 @@ export default function CurlTool() {
       setMethod(parsed.method);
       setHeaders(parsed.headers);
       setBody(parsed.body ?? "");
+      setBodyMode(parsed.formRows.length > 0 ? "form-data" : parsed.body ? (looksJson(parsed.body) ? "json" : "raw") : "none");
+      if (parsed.formRows.length > 0) setFormRows(parsed.formRows);
       setParseError(null);
     } catch (e) {
       setParseError((e as Error).message);
@@ -167,6 +254,7 @@ export default function CurlTool() {
               onChange={(e) => {
                 const next = e.target.value as Method;
                 setMethod(next);
+                if (next === "GET" || next === "HEAD") setBodyMode("none");
               }}
               className="h-9 rounded-md border border-[var(--border)] bg-[var(--muted)]/30 px-2 text-xs font-semibold"
             >
@@ -196,18 +284,35 @@ export default function CurlTool() {
           </div>
 
           <SectionTitle label="Body" />
-          <div className="mb-2 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 py-1 text-xs text-[var(--muted-foreground)]">
-            JSON body {canHaveBody ? "" : "không dùng cho GET/HEAD"}
+          <div className="mb-2 flex gap-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-1 text-xs">
+            {(["none", "json", "raw", "form-data"] as BodyMode[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setBodyMode(mode)}
+                disabled={!canHaveBody && mode !== "none"}
+                className={cn(
+                  "flex-1 rounded-md px-2 py-1.5 capitalize disabled:opacity-40",
+                  bodyMode === mode ? "bg-[var(--card)] shadow-sm" : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                )}
+              >
+                {mode}
+              </button>
+            ))}
           </div>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            disabled={!canHaveBody}
-            placeholder={`{\n  "name": "Ada"\n}`}
-            className="min-h-36 resize-y rounded-md border border-[var(--border)] bg-transparent p-3 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-50"
-            spellCheck={false}
-          />
-          {canHaveBody && body.trim() && !looksJson(body) && (
+          {(bodyMode === "json" || bodyMode === "raw") && (
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              disabled={!canHaveBody}
+              placeholder={bodyMode === "json" ? `{\n  "name": "Ada"\n}` : "raw body..."}
+              className="min-h-36 resize-y rounded-md border border-[var(--border)] bg-transparent p-3 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-50"
+              spellCheck={false}
+            />
+          )}
+          {bodyMode === "form-data" && (
+            <FormDataEditor rows={formRows} setRows={setFormRows} disabled={!canHaveBody} />
+          )}
+          {canHaveBody && bodyMode === "json" && body.trim() && !looksJson(body) && (
             <div className="mt-2 rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-xs text-amber-400">
               Body hiện chưa phải JSON hợp lệ.
             </div>
@@ -233,6 +338,27 @@ export default function CurlTool() {
               {parseError}
             </div>
           )}
+
+          <SectionTitle label="History" />
+          <div className="space-y-2">
+            {history.length === 0 ? (
+              <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
+                Chưa có history.
+              </div>
+            ) : (
+              history.map((item) => (
+                <div key={item.id} className="group grid grid-cols-[1fr_28px] items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--muted)]/15 p-2">
+                  <button onClick={() => loadHistory(item)} className="min-w-0 text-left">
+                    <div className="truncate font-mono text-xs">{item.method} {item.url}</div>
+                    <div className="mt-0.5 text-[10px] text-[var(--muted-foreground)]">{new Date(item.savedAt).toLocaleString()}</div>
+                  </button>
+                  <Button variant="ghost" size="icon" className="size-7 opacity-70 group-hover:opacity-100" onClick={() => deleteHistory(item.id)} title="Delete history">
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
         <div className="flex min-h-0 flex-col overflow-hidden">
@@ -294,18 +420,95 @@ function Empty({ message }: { message: string }) {
   return <div className="flex flex-1 items-center justify-center p-6 text-xs text-[var(--muted-foreground)]">{message}</div>;
 }
 
+function FormDataEditor({
+  rows,
+  setRows,
+  disabled,
+}: {
+  rows: FormRow[];
+  setRows: React.Dispatch<React.SetStateAction<FormRow[]>>;
+  disabled: boolean;
+}) {
+  const updateRow = (id: number, patch: Partial<FormRow>) => {
+    setRows((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
+  };
+
+  return (
+    <div className={cn("space-y-2", disabled && "pointer-events-none opacity-50")}>
+      {rows.map((row) => (
+        <div key={row.id} className="grid grid-cols-[22px_1fr_82px_1fr_28px] items-center gap-2">
+          <input type="checkbox" checked={row.enabled} onChange={(e) => updateRow(row.id, { enabled: e.target.checked })} className="size-3 accent-[var(--primary)]" />
+          <input value={row.key} onChange={(e) => updateRow(row.id, { key: e.target.value })} placeholder="key" className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
+          <select
+            value={row.kind}
+            onChange={(e) => updateRow(row.id, { kind: e.target.value as "text" | "file", file: undefined, value: "" })}
+            className="h-8 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 text-xs"
+          >
+            <option value="text">Text</option>
+            <option value="file">File</option>
+          </select>
+          {row.kind === "file" ? (
+            <label className="flex h-8 min-w-0 cursor-pointer items-center rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 text-xs text-[var(--muted-foreground)]">
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  updateRow(row.id, { file, value: file?.name ?? "" });
+                }}
+              />
+              <span className="truncate">{row.file?.name || row.value || "Choose file..."}</span>
+            </label>
+          ) : (
+            <input value={row.value} onChange={(e) => updateRow(row.id, { value: e.target.value })} placeholder="value" className="h-8 min-w-0 rounded-md border border-[var(--border)] bg-[var(--muted)]/20 px-2 font-mono text-xs" />
+          )}
+          <Button variant="ghost" size="icon" className="size-7" onClick={() => setRows((current) => current.filter((item) => item.id !== row.id))} title="Remove field">
+            <Trash2 className="size-3.5" />
+          </Button>
+        </div>
+      ))}
+      <Button variant="secondary" size="sm" onClick={() => setRows((current) => [...current, { id: Date.now(), key: "", value: "", kind: "text", enabled: true }])}>
+        <Plus className="size-3.5" />
+        Add field
+      </Button>
+    </div>
+  );
+}
+
 function hasHeader(headers: Record<string, string>, name: string) {
   return Object.keys(headers).some((key) => key.toLowerCase() === name.toLowerCase());
+}
+
+function removeHeader(headers: Record<string, string>, name: string) {
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === name.toLowerCase()) delete headers[key];
+  }
 }
 
 function shellQuote(value: string) {
   return `'${value.replace(/'/g, "'\\''")}'`;
 }
 
-function buildCurl({ url, method, headers, body }: { url: string; method: Method; headers: Record<string, string>; body?: string }) {
+function buildCurl({
+  url,
+  method,
+  headers,
+  body,
+  formRows,
+}: {
+  url: string;
+  method: Method;
+  headers: Record<string, string>;
+  body?: string;
+  formRows?: FormRow[];
+}) {
   const parts = ["curl", "-i", "-X", method, shellQuote(url || "https://api.example.com")];
   for (const [key, value] of Object.entries(headers)) {
     parts.push("-H", shellQuote(`${key}: ${value}`));
+  }
+  for (const row of formRows ?? []) {
+    const value = row.kind === "file" ? `@${row.file?.name || row.value || "file"}` : row.value;
+    parts.push("-F", shellQuote(`${row.key}=${value}`));
   }
   if (body !== undefined) parts.push("--data-raw", shellQuote(body));
   return parts.join(" \\\n  ");
@@ -362,7 +565,7 @@ function tokenizeCurl(input: string) {
   return tokens;
 }
 
-function parseCurl(input: string): { url: string; method: Method; headers: HeaderRow[]; body?: string } {
+function parseCurl(input: string): { url: string; method: Method; headers: HeaderRow[]; body?: string; formRows: FormRow[] } {
   const tokens = tokenizeCurl(input.trim());
   if (tokens[0] !== "curl") throw new Error("Command phải bắt đầu bằng curl.");
 
@@ -370,6 +573,7 @@ function parseCurl(input: string): { url: string; method: Method; headers: Heade
   let method: Method | null = null;
   let body: string | undefined;
   const parsedHeaders: HeaderRow[] = [];
+  const formRows: FormRow[] = [];
 
   for (let i = 1; i < tokens.length; i++) {
     const token = tokens[i];
@@ -394,6 +598,13 @@ function parseCurl(input: string): { url: string; method: Method; headers: Heade
     } else if (token.startsWith("--data-raw=")) {
       body = token.slice("--data-raw=".length);
       if (!method) method = "POST";
+    } else if (token === "-F" || token === "--form" || token === "--form-string") {
+      i++;
+      formRows.push(parseFormRow(next, Date.now() + i));
+      if (!method) method = "POST";
+    } else if (token.startsWith("-F") && token.length > 2) {
+      formRows.push(parseFormRow(token.slice(2), Date.now() + i));
+      if (!method) method = "POST";
     } else if (token === "--url") {
       i++;
       url = next ?? "";
@@ -412,6 +623,7 @@ function parseCurl(input: string): { url: string; method: Method; headers: Heade
     method: method ?? "GET",
     headers: parsedHeaders.length > 0 ? parsedHeaders : [{ id: 1, key: "Accept", value: "application/json", enabled: true }],
     body,
+    formRows,
   };
 }
 
@@ -428,6 +640,19 @@ function parseHeader(value: string | undefined) {
   return {
     key: value.slice(0, index).trim(),
     value: value.slice(index + 1).trim(),
+  };
+}
+
+function parseFormRow(value: string | undefined, id: number): FormRow {
+  if (!value) throw new Error("Form field thiếu giá trị.");
+  const index = value.indexOf("=");
+  if (index === -1) throw new Error(`Form field không hợp lệ: ${value}`);
+  return {
+    id,
+    key: value.slice(0, index),
+    value: value.slice(index + 1).startsWith("@") ? value.slice(index + 2) : value.slice(index + 1),
+    kind: value.slice(index + 1).startsWith("@") ? "file" : "text",
+    enabled: true,
   };
 }
 

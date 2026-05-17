@@ -193,12 +193,12 @@ export const tools: Tool[] = [
     Component: lazy(() => import("./string-escape/Tool")),
   },
 
-  /* Developer */
+  /* API Test */
   {
     id: "curl",
     slug: "curl",
     name: "Curl Tester",
-    category: "dev",
+    category: "api",
     icon: Terminal,
     description: "Build curl command và test HTTP request trong browser",
     keywords: ["curl", "http", "api", "request", "fetch", "rest", "test"],

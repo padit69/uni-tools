@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { LazyExoticComponent, ComponentType } from "react";
 
-export type ToolCategory = "json" | "encode" | "generate" | "convert" | "text" | "dev";
+export type ToolCategory = "json" | "api" | "encode" | "generate" | "convert" | "text";
 
 export interface Tool {
   id: string;
@@ -23,9 +23,9 @@ export interface CategoryMeta {
 
 export const categories: Record<ToolCategory, CategoryMeta> = {
   json: { label: "JSON", order: 1 },
-  encode: { label: "Encode / Decode", order: 2 },
-  generate: { label: "Generators", order: 3 },
-  convert: { label: "Converters", order: 4 },
-  text: { label: "Text", order: 5 },
-  dev: { label: "Developer", order: 6 },
+  api: { label: "API Test", order: 2 },
+  encode: { label: "Encode / Decode", order: 3 },
+  generate: { label: "Generators", order: 4 },
+  convert: { label: "Converters", order: 5 },
+  text: { label: "Text", order: 6 },
 };

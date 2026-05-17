@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Github, Search } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Button } from "@/components/ui/Button";
@@ -39,6 +39,11 @@ export function TopBar() {
           <kbd className="ml-2 hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] sm:inline-block">
             ⌘K
           </kbd>
+        </Button>
+        <Button variant="ghost" size="icon" asChild aria-label="GitHub repository">
+          <a href="https://github.com/padit69/uni-tools" target="_blank" rel="noreferrer">
+            <Github className="size-4" />
+          </a>
         </Button>
         <ThemeToggle />
       </div>
