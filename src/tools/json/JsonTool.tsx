@@ -1,5 +1,16 @@
 import { useMemo, useState } from "react";
-import { Check, Copy, Eraser, FileCode, FileWarning, Minimize2, Wand2, ArrowRightLeft } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Eraser,
+  FileCode,
+  FileWarning,
+  Minimize2,
+  Wand2,
+  ArrowRightLeft,
+  Columns2,
+  Square,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
@@ -9,6 +20,7 @@ import { formatJson, minifyJson, type Indent } from "./format";
 import { validateJson } from "./validate";
 import { convert, type Format } from "./convert";
 import { useToolHistory } from "@/hooks/useToolHistory";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
 
 const SAMPLE = `{
@@ -31,8 +43,11 @@ export default function JsonTool() {
   const [indent, setIndent] = useState<Indent>(2);
   const [from, setFrom] = useState<Format>("json");
   const [to, setTo] = useState<Format>("yaml");
+  const [splitView, setSplitView] = useLocalStorage<boolean>("json-format-split", true);
 
   const history = useToolHistory("json");
+
+  const showOutputPane = tab !== "format" || splitView;
 
   const validation = useMemo(() => validateJson(input), [input]);
 
@@ -59,8 +74,9 @@ export default function JsonTool() {
   const handleFormat = () => {
     try {
       const out = formatJson(input, indent);
-      setOutput(out);
       history.push(input);
+      if (splitView) setOutput(out);
+      else setInput(out);
       toast.success("Đã format");
     } catch (e) {
       toast.error("JSON không hợp lệ", { description: (e as Error).message });
@@ -70,8 +86,9 @@ export default function JsonTool() {
   const handleMinify = () => {
     try {
       const out = minifyJson(input);
-      setOutput(out);
       history.push(input);
+      if (splitView) setOutput(out);
+      else setInput(out);
       toast.success("Đã minify");
     } catch (e) {
       toast.error("JSON không hợp lệ", { description: (e as Error).message });
@@ -120,7 +137,12 @@ export default function JsonTool() {
           </TabsList>
 
           <div className="flex items-center gap-2">
-            {tab === "format" && <IndentSelector value={indent} onChange={setIndent} />}
+            {tab === "format" && (
+              <>
+                <IndentSelector value={indent} onChange={setIndent} />
+                <LayoutToggle splitView={splitView} onToggle={() => setSplitView(!splitView)} />
+              </>
+            )}
             {tab === "convert" && (
               <ConvertSelector from={from} to={to} setFrom={setFrom} setTo={setTo} onSwap={handleSwap} />
             )}
@@ -140,15 +162,38 @@ export default function JsonTool() {
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-2">
+        <div
+          className={cn(
+            "grid flex-1 overflow-hidden grid-cols-1",
+            showOutputPane && "md:grid-cols-2"
+          )}
+        >
           {/* Input pane */}
-          <div className="flex flex-col overflow-hidden border-b border-[var(--border)] md:border-b-0 md:border-r">
+          <div
+            className={cn(
+              "flex flex-col overflow-hidden",
+              showOutputPane && "border-b border-[var(--border)] md:border-b-0 md:border-r"
+            )}
+          >
             <PaneHeader
-              label="Input"
+              label={tab === "format" && !splitView ? "Editor" : "Input"}
               right={
                 <ValidationBadge ok={validation.ok} count={validation.errors.length} hasInput={!!input} />
               }
             />
+            {tab === "format" && !splitView && (
+              <div className="flex shrink-0 items-center gap-2 px-3 pt-2 pb-2">
+                <Button onClick={handleFormat} disabled={!input} className="flex-1">
+                  <Wand2 className="size-3.5" />
+                  Format
+                </Button>
+                <Button onClick={handleMinify} disabled={!input} variant="secondary" className="flex-1">
+                  <Minimize2 className="size-3.5" />
+                  Minify
+                </Button>
+                <CopyButton text={input} />
+              </div>
+            )}
             <div className="min-h-0 flex-1 overflow-auto">
               <JsonEditor
                 value={input}
@@ -163,6 +208,7 @@ export default function JsonTool() {
           </div>
 
           {/* Output pane */}
+          {showOutputPane && (
           <div className="flex flex-col overflow-hidden">
             <TabsContent value="format" className="m-0 flex h-full flex-col">
               <PaneHeader
@@ -202,6 +248,7 @@ export default function JsonTool() {
               <ConvertPane result={convertResult} toLang={formatToLang(to)} />
             </TabsContent>
           </div>
+          )}
         </div>
       </Tabs>
     </div>
@@ -254,6 +301,21 @@ function ValidationBadge({ ok, count, hasInput }: { ok: boolean; count: number; 
     <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-medium text-red-400">
       {count} lỗi
     </span>
+  );
+}
+
+function LayoutToggle({ splitView, onToggle }: { splitView: boolean; onToggle: () => void }) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={onToggle}
+      title={splitView ? "Gộp 1 cột (format in-place)" : "Chia 2 cột Input / Output"}
+      className="h-7 px-2 text-xs"
+    >
+      {splitView ? <Columns2 className="size-3.5" /> : <Square className="size-3.5" />}
+      <span className="hidden sm:inline">{splitView ? "2 cột" : "1 cột"}</span>
+    </Button>
   );
 }
 

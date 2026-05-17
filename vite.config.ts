@@ -5,6 +5,9 @@ import path from "node:path";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  preview: {
+    allowedHosts: ["tool.aiex.site"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

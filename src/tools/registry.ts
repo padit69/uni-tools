@@ -14,6 +14,8 @@ import {
   GitCompare,
   Regex as RegexIcon,
   FileText,
+  Shield,
+  Quote,
 } from "lucide-react";
 import type { Tool, ToolCategory } from "./types";
 import { categories } from "./types";
@@ -105,6 +107,16 @@ export const tools: Tool[] = [
     keywords: ["lorem", "ipsum", "placeholder", "text", "dummy"],
     Component: lazy(() => import("./lorem/Tool")),
   },
+  {
+    id: "password",
+    slug: "password",
+    name: "Password",
+    category: "generate",
+    icon: Shield,
+    description: "Sinh password ngẫu nhiên + passphrase, đo strength",
+    keywords: ["password", "passphrase", "secret", "random", "secure", "generate"],
+    Component: lazy(() => import("./password/Tool")),
+  },
 
   /* Converters */
   {
@@ -168,6 +180,16 @@ export const tools: Tool[] = [
     description: "Preview Markdown với DOMPurify (an toàn)",
     keywords: ["markdown", "md", "preview", "marked"],
     Component: lazy(() => import("./markdown/Tool")),
+  },
+  {
+    id: "string-escape",
+    slug: "string-escape",
+    name: "String Escape",
+    category: "encode",
+    icon: Quote,
+    description: "Escape / unescape string literal cho C/C++/Java/JS/Python/JSON/Shell/HTML",
+    keywords: ["string", "escape", "unescape", "literal", "c", "java", "javascript", "python", "shell", "html"],
+    Component: lazy(() => import("./string-escape/Tool")),
   },
 ];
 
