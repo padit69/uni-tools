@@ -16,6 +16,7 @@ import {
   FileText,
   Shield,
   Quote,
+  Terminal,
 } from "lucide-react";
 import type { Tool, ToolCategory } from "./types";
 import { categories } from "./types";
@@ -190,6 +191,18 @@ export const tools: Tool[] = [
     description: "Escape / unescape string literal cho C/C++/Java/JS/Python/JSON/Shell/HTML",
     keywords: ["string", "escape", "unescape", "literal", "c", "java", "javascript", "python", "shell", "html"],
     Component: lazy(() => import("./string-escape/Tool")),
+  },
+
+  /* Developer */
+  {
+    id: "curl",
+    slug: "curl",
+    name: "Curl Tester",
+    category: "dev",
+    icon: Terminal,
+    description: "Build curl command và test HTTP request trong browser",
+    keywords: ["curl", "http", "api", "request", "fetch", "rest", "test"],
+    Component: lazy(() => import("./curl/Tool")),
   },
 ];
 
