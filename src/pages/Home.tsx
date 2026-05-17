@@ -6,22 +6,24 @@ import { tools } from "@/tools/registry";
 import { categories } from "@/tools/types";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/Dialog";
+import { useI18n } from "@/i18n";
 
 export default function Home() {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [idea, setIdea] = useState("");
 
   const mailto = useMemo(() => {
-    const body = [`Tên: ${name || "-"}`, `Liên hệ: ${contact || "-"}`, "", "Góp ý / yêu cầu thêm tool:", idea].join("\n");
-    return `mailto:hello@aiex.site?subject=${encodeURIComponent("Góp ý Uni Tool")}&body=${encodeURIComponent(body)}`;
+    const body = [`Name: ${name || "-"}`, `Contact: ${contact || "-"}`, "", "Feedback / tool request:", idea].join("\n");
+    return `mailto:hello@aiex.site?subject=${encodeURIComponent("Uni Tool feedback")}&body=${encodeURIComponent(body)}`;
   }, [name, contact, idea]);
 
   const copyRequest = async () => {
-    const text = [`Góp ý Uni Tool`, `Tên: ${name || "-"}`, `Liên hệ: ${contact || "-"}`, "", idea].join("\n");
+    const text = [`Uni Tool feedback`, `Name: ${name || "-"}`, `Contact: ${contact || "-"}`, "", idea].join("\n");
     await navigator.clipboard.writeText(text);
-    toast.success("Đã copy nội dung góp ý");
+    toast.success(t("feedback.copied"));
   };
 
   return (
@@ -29,7 +31,7 @@ export default function Home() {
       <div className="flex flex-col items-center text-center">
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white/5 px-3 py-1 text-xs text-[var(--muted-foreground)] backdrop-blur">
           <Sparkles className="size-3" />
-          <span>Bộ công cụ dev — chạy 100% trên trình duyệt</span>
+          <span>{t("app.tagline")}</span>
         </div>
         <h1 className="bg-gradient-to-br from-orange-400 via-fuchsia-500 to-indigo-400 bg-clip-text text-4xl font-bold tracking-tight text-transparent md:text-6xl">
           uni · tool
@@ -38,9 +40,9 @@ export default function Home() {
           Một nơi cho mọi tool dev hay dùng. JSON, encode, generator, converter, text utilities — và sẽ thêm nữa.
         </p>
         <div className="mt-5 flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
-          <span>Bấm</span>
+          <span>{t("app.quickSearchHint.before")}</span>
           <kbd className="rounded border border-[var(--border)] bg-white/5 px-1.5 py-0.5 font-mono">⌘K</kbd>
-          <span>để tìm tool nhanh.</span>
+          <span>{t("app.quickSearchHint.after")}</span>
         </div>
       </div>
 
@@ -86,8 +88,8 @@ export default function Home() {
                 <Mail className="size-5" />
               </div>
               <div>
-                <p className="text-base font-semibold text-[var(--foreground)]">Muốn thêm tool khác?</p>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">Gửi góp ý hoặc yêu cầu thêm tool mới — mô tả use-case, input/output mong muốn.</p>
+                <p className="text-base font-semibold text-[var(--foreground)]">{t("cta.title")}</p>
+                <p className="mt-1 text-sm text-[var(--muted-foreground)]">{t("cta.desc")}</p>
               </div>
             </div>
             <span className="inline-flex items-center justify-center rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-medium text-[var(--accent-foreground)] shadow-sm transition group-hover:translate-x-0.5">
@@ -100,27 +102,27 @@ export default function Home() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-5">
-          <DialogTitle className="text-lg font-semibold">Góp ý / yêu cầu thêm tool</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">{t("feedback.title")}</DialogTitle>
           <DialogDescription className="mt-1 text-sm text-[var(--muted-foreground)]">
             Mô tả tool bạn muốn thêm, use-case, input/output mong muốn. Form này mở email client hoặc copy nội dung để gửi nhanh.
           </DialogDescription>
           <div className="mt-4 grid gap-3">
             <label className="grid gap-1.5 text-xs font-medium">
               Tên / team
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên của bạn" className="h-9 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("feedback.namePlaceholder")} className="h-9 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
             </label>
             <label className="grid gap-1.5 text-xs font-medium">
               Liên hệ
-              <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Email, Telegram, GitHub..." className="h-9 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
+              <input value={contact} onChange={(e) => setContact(e.target.value)} placeholder={t("feedback.contactPlaceholder")} className="h-9 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
             </label>
             <label className="grid gap-1.5 text-xs font-medium">
               Nội dung góp ý
-              <textarea value={idea} onChange={(e) => setIdea(e.target.value)} placeholder="Ví dụ: thêm tool parse log nginx, input là log text, output thống kê status code..." className="min-h-32 resize-y rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
+              <textarea value={idea} onChange={(e) => setIdea(e.target.value)} placeholder={t("feedback.ideaPlaceholder")} className="min-h-32 resize-y rounded-lg border border-[var(--border)] bg-[var(--input)] p-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]" />
             </label>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <DialogClose asChild><Button variant="ghost">Đóng</Button></DialogClose>
-            <Button variant="secondary" onClick={copyRequest} disabled={!idea.trim()}>Copy nội dung</Button>
+            <DialogClose asChild><Button variant="ghost">{t("feedback.close")}</Button></DialogClose>
+            <Button variant="secondary" onClick={copyRequest} disabled={!idea.trim()}>{t("feedback.copy")}</Button>
             <Button asChild disabled={!idea.trim()}>
               <a href={mailto} onClick={() => setOpen(false)}><Send className="size-3.5" /> Gửi góp ý</a>
             </Button>

@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/ScrollArea";
 import { groupToolsByCategory } from "@/tools/registry";
 import type { Tool } from "@/tools/types";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useI18n } from "@/i18n";
 
 function matchTool(t: Tool, q: string) {
   if (!q) return true;
@@ -26,6 +27,7 @@ function move<T>(items: T[], from: number, to: number) {
 }
 
 export function Sidebar() {
+  const { t } = useI18n();
   const [q, setQ] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -95,14 +97,14 @@ export function Sidebar() {
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Tìm tool..."
+            placeholder={t("search.placeholder")}
             className="h-8 pl-8 text-xs"
           />
         </div>
         <button
           type="button"
           onClick={() => setEditMode((v) => !v)}
-          title="Tùy chỉnh vị trí / pin tool"
+          title={t("sidebar.customizeTitle")}
           className={cn(
             "grid size-8 shrink-0 place-items-center rounded-lg border border-[var(--border)] transition",
             editMode ? "bg-[var(--accent)] text-[var(--accent-foreground)]" : "bg-[var(--input)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
@@ -115,7 +117,7 @@ export function Sidebar() {
       {editMode && (
         <div className="rounded-lg border border-orange-400/30 bg-orange-400/10 p-2 text-[11px] text-[var(--muted-foreground)]">
           <div className="flex items-center justify-between gap-2">
-            <span>Kéo thả để đổi vị trí, bấm pin để đưa lên đầu.</span>
+            <span>{t("sidebar.customizeHint")}</span>
             <button onClick={resetLayout} title="Reset" className="rounded p-1 hover:bg-white/10">
               <RotateCcw className="size-3.5" />
             </button>
@@ -128,7 +130,7 @@ export function Sidebar() {
           {editMode ? (
             <div className="flex flex-col gap-1">
               <div className="px-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
-                Sắp xếp tool
+                {t("sidebar.arrange")}
               </div>
               {editableTools.map((t) => (
                 <ToolRow
@@ -150,7 +152,7 @@ export function Sidebar() {
               {pinnedTools.length > 0 && (
                 <div className="flex flex-col gap-1">
                   <div className="px-2 text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
-                    Pinned
+                    {t("sidebar.pinned")}
                   </div>
                   {pinnedTools.map((t) => (
                     <ToolRow key={t.id} tool={t} pinned onPin={() => togglePin(t.id)} />
@@ -160,7 +162,7 @@ export function Sidebar() {
 
               {filtered.length === 0 && pinnedTools.length === 0 && (
                 <p className="px-2 py-6 text-center text-xs text-[var(--muted-foreground)]">
-                  Không có tool nào khớp.
+                  {t("sidebar.empty")}
                 </p>
               )}
               {filtered.map((g) => (
@@ -200,6 +202,7 @@ function ToolRow({
   onDrop?: () => void;
 }) {
   const Icon = tool.icon;
+  const { t } = useI18n();
   return (
     <div
       draggable={editMode}
@@ -227,7 +230,7 @@ function ToolRow({
           e.stopPropagation();
           onPin();
         }}
-        title={pinned ? "Bỏ pin" : "Pin lên đầu"}
+        title={pinned ? t("pin.unpin") : t("pin.pin")}
         className={cn(
           "grid size-5 shrink-0 place-items-center rounded-md transition hover:bg-[var(--muted)]",
           pinned ? "text-orange-400 opacity-100" : "text-[var(--muted-foreground)] opacity-0 group-hover:opacity-100",

@@ -5,9 +5,11 @@ import { useCommandPalette, useCommandPaletteHotkey } from "./useCommandPalette"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/Dialog";
 import { tools } from "@/tools/registry";
 import { categories } from "@/tools/types";
+import { useI18n } from "@/i18n";
 
 export function CommandPalette() {
   const { isOpen, setOpen, close } = useCommandPalette();
+  const { t } = useI18n();
   const navigate = useNavigate();
   useCommandPaletteHotkey();
 
@@ -34,7 +36,7 @@ export function CommandPalette() {
             <Search className="size-4 text-[var(--muted-foreground)]" />
             <Command.Input
               autoFocus
-              placeholder="Tìm tool, gõ keyword..."
+              placeholder={t("search.commandPlaceholder")}
               className="flex h-12 w-full bg-transparent text-sm outline-none placeholder:text-[var(--muted-foreground)]"
             />
             <kbd className="hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-[var(--muted-foreground)] sm:inline-block">
@@ -44,7 +46,7 @@ export function CommandPalette() {
 
           <Command.List className="max-h-[60vh] overflow-y-auto p-2">
             <Command.Empty className="px-3 py-8 text-center text-sm text-[var(--muted-foreground)]">
-              Không tìm thấy tool nào.
+              {t("search.empty")}
             </Command.Empty>
 
             {grouped.map((g) => (
