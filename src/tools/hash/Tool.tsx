@@ -45,7 +45,7 @@ export default function HashTool() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm">
           <span className="font-medium">Hash</span>
           <span className="ml-2 text-xs text-[var(--muted-foreground)]">

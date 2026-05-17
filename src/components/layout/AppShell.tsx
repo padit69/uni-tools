@@ -15,9 +15,9 @@ export function AppShell() {
         <div className="mesh-bg-extra" />
       </div>
 
-      <div className="flex h-screen w-screen overflow-hidden">
+      <div className="flex h-dvh w-screen overflow-hidden">
         <Sidebar />
-        <main className="flex flex-1 flex-col overflow-hidden p-3 pl-0">
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden p-2 md:p-3 md:pl-0">
           <TopBar />
           <div className="glass relative flex-1 overflow-hidden rounded-2xl">
             <Outlet />

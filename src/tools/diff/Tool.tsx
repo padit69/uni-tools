@@ -39,7 +39,7 @@ export default function DiffTool() {
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm">
           <GitCompare className="size-4 text-[var(--muted-foreground)]" />
           <span className="font-medium">Diff</span>

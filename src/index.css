@@ -130,6 +130,11 @@ body {
   border: 2px solid transparent;
 }
 
+/* Tool action bars can contain many compact buttons. On small screens they scroll horizontally instead of widening the page. */
+[class*="overflow-x-auto"][class*="border-b"] > * {
+  flex-shrink: 0;
+}
+
 /* ============================================================
    Mesh gradient background — animated, very subtle
    ============================================================ */

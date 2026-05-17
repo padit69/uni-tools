@@ -26,7 +26,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto p-8 md:p-12">
+    <div className="flex h-full flex-col overflow-y-auto px-4 py-6 sm:px-6 md:p-12">
       <div className="flex flex-col items-center text-center">
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white/5 px-3 py-1 text-xs text-[var(--muted-foreground)] backdrop-blur">
           <Sparkles className="size-3" />
@@ -45,7 +45,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mx-auto mt-10 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mx-auto mt-8 grid w-full max-w-4xl grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((t) => {
           const Icon = t.icon;
           return (

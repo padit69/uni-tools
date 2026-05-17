@@ -36,20 +36,20 @@ export function CommandPalette() {
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent className="overflow-hidden p-0">
         <DialogTitle className="sr-only">{t("search.commandPlaceholder")}</DialogTitle>
-        <Command className="flex flex-col" loop>
-          <div className="flex items-center gap-2 border-b border-[var(--border)] px-4">
+        <Command className="flex max-h-[78dvh] min-w-0 flex-col" loop>
+          <div className="flex min-w-0 items-center gap-2 border-b border-[var(--border)] px-3 sm:px-4">
             <Search className="size-4 text-[var(--muted-foreground)]" />
             <Command.Input
               autoFocus
               placeholder={t("search.commandPlaceholder")}
-              className="flex h-12 w-full bg-transparent text-sm outline-none placeholder:text-[var(--muted-foreground)]"
+              className="min-w-0 flex h-12 w-full bg-transparent text-sm outline-none placeholder:text-[var(--muted-foreground)]"
             />
             <kbd className="hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-[var(--muted-foreground)] sm:inline-block">
               esc
             </kbd>
           </div>
 
-          <Command.List className="max-h-[60vh] overflow-y-auto p-2">
+          <Command.List className="min-h-0 overflow-y-auto p-2">
             <Command.Empty className="px-3 py-8 text-center text-sm text-[var(--muted-foreground)]">
               {t("search.empty")}
             </Command.Empty>
@@ -61,12 +61,12 @@ export function CommandPalette() {
               <Command.Item
                 value={`${t("nav.info")} tools.hihi.team pwa policy terms save app`}
                 onSelect={() => onPageSelect("/info")}
-                className="group flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm aria-selected:bg-[var(--muted)]"
+                className="group flex min-w-0 cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm aria-selected:bg-[var(--muted)]"
               >
                 <div className="grid size-7 place-items-center rounded-md bg-[var(--muted)]">
                   <Info className="size-3.5" />
                 </div>
-                <div className="flex flex-1 flex-col">
+                <div className="flex min-w-0 flex-1 flex-col">
                   <span className="font-medium">{t("nav.info")}</span>
                   <span className="line-clamp-1 text-xs text-[var(--muted-foreground)]">{t("info.subtitle")}</span>
                 </div>
@@ -87,12 +87,12 @@ export function CommandPalette() {
                       key={t.id}
                       value={`${t.name} ${t.keywords.join(" ")} ${toolDesc(t.id, t.description)}`}
                       onSelect={() => onSelect(t.slug)}
-                      className="group flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm aria-selected:bg-[var(--muted)]"
+                      className="group flex min-w-0 cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-sm aria-selected:bg-[var(--muted)]"
                     >
                       <div className="grid size-7 place-items-center rounded-md bg-[var(--muted)]">
                         <Icon className="size-3.5" />
                       </div>
-                      <div className="flex flex-1 flex-col">
+                      <div className="flex min-w-0 flex-1 flex-col">
                         <span className="font-medium">{t.name}</span>
                         <span className="line-clamp-1 text-xs text-[var(--muted-foreground)]">
                           {toolDesc(t.id, t.description)}

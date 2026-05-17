@@ -80,7 +80,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="flex h-full w-64 shrink-0 flex-col gap-3 p-3">
+    <aside className="hidden h-full w-64 shrink-0 flex-col gap-3 p-3 md:flex">
       <NavLink to="/" className="flex items-center gap-2 px-2 py-1">
         <div className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-orange-400 via-fuchsia-500 to-indigo-500 text-white shadow">
           <Sparkles className="size-4" />

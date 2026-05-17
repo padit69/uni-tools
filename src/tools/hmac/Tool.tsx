@@ -49,7 +49,7 @@ export default function HmacTool() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm"><KeyRound className="size-4 text-[var(--muted-foreground)]"/><span className="font-medium">HMAC</span></div>
         <div className="flex items-center gap-2">
           <select value={output} onChange={(e) => setOutput(e.target.value as Output)} className="h-8 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 px-2 text-xs">

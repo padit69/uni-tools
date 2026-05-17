@@ -206,8 +206,8 @@ export default function JsonTool() {
   return (
     <div className="flex h-full flex-col">
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex h-full flex-col">
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
-          <TabsList>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] px-3 py-2.5 md:px-4">
+          <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="format">
               <Wand2 className="size-3.5" />
               {t("json.output.format")}
@@ -226,7 +226,7 @@ export default function JsonTool() {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:flex-none">
             {tab === "format" && <IndentSelector value={indent} onChange={setIndent} />}
             {tab === "convert" && (
               <ConvertSelector from={from} to={to} setFrom={setFrom} setTo={setTo} onSwap={handleSwap} />

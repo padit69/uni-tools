@@ -232,7 +232,7 @@ export default function CurlTool() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm font-medium">Curl Tester</div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="size-8" onClick={clear} disabled={!url && !body && !response} title={t("action.clear")}>

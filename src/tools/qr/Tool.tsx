@@ -206,7 +206,7 @@ export default function QrTool() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-[var(--border)] px-4 py-2.5">
         <div className="text-sm font-medium">QR / Barcode</div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="size-8" onClick={() => setText("")} disabled={!payload} title={t("tool.qr.clearContent")}>
@@ -224,8 +224,8 @@ export default function QrTool() {
         </div>
       </div>
 
-      <div className="grid flex-1 grid-cols-1 overflow-hidden md:grid-cols-[minmax(320px,420px)_1fr]">
-        <div className="flex flex-col gap-3 overflow-y-auto border-b border-[var(--border)] p-4 md:border-b-0 md:border-r">
+      <div className="grid flex-1 grid-cols-1 overflow-auto md:grid-cols-[minmax(320px,420px)_1fr] md:overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-[var(--border)] p-4 md:overflow-y-auto md:border-b-0 md:border-r">
           <div className="grid grid-cols-2 gap-1 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-1 text-xs">
             <button onClick={() => setGenerator("qr")} className={cn("flex items-center justify-center gap-1 rounded-md px-2 py-1.5", generator === "qr" ? "bg-[var(--card)] shadow-sm" : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]")}>
               <QrCode className="size-3.5" /> QR
@@ -330,8 +330,8 @@ export default function QrTool() {
 
         </div>
 
-        <div className="grid min-h-0 grid-rows-[1fr_auto] overflow-hidden">
-          <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-6">
+        <div className="grid min-h-0 md:grid-rows-[1fr_auto] md:overflow-hidden">
+          <div className="flex min-h-0 flex-1 items-center justify-center overflow-auto p-4 md:p-6">
             {error ? (
               <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-400">{error}</div>
             ) : generator === "barcode" ? (
