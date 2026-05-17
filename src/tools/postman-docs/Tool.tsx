@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import yaml from "js-yaml";
-import { Copy, Download, FileJson, FolderOpen, Link as LinkIcon, Upload } from "lucide-react";
+import { CheckSquare, Copy, Download, FileJson, FolderOpen, List, Link as LinkIcon, Search, Square, TreePine, Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 
@@ -20,8 +20,10 @@ export default function PostmanDocsTool() {
   const [selectedPaths, setSelectedPaths] = useState<string[]>([]);
   const [selected, setSelected] = useState(0);
   const [viewMode, setViewMode] = useState<"list" | "tree">("tree");
+  const [search, setSearch] = useState("");
   const current = files[selected] ?? null;
   const selectedFiles = useMemo(() => files.filter((file) => selectedPaths.includes(file.path)), [files, selectedPaths]);
+  const visibleFiles = useMemo(() => filterFiles(files, search), [files, search]);
 
   const stats = useMemo(() => {
     const markdown = files.reduce((sum, file) => sum + file.content.length, 0);
@@ -139,38 +141,57 @@ export default function PostmanDocsTool() {
                   <button
                     onClick={() => setViewMode("list")}
                     className={cn(
-                      "h-7 rounded-md px-2 text-xs",
+                      "grid size-7 place-items-center rounded-md",
                       viewMode === "list" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                     )}
+                    title="List view"
                   >
-                    List
+                    <List className="size-3.5" />
                   </button>
                   <button
                     onClick={() => setViewMode("tree")}
                     className={cn(
-                      "h-7 rounded-md px-2 text-xs",
+                      "grid size-7 place-items-center rounded-md",
                       viewMode === "tree" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                     )}
+                    title="Tree view"
                   >
-                    Tree
+                    <TreePine className="size-3.5" />
                   </button>
-                  <Button variant="secondary" size="sm" className="h-7 px-2" onClick={() => setSelectedPaths(files.map((file) => file.path))}>
-                    Select
+                  <Button variant="secondary" size="icon" className="size-7" onClick={() => setSelectedPaths(files.map((file) => file.path))} title="Select all">
+                    <CheckSquare className="size-3.5" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => setSelectedPaths([])}>
-                    None
+                  <Button variant="ghost" size="icon" className="size-7" onClick={() => setSelectedPaths([])} title="Clear selection">
+                    <Square className="size-3.5" />
                   </Button>
                 </div>
               )}
             </div>
+            {files.length > 0 && (
+              <div className="relative mb-2">
+                <Search className="pointer-events-none absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search file or folder..."
+                  className="h-8 w-full rounded-md border border-[var(--border)] bg-transparent pl-7 pr-2 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                  spellCheck={false}
+                />
+              </div>
+            )}
             {files.length === 0 ? (
               <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
                 Import collection để tạo README.md và Markdown files.
               </div>
+            ) : visibleFiles.length === 0 ? (
+              <div className="rounded-md border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">
+                Không có file hoặc folder khớp search.
+              </div>
             ) : (
               viewMode === "list" ? (
                 <AllFileList
-                  files={files}
+                  files={visibleFiles}
+                  allFiles={files}
                   selected={selected}
                   selectedPaths={selectedPaths}
                   setSelected={setSelected}
@@ -179,7 +200,7 @@ export default function PostmanDocsTool() {
               ) : (
               <>
                 <TreeFileList
-                  nodes={buildTree(files)}
+                  nodes={buildTree(visibleFiles)}
                   files={files}
                   selected={selected}
                   selectedPaths={selectedPaths}
@@ -232,12 +253,14 @@ interface TreeNode {
 
 function AllFileList({
   files,
+  allFiles,
   selected,
   selectedPaths,
   setSelected,
   togglePath,
 }: {
   files: MdFile[];
+  allFiles: MdFile[];
   selected: number;
   selectedPaths: string[];
   setSelected: (index: number) => void;
@@ -245,19 +268,24 @@ function AllFileList({
 }) {
   return (
     <>
-      {files.map((file, index) => (
+      {files.map((file) => (
+        (() => {
+          const originalIndex = allFiles.findIndex((item) => item.path === file.path);
+          return (
         <div
           key={file.path}
           className={cn(
             "grid grid-cols-[18px_1fr] items-center gap-2 rounded-md px-2 py-1.5 text-xs",
-            selected === index ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "hover:bg-[var(--muted)]"
+            selected === originalIndex ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "hover:bg-[var(--muted)]"
           )}
         >
           <input type="checkbox" checked={selectedPaths.includes(file.path)} onChange={(e) => togglePath(file.path, e.target.checked)} className="size-3 accent-[var(--primary)]" />
-          <button onClick={() => setSelected(index)} className="truncate text-left font-mono">
+          <button onClick={() => setSelected(originalIndex)} className="truncate text-left font-mono">
             {file.path}
           </button>
         </div>
+          );
+        })()
       ))}
     </>
   );
@@ -359,6 +387,15 @@ function buildTree(files: MdFile[]): TreeNode[] {
     });
   }
   return root;
+}
+
+function filterFiles(files: MdFile[], query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return files;
+  return files.filter((file) => {
+    if (file.path.toLowerCase().includes(q)) return true;
+    return file.path.split("/").some((part) => part.toLowerCase().includes(q));
+  });
 }
 
 function parseSpec(text: string): AnyRecord {
