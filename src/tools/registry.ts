@@ -14,6 +14,7 @@ import {
   GitCompare,
   Regex as RegexIcon,
   FileText,
+  BookOpenText,
   Shield,
   Quote,
   Terminal,
@@ -203,6 +204,16 @@ export const tools: Tool[] = [
     description: "Build curl command và test HTTP request trong browser",
     keywords: ["curl", "http", "api", "request", "fetch", "rest", "test"],
     Component: lazy(() => import("./curl/Tool")),
+  },
+  {
+    id: "postman-docs",
+    slug: "postman-docs",
+    name: "Postman Docs",
+    category: "api",
+    icon: BookOpenText,
+    description: "Convert Postman collection JSON thành Markdown docs theo folder",
+    keywords: ["postman", "collection", "markdown", "docs", "api", "openapi"],
+    Component: lazy(() => import("./postman-docs/Tool")),
   },
 ];
 
