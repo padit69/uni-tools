@@ -689,8 +689,9 @@ function createZip(files: MdFile[]) {
     const data = encoder.encode(file.content);
     const crc = crc32(data);
     const local = zipHeader(0x04034b50, name, data.length, crc, offset);
+    const central = zipHeader(0x02014b50, name, data.length, crc, offset);
     localParts.push(local, name, data);
-    centralParts.push(zipHeader(0x02014b50, name, data.length, crc, offset));
+    centralParts.push(central, name);
     offset += local.length + name.length + data.length;
   });
 
