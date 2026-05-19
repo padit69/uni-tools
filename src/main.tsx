@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
@@ -11,6 +12,7 @@ createRoot(document.getElementById("root")!).render(
     <ThemeProvider>
       <RouterProvider router={router} />
       <Toaster position="bottom-right" theme="system" richColors closeButton />
+      <Analytics />
     </ThemeProvider>
   </StrictMode>
 );
