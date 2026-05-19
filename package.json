@@ -2,6 +2,15 @@
   "name": "uni-tool",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
+  "homepage": "https://tools.hihi.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/padit69/uni-tools.git"
+  },
+  "bugs": {
+    "url": "https://github.com/padit69/uni-tools/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
