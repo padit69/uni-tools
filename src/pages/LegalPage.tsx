@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, FileText } from "lucide-react";
+import { PageMeta } from "@/components/seo/PageMeta";
 import { useI18n } from "@/i18n";
 
 type LegalKind = "policy" | "terms";
@@ -33,7 +34,16 @@ export default function LegalPage({ kind }: { kind: LegalKind }) {
     ? { to: "/terms", label: t("nav.terms") }
     : { to: "/policy", label: t("nav.policy") };
 
+  const path = kind === "policy" ? "/policy" : "/terms";
+
   return (
+    <>
+      <PageMeta
+        title={t(titleKey)}
+        description={t(subtitleKey)}
+        path={path}
+        keywords={kind === "policy" ? "privacy policy, uni tools, data" : "terms of use, uni tools"}
+      />
     <div className="h-full overflow-y-auto">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-5 md:p-8">
         <section className="flex flex-col gap-5 border-b border-[var(--border)] pb-6 lg:flex-row lg:items-end lg:justify-between">
@@ -76,5 +86,6 @@ export default function LegalPage({ kind }: { kind: LegalKind }) {
         </article>
       </div>
     </div>
+    </>
   );
 }

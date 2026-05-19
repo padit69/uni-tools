@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { tools } from "@/tools/registry";
 import { Button } from "@/components/ui/Button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/Dialog";
+import { PageMeta } from "@/components/seo/PageMeta";
 import { useI18n } from "@/i18n";
 
 export default function Home() {
@@ -26,6 +27,13 @@ export default function Home() {
   };
 
   return (
+    <>
+      <PageMeta
+        title={t("app.tagline")}
+        description={t("app.description")}
+        path="/"
+        keywords="developer tools, json, base64, jwt, uuid, hash, regex, markdown, browser tools"
+      />
     <div className="flex h-full flex-col overflow-y-auto px-4 py-6 sm:px-6 md:p-12">
       <div className="flex flex-col items-center text-center">
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-white/5 px-3 py-1 text-xs text-[var(--muted-foreground)] backdrop-blur">
@@ -140,5 +148,6 @@ export default function Home() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }

@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { PageMeta } from "@/components/seo/PageMeta";
 import { useI18n } from "@/i18n";
 import { useInstallApp } from "@/components/layout/InstallAppButton";
 
@@ -20,6 +21,13 @@ export default function Info() {
   const installAvailable = installApp.canInstall || installApp.canShowIosHint;
 
   return (
+    <>
+      <PageMeta
+        title={t("info.title")}
+        description={t("info.subtitle")}
+        path="/info"
+        keywords="uni tools, install pwa, developer tools, privacy"
+      />
     <div className="h-full overflow-y-auto">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-5 md:p-8">
         <section className="flex flex-col gap-5 border-b border-[var(--border)] pb-6 lg:flex-row lg:items-end lg:justify-between">
@@ -90,6 +98,7 @@ export default function Info() {
         </section>
       </div>
     </div>
+    </>
   );
 }
 

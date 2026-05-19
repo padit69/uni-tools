@@ -5,7 +5,8 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
 
-const SITE_URL = "https://tools.hihi.team";
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+const SITE_URL = (pkg.homepage ?? "https://tools.hihi.team").replace(/\/$/, "");
 const lastmod = new Date().toISOString().slice(0, 10);
 
 const registry = readFileSync(join(root, "src/tools/registry.ts"), "utf8");
