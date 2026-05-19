@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
@@ -11,6 +12,7 @@ export function AppShell() {
     <I18nProvider>
     <InstallAppProvider>
     <TooltipProvider delayDuration={250}>
+      <GoogleAnalytics />
       <div className="mesh-bg" aria-hidden>
         <div className="mesh-bg-extra" />
       </div>
