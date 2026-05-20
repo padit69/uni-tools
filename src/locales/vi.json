@@ -39,6 +39,173 @@
     "curl": "Build curl command và test HTTP request trong browser",
     "postman-docs": "Convert Postman collection JSON thành Markdown docs theo folder"
   },
+  "toolFeatures": {
+    "json": [
+      "Format và minify JSON với indent tùy chọn",
+      "Validate cú pháp, hiện lỗi chi tiết",
+      "Xem cấu trúc dạng cây (tree view)",
+      "Convert JSON ↔ YAML / CSV / XML",
+      "Repair JSON lỗi cú pháp",
+      "Sắp xếp key theo alphabet",
+      "Query JSON path (ví dụ $.tools[*].id)",
+      "Thống kê kích thước và lịch sử thao tác"
+    ],
+    "base64": [
+      "Encode / decode Base64, hỗ trợ Unicode (UTF-8)",
+      "Chuyển nhanh giữa encode và decode",
+      "Swap: đưa output làm input ngược chiều",
+      "Copy kết quả một chạm"
+    ],
+    "url": [
+      "Encode / decode URL component (encodeURIComponent)",
+      "Encode / decode full URL (encodeURI)",
+      "Swap giữa plain và encoded",
+      "Copy output"
+    ],
+    "jwt": [
+      "Decode JWT thành header, payload, signature",
+      "Hiển thị JSON đã format cho header và payload",
+      "Chỉ decode — không verify chữ ký",
+      "Copy từng phần hoặc toàn bộ token"
+    ],
+    "jwt-sign": [
+      "Ký JWT HS256 với secret",
+      "Verify signature với secret",
+      "Chỉnh payload JSON trước khi ký",
+      "Hiện kết quả valid / invalid rõ ràng"
+    ],
+    "data-url": [
+      "Parse data URL ra MIME và nội dung Base64",
+      "Tạo data URL từ text hoặc file",
+      "Xem preview ảnh khi là image/*",
+      "Copy data URL hoặc phần Base64"
+    ],
+    "uuid": [
+      "Sinh UUID v4, v7 hoặc Nil",
+      "Sinh hàng loạt (batch) với số lượng tùy chọn",
+      "Tùy chọn UPPERCASE và có/không dấu gạch",
+      "Copy một hoặc copy tất cả"
+    ],
+    "hash": [
+      "SHA-1, SHA-256, SHA-384, SHA-512",
+      "Chạy bằng Web Crypto trong browser",
+      "Cập nhật realtime khi gõ",
+      "Copy từng digest"
+    ],
+    "hmac": [
+      "HMAC SHA-1 / 256 / 384 / 512",
+      "Nhập secret và message",
+      "Output dạng HEX hoặc Base64",
+      "Mẫu header webhook để copy nhanh"
+    ],
+    "qr": [
+      "Sinh QR code: text, URL, email, phone, SMS, Wi-Fi",
+      "Tùy ECC, màu foreground/background",
+      "Tải PNG hoặc copy data URL",
+      "Quét QR/barcode từ ảnh upload (nếu browser hỗ trợ)"
+    ],
+    "lorem": [
+      "Sinh Lorem ipsum theo đoạn, câu hoặc từ",
+      "Chọn số lượng và độ dài",
+      "Copy toàn bộ output"
+    ],
+    "password": [
+      "Password ngẫu nhiên hoặc passphrase",
+      "Tùy độ dài, charset, loại ký tự dễ nhầm",
+      "Đo độ mạnh (strength meter)",
+      "Copy password đã sinh"
+    ],
+    "timestamp": [
+      "Convert Unix timestamp ↔ ngày giờ",
+      "Tự nhận giây (s) hoặc milli (ms)",
+      "Hỗ trợ ISO 8601 và nhập tự do",
+      "Nút \"Bây giờ\" và thông tin tuần/ngày trong năm"
+    ],
+    "color": [
+      "Convert HEX, RGB, HSL, HSV và tên màu",
+      "Swatch preview và luminance",
+      "Gradient nhiều stop, random màu",
+      "Copy CSS gradient"
+    ],
+    "unit": [
+      "Convert chiều dài (metric + imperial)",
+      "Convert khối lượng",
+      "Convert nhiệt độ °C / °F / K",
+      "Đổi đơn vị hai chiều realtime"
+    ],
+    "cidr": [
+      "Tính network, mask, wildcard, broadcast",
+      "First/last usable và số host",
+      "Kiểm tra IP có nằm trong CIDR không",
+      "Copy từng giá trị subnet"
+    ],
+    "diff": [
+      "So sánh 2 đoạn text",
+      "Chế độ theo dòng hoặc theo từ",
+      "Bỏ qua hoa/thường, chỉ hiện thay đổi",
+      "Xem split 2 cột hoặc unified"
+    ],
+    "sql": [
+      "Format SQL dễ đọc",
+      "Minify SQL một dòng",
+      "Highlight keyword cơ bản",
+      "Copy output"
+    ],
+    "beautifier": [
+      "Format HTML, CSS, JavaScript",
+      "Minify từng loại snippet",
+      "Xử lý local trong browser",
+      "Copy kết quả"
+    ],
+    "user-agent": [
+      "Parse chuỗi User-Agent",
+      "Nhận diện browser, OS, device",
+      "Phát hiện bot/crawler",
+      "Dùng UA mẫu hoặc UA hiện tại"
+    ],
+    "robots": [
+      "Parse robots.txt",
+      "Liệt kê user-agent và rule",
+      "Trích sitemap URLs",
+      "Cảnh báo directive lỗi/thiếu"
+    ],
+    "config": [
+      "Convert .env → JSON",
+      "Convert JSON → .env",
+      "Copy output",
+      "Xử lý local — không gửi server"
+    ],
+    "regex": [
+      "Test regex với flags (g, i, m, ...)",
+      "Highlight matches trong chuỗi test",
+      "Hiện capture groups",
+      "Đếm số match"
+    ],
+    "markdown": [
+      "Preview Markdown realtime",
+      "Sanitize HTML bằng DOMPurify",
+      "Copy HTML đã render",
+      "Split editor / preview"
+    ],
+    "string-escape": [
+      "Escape / unescape string literal",
+      "Hỗ trợ C, C++, Java, JS/TS, Python, JSON, Shell, HTML",
+      "Swap chiều encode ↔ decode",
+      "Copy output"
+    ],
+    "curl": [
+      "Build lệnh curl từ method, URL, headers, body",
+      "Gửi HTTP request trong browser",
+      "Form-data, JSON body, file upload",
+      "Lịch sử request và copy curl"
+    ],
+    "postman-docs": [
+      "Import Postman collection JSON",
+      "Import từ URL hoặc file (Swagger/OpenAPI)",
+      "Chọn folder/request để export",
+      "Sinh Markdown docs theo cấu trúc collection"
+    ]
+  },
   "messages": {
     "app.tagline": "Bộ công cụ dev — chạy 100% trên trình duyệt",
     "app.description": "Một nơi cho mọi tool dev hay dùng. JSON, encode, generator, converter, tiện ích text — và sẽ thêm nữa.",
@@ -123,6 +290,10 @@
     "error.parseTimestamp": "Không parse được. Hãy thử Unix timestamp hoặc ISO 8601.",
     "topbar.language": "Đổi ngôn ngữ",
     "topbar.github": "GitHub repository",
+    "toolInfo.open": "Giới thiệu tool",
+    "toolInfo.featuresTitle": "Chức năng",
+    "toolInfo.gotIt": "Đã hiểu",
+    "toolInfo.privacyNote": "Dữ liệu xử lý trong trình duyệt — không gửi lên server Uni Tools.",
     "json.input": "Input",
     "json.output.format": "Format",
     "json.valid": "Hợp lệ",

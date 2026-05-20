@@ -1,4 +1,5 @@
-import { Github, Info, Languages, Menu, Monitor, Moon, Search, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CircleHelp, Github, Info, Languages, Menu, Monitor, Moon, Search, Sun } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useTheme } from "@/components/theme/ThemeProvider";
@@ -11,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/DropdownMenu";
 import { useCommandPalette } from "@/components/command-palette/useCommandPalette";
+import { ToolInfoDialog } from "@/components/tool/ToolInfoDialog";
+import { useToolInfoSeen } from "@/hooks/useToolInfoSeen";
 import { getToolBySlug } from "@/tools/registry";
 import { useI18n } from "@/i18n";
 
@@ -18,11 +21,26 @@ export function TopBar() {
   const { open } = useCommandPalette();
   const { lang, setLang, t } = useI18n();
   const { theme, setTheme } = useTheme();
+  const { hasSeen, markSeen } = useToolInfoSeen();
+  const [infoOpen, setInfoOpen] = useState(false);
   const location = useLocation();
   const slug = location.pathname.startsWith("/tools/")
     ? location.pathname.replace("/tools/", "").split("/")[0]
     : null;
   const tool = slug ? getToolBySlug(slug) : null;
+
+  useEffect(() => {
+    if (!tool) {
+      setInfoOpen(false);
+      return;
+    }
+    setInfoOpen(!hasSeen(tool.id));
+  }, [tool?.id, hasSeen]);
+
+  const handleInfoOpenChange = (open: boolean) => {
+    setInfoOpen(open);
+    if (!open && tool) markSeen(tool.id);
+  };
 
   return (
     <div className="flex h-14 shrink-0 items-center justify-between gap-2 px-3 md:h-10 md:gap-3 md:px-3">
@@ -34,6 +52,17 @@ export function TopBar() {
           <>
             <span className="text-[var(--muted-foreground)]">/</span>
             <span className="truncate font-medium">{tool.name}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 shrink-0"
+              onClick={() => setInfoOpen(true)}
+              aria-label={t("toolInfo.open")}
+              title={t("toolInfo.open")}
+            >
+              <CircleHelp className="size-3.5" />
+            </Button>
+            <ToolInfoDialog tool={tool} open={infoOpen} onOpenChange={handleInfoOpenChange} />
           </>
         )}
       </div>
@@ -81,6 +110,12 @@ export function TopBar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
+            {tool && (
+              <DropdownMenuItem onSelect={() => setInfoOpen(true)}>
+                <CircleHelp className="size-4" />
+                {t("toolInfo.open")}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link to="/info">
                 <Info className="size-4" />

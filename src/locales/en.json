@@ -39,6 +39,173 @@
     "curl": "Build curl commands and test HTTP requests in the browser",
     "postman-docs": "Convert Postman collection JSON into folder-based Markdown docs"
   },
+  "toolFeatures": {
+    "json": [
+      "Format and minify JSON with configurable indent",
+      "Validate syntax and show detailed errors",
+      "Interactive tree view",
+      "Convert JSON ↔ YAML / CSV / XML",
+      "Repair broken JSON",
+      "Sort keys alphabetically",
+      "JSON path queries (e.g. $.tools[*].id)",
+      "Size stats and action history"
+    ],
+    "base64": [
+      "Encode / decode Base64 with Unicode (UTF-8) support",
+      "Switch quickly between encode and decode",
+      "Swap: use output as reversed input",
+      "One-click copy"
+    ],
+    "url": [
+      "Encode / decode URL components (encodeURIComponent)",
+      "Encode / decode full URLs (encodeURI)",
+      "Swap between plain and encoded",
+      "Copy output"
+    ],
+    "jwt": [
+      "Decode JWT into header, payload, and signature",
+      "Pretty-printed JSON for header and payload",
+      "Decode only — no signature verification",
+      "Copy each part or the full token"
+    ],
+    "jwt-sign": [
+      "Sign HS256 JWTs with a secret",
+      "Verify signatures with a secret",
+      "Edit payload JSON before signing",
+      "Clear valid / invalid results"
+    ],
+    "data-url": [
+      "Parse data URLs into MIME and Base64 content",
+      "Create data URLs from text or files",
+      "Image preview for image/* MIME types",
+      "Copy data URL or Base64 segment"
+    ],
+    "uuid": [
+      "Generate UUID v4, v7, or Nil",
+      "Batch generation with custom count",
+      "UPPERCASE and hyphen options",
+      "Copy one or copy all"
+    ],
+    "hash": [
+      "SHA-1, SHA-256, SHA-384, SHA-512",
+      "Runs via Web Crypto in the browser",
+      "Live updates as you type",
+      "Copy each digest"
+    ],
+    "hmac": [
+      "HMAC SHA-1 / 256 / 384 / 512",
+      "Enter secret and message",
+      "HEX or Base64 output",
+      "Sample webhook header for quick copy"
+    ],
+    "qr": [
+      "QR codes for text, URL, email, phone, SMS, Wi-Fi",
+      "ECC level and foreground/background colors",
+      "Download PNG or copy data URL",
+      "Scan QR/barcodes from uploaded images (when supported)"
+    ],
+    "lorem": [
+      "Lorem ipsum by paragraph, sentence, or word",
+      "Configurable count and length",
+      "Copy full output"
+    ],
+    "password": [
+      "Random passwords or passphrases",
+      "Length, charset, and ambiguous-character options",
+      "Strength meter",
+      "Copy generated password"
+    ],
+    "timestamp": [
+      "Convert Unix timestamps ↔ dates",
+      "Auto-detect seconds vs milliseconds",
+      "ISO 8601 and free-form input",
+      "\"Now\" button plus week/day-of-year info"
+    ],
+    "color": [
+      "Convert HEX, RGB, HSL, HSV, and color names",
+      "Swatch preview and luminance",
+      "Multi-stop gradients with random colors",
+      "Copy CSS gradient"
+    ],
+    "unit": [
+      "Length conversion (metric + imperial)",
+      "Weight conversion",
+      "Temperature °C / °F / K",
+      "Live two-way conversion"
+    ],
+    "cidr": [
+      "Network, mask, wildcard, and broadcast",
+      "First/last usable hosts and host counts",
+      "Check whether an IP is inside a CIDR",
+      "Copy each subnet value"
+    ],
+    "diff": [
+      "Compare two text blocks",
+      "Line-by-line or word-by-word mode",
+      "Ignore case, changes-only view",
+      "Split or unified diff layout"
+    ],
+    "sql": [
+      "Format SQL for readability",
+      "Minify SQL to one line",
+      "Basic keyword highlighting",
+      "Copy output"
+    ],
+    "beautifier": [
+      "Format HTML, CSS, and JavaScript",
+      "Minify each snippet type",
+      "Runs locally in the browser",
+      "Copy results"
+    ],
+    "user-agent": [
+      "Parse User-Agent strings",
+      "Detect browser, OS, and device",
+      "Bot/crawler detection",
+      "Sample or current browser UA"
+    ],
+    "robots": [
+      "Parse robots.txt",
+      "List user-agents and rules",
+      "Extract sitemap URLs",
+      "Warn about invalid or missing directives"
+    ],
+    "config": [
+      "Convert .env → JSON",
+      "Convert JSON → .env",
+      "Copy output",
+      "Runs locally — nothing sent to Uni Tools servers"
+    ],
+    "regex": [
+      "Test regex with flags (g, i, m, …)",
+      "Highlight matches in the test string",
+      "Show capture groups",
+      "Match count"
+    ],
+    "markdown": [
+      "Live Markdown preview",
+      "HTML sanitized with DOMPurify",
+      "Copy rendered HTML",
+      "Split editor / preview panes"
+    ],
+    "string-escape": [
+      "Escape / unescape string literals",
+      "C, C++, Java, JS/TS, Python, JSON, Shell, and HTML",
+      "Swap encode ↔ decode direction",
+      "Copy output"
+    ],
+    "curl": [
+      "Build curl commands from method, URL, headers, and body",
+      "Send HTTP requests in the browser",
+      "Form-data, JSON body, and file upload",
+      "Request history and copy curl"
+    ],
+    "postman-docs": [
+      "Import Postman collection JSON",
+      "Import from URL or file (Swagger/OpenAPI)",
+      "Select folders/requests to export",
+      "Generate Markdown docs from collection structure"
+    ]
+  },
   "messages": {
     "app.tagline": "Developer toolbox — runs 100% in your browser",
     "app.description": "One place for everyday developer tools. JSON, encoding, generators, converters, text utilities — with more to come.",
@@ -123,6 +290,10 @@
     "error.parseTimestamp": "Could not parse. Try a Unix timestamp or ISO 8601.",
     "topbar.language": "Change language",
     "topbar.github": "GitHub repository",
+    "toolInfo.open": "About this tool",
+    "toolInfo.featuresTitle": "Features",
+    "toolInfo.gotIt": "Got it",
+    "toolInfo.privacyNote": "Data is processed in your browser — not sent to Uni Tools servers.",
     "json.input": "Input",
     "json.output.format": "Format",
     "json.valid": "Valid",

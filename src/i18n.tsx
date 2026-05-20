@@ -8,12 +8,14 @@ export type Lang = "vi" | "en";
 
 type Dict = Record<string, string>;
 type ToolDescDict = Record<string, string>;
+type ToolFeaturesDict = Record<string, string[]>;
 type CategoryDict = Record<ToolCategory, string>;
 
 interface LocaleData {
   meta: { name: string };
   categories: CategoryDict;
   toolDescriptions: ToolDescDict;
+  toolFeatures: ToolFeaturesDict;
   messages: Dict;
 }
 
@@ -26,6 +28,7 @@ const I18nContext = createContext<{
   t: (key: string) => string;
   categoryLabel: (category: ToolCategory) => string;
   toolDesc: (id: string, fallback: string) => string;
+  toolFeatures: (id: string) => string[];
 } | null>(null);
 
 function normalizeLang(lang: string): Lang {
@@ -41,9 +44,10 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = (key: string) => current.messages[key] ?? fallback.messages[key] ?? key;
   const categoryLabel = (category: ToolCategory) => current.categories[category] ?? fallback.categories[category] ?? category;
   const toolDesc = (id: string, fallbackText: string) => current.toolDescriptions[id] ?? fallback.toolDescriptions[id] ?? fallbackText;
+  const toolFeatures = (id: string) => current.toolFeatures[id] ?? fallback.toolFeatures[id] ?? [];
 
   return (
-    <I18nContext.Provider value={{ lang, setLang: setStoredLang, t, categoryLabel, toolDesc }}>
+    <I18nContext.Provider value={{ lang, setLang: setStoredLang, t, categoryLabel, toolDesc, toolFeatures }}>
       {children}
     </I18nContext.Provider>
   );
