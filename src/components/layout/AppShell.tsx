@@ -19,9 +19,9 @@ export function AppShell() {
 
       <div className="flex h-dvh w-screen overflow-hidden">
         <Sidebar />
-        <main className="flex min-w-0 flex-1 flex-col overflow-hidden p-2 md:p-3 md:pl-0">
+        <main className="flex min-w-0 flex-1 flex-col overflow-hidden px-2 pt-2 pb-0 md:px-3 md:pt-3 md:pl-0 md:pb-0">
           <TopBar />
-          <div className="glass relative flex-1 overflow-hidden rounded-2xl">
+          <div className="glass glass-panel relative flex-1 overflow-hidden">
             <Outlet />
           </div>
         </main>

@@ -239,6 +239,17 @@ body {
     0 30px 60px -20px rgb(0 0 0 / 0.35);
 }
 
+/* Main content panel — rounded top only, flush to bottom */
+.glass-panel {
+  border-bottom: none;
+  border-radius: 1rem 1rem 0 0;
+  box-shadow:
+    0 1px 0 0 color-mix(in oklch, white 8%, transparent) inset,
+    0 -1px 0 0 color-mix(in oklch, black 12%, transparent) inset,
+    0 24px 48px -12px rgb(0 0 0 / 0.45),
+    0 8px 24px -8px rgb(0 0 0 / 0.25);
+}
+
 .glass-strong {
   background: color-mix(in oklch, var(--card) 80%, var(--background));
   backdrop-filter: blur(32px) saturate(160%);
