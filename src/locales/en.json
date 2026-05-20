@@ -54,6 +54,8 @@
     "sidebar.arrange": "Arrange tools",
     "sidebar.pinned": "Pinned",
     "sidebar.reset": "Reset layout",
+    "sidebar.collapse": "Collapse menu",
+    "sidebar.expand": "Expand menu",
     "pin.pin": "Pin to top",
     "pin.unpin": "Unpin",
     "cta.title": "Want another tool?",

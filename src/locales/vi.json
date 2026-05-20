@@ -54,6 +54,8 @@
     "sidebar.arrange": "Sắp xếp tool",
     "sidebar.pinned": "Đã pin",
     "sidebar.reset": "Reset bố cục",
+    "sidebar.collapse": "Thu gọn menu",
+    "sidebar.expand": "Mở rộng menu",
     "pin.pin": "Pin lên đầu",
     "pin.unpin": "Bỏ pin",
     "cta.title": "Muốn thêm tool khác?",
