@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getGaId, initGtag, trackPageView } from "@/lib/gtag";
 
-/** Loads gtag and sends page views on SPA route changes. */
+/** SPA page views on route change (gtag base tag is in index.html when env is set). */
 export function GoogleAnalytics() {
   const location = useLocation();
   const gaId = getGaId();
