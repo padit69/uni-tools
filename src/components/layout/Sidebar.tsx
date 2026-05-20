@@ -243,7 +243,14 @@ export function Sidebar() {
       )}
 
       {collapsed ? (
-        <div className="min-h-0 w-full flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain">{nav}</div>
+        <div className="relative min-h-0 w-full flex-1 overflow-hidden">
+          <div
+            className="no-scrollbar absolute inset-y-0 left-0 overflow-y-auto overflow-x-hidden overscroll-y-contain"
+            style={{ width: "calc(100% + 20px)", paddingRight: 20 }}
+          >
+            {nav}
+          </div>
+        </div>
       ) : (
         <ScrollArea className="-mx-1 min-h-0 flex-1 px-1">{nav}</ScrollArea>
       )}
@@ -255,7 +262,10 @@ export function Sidebar() {
             onClick={() => setCollapsedSafe(!collapsed)}
             aria-expanded={!collapsed}
             title={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
-            className="grid h-8 w-full shrink-0 place-items-center rounded-lg border border-[var(--border)] bg-[var(--input)] text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]"
+            className={cn(
+              "grid h-8 shrink-0 place-items-center rounded-lg border border-[var(--border)] bg-[var(--input)] text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]",
+              collapsed ? "size-8 self-center" : "w-full"
+            )}
           >
             {collapsed ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
           </button>

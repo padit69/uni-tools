@@ -43,7 +43,7 @@ export function TopBar() {
   };
 
   return (
-    <div className="flex h-14 shrink-0 items-center justify-between gap-2 px-3 md:h-10 md:gap-3 md:px-3">
+    <div className="flex h-14 shrink-0 items-center justify-between gap-2 px-3 mb-[5px] md:h-10 md:gap-3 md:px-3">
       <div className="flex min-w-0 items-center gap-2 text-sm">
         <Link to="/" className="text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors">
           {t("nav.home")}
