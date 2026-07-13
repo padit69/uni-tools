@@ -17,13 +17,14 @@ import {
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
-import { JsonEditor } from "./JsonEditor";
+import { JsonEditor, type JsonEditorHandle } from "./JsonEditor";
 import { TreeView } from "./TreeView";
 import { formatJson, minifyJson, sortJson, type Indent } from "./format";
 import { validateJson } from "./validate";
 import { convert, type Format } from "./convert";
 import { repairJson } from "./repair";
 import { analyzeJson, queryJson } from "./query";
+import { locateJsonPath } from "./locatePath";
 import { useToolHistory } from "@/hooks/useToolHistory";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
@@ -56,7 +57,9 @@ export default function JsonTool() {
   const [showQuery, setShowQuery] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [inputWidth, setInputWidth] = useLocalStorage("json-pane-input-width", 50);
+  const [selectedTreePath, setSelectedTreePath] = useState<string | null>(null);
   const splitRef = useRef<HTMLDivElement>(null);
+  const inputEditorRef = useRef<JsonEditorHandle>(null);
 
   const history = useToolHistory("json");
 
@@ -168,6 +171,14 @@ export default function JsonTool() {
   const handleClear = () => {
     setInput("");
     setOutput("");
+    setSelectedTreePath(null);
+  };
+
+  const handleTreeSelect = (path: string) => {
+    setSelectedTreePath(path);
+    const range = locateJsonPath(input, path);
+    if (!range) return;
+    inputEditorRef.current?.revealRange(range.from, range.to);
   };
 
   const startResize = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -270,6 +281,7 @@ export default function JsonTool() {
             />
             <div className="min-h-0 flex-1 overflow-auto">
               <JsonEditor
+                ref={inputEditorRef}
                 value={input}
                 onChange={setInput}
                 lang={tab === "convert" ? formatToLang(from) : "json"}
@@ -330,7 +342,12 @@ export default function JsonTool() {
 
             <TabsContent value="tree" className="m-0 flex h-full flex-col">
               <PaneHeader label={t("json.tree")} />
-              <TreePane data={treeData} hasInput={!!input.trim()} />
+              <TreePane
+                data={treeData}
+                hasInput={!!input.trim()}
+                selectedPath={selectedTreePath}
+                onSelect={handleTreeSelect}
+              />
             </TabsContent>
 
             <TabsContent value="convert" className="m-0 flex h-full flex-col">
@@ -518,9 +535,13 @@ function ValidatePane({
 function TreePane({
   data,
   hasInput,
+  selectedPath,
+  onSelect,
 }: {
   data: { ok: true; data: unknown } | { ok: false; error: string } | null;
   hasInput: boolean;
+  selectedPath: string | null;
+  onSelect: (path: string) => void;
 }) {
   const { t } = useI18n();
   if (!hasInput) {
@@ -536,7 +557,13 @@ function TreePane({
     );
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return <TreeView data={data.data as any} />;
+  return (
+    <TreeView
+      data={data.data as any}
+      selectedPath={selectedPath}
+      onSelect={onSelect}
+    />
+  );
 }
 
 function ConvertPane({
