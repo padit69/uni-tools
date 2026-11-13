@@ -26,6 +26,16 @@ import {
   MonitorSmartphone,
   Bot,
   Settings2,
+  KeySquare,
+  FileCode2,
+  CaseSensitive,
+  Binary,
+  Coins,
+  Wrench,
+  PenTool,
+  CalendarClock,
+  Lock,
+  ListChecks,
 } from "lucide-react";
 import type { Tool, ToolCategory } from "./types";
 import { categories } from "./types";
@@ -42,6 +52,48 @@ export const tools: Tool[] = [
     keywords: ["json", "format", "minify", "beautify", "validate", "tree", "compare", "diff", "yaml", "csv", "xml"],
     Component: lazy(() => import("./json/JsonTool")),
     shortcut: "⌘+J",
+  },
+  {
+    id: "json-to-ts",
+    slug: "json-to-ts",
+    name: "JSON to TypeScript",
+    category: "json",
+    icon: FileCode2,
+    description: "Sinh interface/type TypeScript hoặc schema Zod từ JSON mẫu",
+    keywords: ["json", "typescript", "ts", "interface", "type", "zod", "schema", "generate", "quicktype"],
+    Component: lazy(() => import("./json-to-ts/Tool")),
+  },
+
+  /* AI */
+  {
+    id: "token-counter",
+    slug: "token-counter",
+    name: "Token Counter",
+    category: "ai",
+    icon: Coins,
+    description: "Ước tính số token, ký tự, từ và chi phí gọi LLM",
+    keywords: ["token", "tokens", "llm", "gpt", "claude", "gemini", "cost", "price", "context window", "count", "ai"],
+    Component: lazy(() => import("./token-counter/Tool")),
+  },
+  {
+    id: "prompt-template",
+    slug: "prompt-template",
+    name: "Prompt Template",
+    category: "ai",
+    icon: FileText,
+    description: "Soạn prompt với biến {{variable}}, xem trước và xuất JSON/messages/JS",
+    keywords: ["prompt", "template", "variable", "llm", "ai", "messages", "system prompt", "openai", "anthropic", "placeholder"],
+    Component: lazy(() => import("./prompt-template/Tool")),
+  },
+  {
+    id: "llm-tool-schema",
+    slug: "llm-tool-schema",
+    name: "LLM Tool Schema",
+    category: "ai",
+    icon: Wrench,
+    description: "Tạo định nghĩa tool/function calling cho OpenAI, Anthropic, Gemini từ JSON mẫu",
+    keywords: ["tool", "function calling", "schema", "json schema", "llm", "openai", "anthropic", "claude", "gemini", "ai", "tool use"],
+    Component: lazy(() => import("./llm-tool-schema/Tool")),
   },
 
   /* Encode / Decode */
@@ -94,6 +146,16 @@ export const tools: Tool[] = [
     description: "Tạo/parse data URL, MIME và Base64 inline",
     keywords: ["data url", "mime", "base64", "file", "image"],
     Component: lazy(() => import("./data-url/Tool")),
+  },
+  {
+    id: "basic-auth",
+    slug: "basic-auth",
+    name: "Basic Auth",
+    category: "encode",
+    icon: KeyRound,
+    description: "Tạo và giải mã header Authorization: Basic từ username/password",
+    keywords: ["basic auth", "authorization", "header", "http", "base64", "curl", "fetch", "credentials", "xác thực"],
+    Component: lazy(() => import("./basic-auth/Tool")),
   },
 
   /* Generators */
@@ -157,6 +219,26 @@ export const tools: Tool[] = [
     keywords: ["password", "passphrase", "secret", "random", "secure", "generate"],
     Component: lazy(() => import("./password/Tool")),
   },
+  {
+    id: "keypair",
+    slug: "keypair",
+    name: "Key Pair Generator",
+    category: "generate",
+    icon: KeySquare,
+    description: "Tạo cặp khoá RSA, ECDSA, Ed25519 ngay trong trình duyệt (PEM, JWK)",
+    keywords: ["key pair", "keypair", "rsa", "ecdsa", "ed25519", "pem", "jwk", "pkcs8", "spki", "public key", "private key", "webcrypto", "khoá công khai", "khoá bí mật"],
+    Component: lazy(() => import("./keypair/Tool")),
+  },
+  {
+    id: "mini-draw",
+    slug: "mini-draw",
+    name: "Mini Draw",
+    category: "generate",
+    icon: PenTool,
+    description: "Bảng vẽ nhanh: phác thảo, sơ đồ, xuất PNG/SVG",
+    keywords: ["draw", "whiteboard", "sketch", "diagram", "canvas", "vẽ", "bảng trắng", "phác thảo", "sơ đồ", "svg", "png"],
+    Component: lazy(() => import("./mini-draw/Tool")),
+  },
 
   /* Converters */
   {
@@ -198,6 +280,36 @@ export const tools: Tool[] = [
     description: "IPv4 subnet calculator, range, mask, broadcast, check IP trong CIDR",
     keywords: ["cidr", "ip", "ipv4", "subnet", "network", "mask", "broadcast"],
     Component: lazy(() => import("./cidr/Tool")),
+  },
+  {
+    id: "number-base",
+    slug: "number-base",
+    name: "Number Base Converter",
+    category: "convert",
+    icon: Binary,
+    description: "Chuyển đổi số giữa hệ nhị phân, bát phân, thập phân, thập lục phân và hệ 2–36",
+    keywords: ["number", "base", "radix", "binary", "octal", "decimal", "hex", "hexadecimal", "bin", "bigint", "hệ cơ số"],
+    Component: lazy(() => import("./number-base/Tool")),
+  },
+  {
+    id: "cron",
+    slug: "cron",
+    name: "Cron Parser",
+    category: "convert",
+    icon: CalendarClock,
+    description: "Giải thích biểu thức cron và tính các lần chạy tiếp theo",
+    keywords: ["cron", "crontab", "schedule", "lịch", "lập lịch", "job", "@daily", "quartz"],
+    Component: lazy(() => import("./cron/Tool")),
+  },
+  {
+    id: "chmod",
+    slug: "chmod",
+    name: "Chmod Calculator",
+    category: "convert",
+    icon: Lock,
+    description: "Tính quyền file Unix: octal ⇄ rwx, setuid/setgid/sticky",
+    keywords: ["chmod", "permission", "quyền", "unix", "linux", "octal", "rwx", "755", "644", "setuid", "sticky"],
+    Component: lazy(() => import("./chmod/Tool")),
   },
 
   /* Text */
@@ -291,6 +403,26 @@ export const tools: Tool[] = [
     keywords: ["string", "escape", "unescape", "literal", "c", "java", "javascript", "python", "shell", "html"],
     Component: lazy(() => import("./string-escape/Tool")),
   },
+  {
+    id: "text-tools",
+    slug: "text-tools",
+    name: "Text Tools",
+    category: "text",
+    icon: TypeIcon,
+    description: "Đếm ký tự, từ, dòng và xử lý dòng: sắp xếp, lọc trùng, đảo, nối, tách",
+    keywords: ["text", "word count", "character count", "counter", "sort lines", "dedupe", "unique", "shuffle", "join", "split", "đếm từ", "đếm ký tự", "sắp xếp dòng"],
+    Component: lazy(() => import("./text-tools/Tool")),
+  },
+  {
+    id: "case-converter",
+    slug: "case-converter",
+    name: "Case Converter",
+    category: "text",
+    icon: CaseSensitive,
+    description: "Chuyển chuỗi sang camelCase, snake_case, kebab-case, slug… cùng lúc",
+    keywords: ["case", "camel", "pascal", "snake", "kebab", "constant", "title", "slug", "upper", "lower", "convert", "đổi kiểu chữ"],
+    Component: lazy(() => import("./case-converter/Tool")),
+  },
 
   /* API Test */
   {
@@ -312,6 +444,16 @@ export const tools: Tool[] = [
     description: "Convert Postman collection JSON thành Markdown docs theo folder",
     keywords: ["postman", "collection", "markdown", "docs", "api", "openapi"],
     Component: lazy(() => import("./postman-docs/Tool")),
+  },
+  {
+    id: "http-status",
+    slug: "http-status",
+    name: "HTTP Status Codes",
+    category: "api",
+    icon: ListChecks,
+    description: "Tra cứu mã trạng thái HTTP và kiểu MIME",
+    keywords: ["http", "status", "code", "mã lỗi", "404", "500", "mime", "content-type", "rest", "api"],
+    Component: lazy(() => import("./http-status/Tool")),
   },
 ];
 
