@@ -88,7 +88,7 @@ export default function PostmanDocsTool() {
       <div className="flex items-center justify-between gap-2 overflow-x-auto border-b border-[var(--border)] px-4 py-2.5">
         <div className="flex items-center gap-2 text-sm font-medium">
           <FileJson className="size-4 text-[var(--muted-foreground)]" />
-          Postman Docs
+          Postman to Md
         </div>
         <div className="flex items-center gap-1">
           <Button variant="secondary" size="icon" className="size-8" onClick={() => current && navigator.clipboard.writeText(current.content)} disabled={!current} title={t("tool.postman.copySelected")}>

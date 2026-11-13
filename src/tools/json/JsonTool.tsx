@@ -13,6 +13,7 @@ import {
   Wand2,
   ArrowRightLeft,
   Wrench,
+  GitCompare,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -25,6 +26,7 @@ import { convert, type Format } from "./convert";
 import { repairJson } from "./repair";
 import { analyzeJson, queryJson } from "./query";
 import { locateJsonPath } from "./locatePath";
+import { compareJson, type CompareResult, type JsonDiff } from "./compare";
 import { useToolHistory } from "@/hooks/useToolHistory";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
@@ -41,7 +43,7 @@ const SAMPLE = `{
   "owner": null
 }`;
 
-type Tab = "format" | "validate" | "tree" | "convert";
+type Tab = "format" | "validate" | "tree" | "convert" | "compare";
 
 export default function JsonTool() {
   const { t } = useI18n();
@@ -58,6 +60,9 @@ export default function JsonTool() {
   const [showStats, setShowStats] = useState(false);
   const [inputWidth, setInputWidth] = useLocalStorage("json-pane-input-width", 50);
   const [selectedTreePath, setSelectedTreePath] = useState<string | null>(null);
+  const [compareInput, setCompareInput] = useState("");
+  const [ignoreArrayOrder, setIgnoreArrayOrder] = useState(false);
+  const [selectedDiffPath, setSelectedDiffPath] = useState<string | null>(null);
   const splitRef = useRef<HTMLDivElement>(null);
   const inputEditorRef = useRef<JsonEditorHandle>(null);
 
@@ -84,6 +89,15 @@ export default function JsonTool() {
       return { ok: false as const, error: (e as Error).message };
     }
   }, [tab, input, from, to]);
+
+  const compareResult = useMemo(() => {
+    if (tab !== "compare" || !input.trim() || !compareInput.trim()) return null;
+    try {
+      return { ok: true as const, data: compareJson(input, compareInput, { ignoreArrayOrder }) };
+    } catch (e) {
+      return { ok: false as const, error: (e as Error).message };
+    }
+  }, [tab, input, compareInput, ignoreArrayOrder]);
 
   const queryResult = useMemo(() => {
     if (tab !== "format" || !showQuery || !input.trim() || !queryPath.trim()) return null;
@@ -172,6 +186,15 @@ export default function JsonTool() {
     setInput("");
     setOutput("");
     setSelectedTreePath(null);
+    setCompareInput("");
+    setSelectedDiffPath(null);
+  };
+
+  const handleDiffSelect = (diff: JsonDiff) => {
+    setSelectedDiffPath(diff.path);
+    if (diff.kind === "added") return;
+    const range = locateJsonPath(input, diff.path);
+    if (range) inputEditorRef.current?.revealRange(range.from, range.to);
   };
 
   const handleTreeSelect = (path: string) => {
@@ -235,12 +258,27 @@ export default function JsonTool() {
               <ArrowRightLeft className="size-3.5" />
               Convert
             </TabsTrigger>
+            <TabsTrigger value="compare">
+              <GitCompare className="size-3.5" />
+              {t("json.compare")}
+            </TabsTrigger>
           </TabsList>
 
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:flex-none">
             {tab === "format" && <IndentSelector value={indent} onChange={setIndent} />}
             {tab === "convert" && (
               <ConvertSelector from={from} to={to} setFrom={setFrom} setTo={setTo} onSwap={handleSwap} />
+            )}
+            {tab === "compare" && (
+              <label className="flex h-7 items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
+                <input
+                  type="checkbox"
+                  checked={ignoreArrayOrder}
+                  onChange={(e) => setIgnoreArrayOrder(e.target.checked)}
+                  className="size-3 accent-[var(--primary)]"
+                />
+                {t("json.ignoreArrayOrder")}
+              </label>
             )}
             <Button
               variant="ghost"
@@ -251,7 +289,7 @@ export default function JsonTool() {
             >
               {t("json.example")}
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleClear} disabled={!input && !output}>
+            <Button variant="ghost" size="sm" onClick={handleClear} disabled={!input && !output && !compareInput}>
               <Eraser className="size-3.5" />
               {t("json.clear")}
             </Button>
@@ -274,7 +312,7 @@ export default function JsonTool() {
             )}
           >
             <PaneHeader
-              label={t("json.input")}
+              label={tab === "compare" ? t("json.compareLeft") : t("json.input")}
               right={
                 <ValidationBadge ok={validation.ok} count={validation.errors.length} hasInput={!!input} />
               }
@@ -356,6 +394,17 @@ export default function JsonTool() {
                 right={convertResult?.ok ? <CopyButton text={convertResult.output} /> : null}
               />
               <ConvertPane result={convertResult} toLang={formatToLang(to)} />
+            </TabsContent>
+
+            <TabsContent value="compare" className="m-0 flex h-full flex-col">
+              <ComparePane
+                value={compareInput}
+                onChange={setCompareInput}
+                hasLeft={!!input.trim()}
+                result={compareResult}
+                selectedPath={selectedDiffPath}
+                onSelect={handleDiffSelect}
+              />
             </TabsContent>
           </div>
           </>
@@ -563,6 +612,126 @@ function TreePane({
       selectedPath={selectedPath}
       onSelect={onSelect}
     />
+  );
+}
+
+function ComparePane({
+  value,
+  onChange,
+  hasLeft,
+  result,
+  selectedPath,
+  onSelect,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  hasLeft: boolean;
+  result: { ok: true; data: CompareResult } | { ok: false; error: string } | null;
+  selectedPath: string | null;
+  onSelect: (diff: JsonDiff) => void;
+}) {
+  const { t } = useI18n();
+  const summary =
+    result?.ok && result.data.diffs.length > 0 ? (
+      <span className="flex items-center gap-2 font-mono text-[10px]">
+        <span className="text-emerald-400">+{result.data.added}</span>
+        <span className="text-red-400">-{result.data.removed}</span>
+        <span className="text-amber-400">~{result.data.changed}</span>
+      </span>
+    ) : null;
+
+  return (
+    <div className="grid min-h-0 flex-1 grid-rows-2 overflow-hidden">
+      <div className="flex min-h-0 flex-col overflow-hidden">
+        <PaneHeader label={t("json.compareRight")} />
+        <div className="min-h-0 flex-1 overflow-auto">
+          <JsonEditor
+            value={value}
+            onChange={onChange}
+            lang="json"
+            withLinter
+            placeholder={t("json.compareRightPlaceholder")}
+            height="100%"
+            style={{ height: "100%" }}
+          />
+        </div>
+      </div>
+      <div className="flex min-h-0 flex-col overflow-hidden border-t border-[var(--border)]">
+        <PaneHeader label={t("json.differences")} right={summary} />
+        {!hasLeft || !value.trim() ? (
+          <EmptyState message={t("json.emptyCompare")} />
+        ) : !result ? (
+          <EmptyState message={t("json.processing")} />
+        ) : !result.ok ? (
+          <div className="m-3 rounded-lg border border-red-500/30 bg-red-500/5 p-3 text-xs">
+            <div className="font-medium text-red-400">{t("json.invalidJson")}</div>
+            <p className="mt-1 text-[var(--foreground)]">{result.error}</p>
+          </div>
+        ) : result.data.diffs.length === 0 ? (
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 p-6 text-center">
+            <div className="grid size-12 place-items-center rounded-full bg-emerald-500/15 text-emerald-400">
+              <Check className="size-6" />
+            </div>
+            <p className="text-sm font-medium">{t("json.identical")}</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto p-2">
+            {result.data.diffs.map((d, i) => (
+              <DiffRow key={`${d.path}-${i}`} diff={d} selected={selectedPath === d.path} onSelect={onSelect} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function previewValue(v: unknown): string {
+  const s = JSON.stringify(v);
+  if (s === undefined) return "undefined";
+  return s.length > 120 ? `${s.slice(0, 117)}...` : s;
+}
+
+function DiffRow({
+  diff,
+  selected,
+  onSelect,
+}: {
+  diff: JsonDiff;
+  selected: boolean;
+  onSelect: (diff: JsonDiff) => void;
+}) {
+  const style = {
+    added: { sign: "+", cls: "border-emerald-500/30 bg-emerald-500/5", text: "text-emerald-400" },
+    removed: { sign: "-", cls: "border-red-500/30 bg-red-500/5", text: "text-red-400" },
+    changed: { sign: "~", cls: "border-amber-500/30 bg-amber-500/5", text: "text-amber-400" },
+  }[diff.kind];
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(diff)}
+      className={cn(
+        "mb-1.5 block w-full rounded-md border px-2.5 py-1.5 text-left font-mono text-xs transition-colors hover:brightness-125",
+        style.cls,
+        selected && "ring-1 ring-[var(--ring)]"
+      )}
+    >
+      <div className={cn("flex items-center gap-2", style.text)}>
+        <span className="w-3 shrink-0 font-bold">{style.sign}</span>
+        <span className="truncate">{diff.path}</span>
+      </div>
+      <div className="mt-0.5 pl-5 break-all text-[var(--foreground)]">
+        {diff.kind === "changed" ? (
+          <>
+            <span className="text-red-400 line-through decoration-red-400/50">{previewValue(diff.left)}</span>
+            <span className="mx-1.5 text-[var(--muted-foreground)]">→</span>
+            <span className="text-emerald-400">{previewValue(diff.right)}</span>
+          </>
+        ) : (
+          previewValue(diff.kind === "added" ? diff.right : diff.left)
+        )}
+      </div>
+    </button>
   );
 }
 
