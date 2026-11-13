@@ -282,7 +282,8 @@
       "Select, move, resize and delete shapes; undo/redo",
       "Infinite canvas with pan and zoom, works with mouse, touch and pen",
       "Export PNG (optional transparent background) or SVG, save/load scenes as JSON",
-      "Autosaves in your browser — nothing leaves your device"
+      "Autosaves in your browser — nothing leaves your device",
+      "Multiple workspaces as tabs — each with its own drawing, rename, duplicate, reorder"
     ],
     "cron": [
       "Supports 5-field, 6-field (seconds) and macros like @daily",
@@ -1042,6 +1043,17 @@
     "tool.http-status.group.font": "Font",
     "tool.http-status.group.application": "Application",
     "tool.http-status.group.archive": "Archive",
-    "tool.http-status.group.document": "Document"
+    "tool.http-status.group.document": "Document",
+    "tool.mini-draw.ws.label": "Workspaces",
+    "tool.mini-draw.ws.default": "Board",
+    "tool.mini-draw.ws.new": "New workspace",
+    "tool.mini-draw.ws.rename": "Rename",
+    "tool.mini-draw.ws.duplicate": "Duplicate",
+    "tool.mini-draw.ws.close": "Close workspace",
+    "tool.mini-draw.ws.copySuffix": "(copy)",
+    "tool.mini-draw.ws.hint": "Double-click to rename · drag to reorder",
+    "tool.mini-draw.ws.deleteTitle": "Delete “{name}”?",
+    "tool.mini-draw.ws.deleteDesc": "This workspace and its drawing will be permanently removed.",
+    "tool.mini-draw.ws.delete": "Delete"
   }
 }

@@ -2,6 +2,7 @@ import { describe, expect, it, beforeAll, beforeEach } from "vitest";
 import { act, fireEvent, render } from "@testing-library/react";
 import { I18nProvider } from "@/i18n";
 import MiniDrawTool from "../Tool";
+import { LEGACY_SCENE_KEY, WORKSPACES_KEY, sceneKey } from "../workspaces";
 
 beforeAll(() => {
   if (!("PointerEvent" in window)) {
@@ -65,7 +66,32 @@ describe("MiniDrawTool", () => {
     drag(100, 40, 100, 60);
     expect(shapes()).toHaveLength(1);
     await act(() => new Promise((r) => setTimeout(r, 600)));
-    expect(JSON.parse(localStorage.getItem("uni-tools:mini-draw:scene")!).elements).toHaveLength(1);
+    const ws = JSON.parse(localStorage.getItem(WORKSPACES_KEY)!);
+    expect(JSON.parse(localStorage.getItem(sceneKey(ws.activeId))!).elements).toHaveLength(1);
+  });
+
+  it("keeps a separate drawing per workspace tab", () => {
+    const { drag, key, shapes, getByLabelText, getAllByRole } = setup();
+    key("r");
+    drag(10, 10, 110, 60);
+    expect(shapes()).toHaveLength(1);
+
+    fireEvent.click(getByLabelText(/^(New workspace|Thêm không gian làm việc)$/));
+    expect(getAllByRole("tab")).toHaveLength(2);
+    const svg2 = document.querySelector("svg[role=img]") as SVGSVGElement;
+    expect(svg2.querySelectorAll("g[transform] > g > :is(path,rect,ellipse,text)")).toHaveLength(0);
+
+    fireEvent.click(getAllByRole("tab")[0]); // switching back flushes + reloads tab 1
+    const svg1 = document.querySelector("svg[role=img]") as SVGSVGElement;
+    expect(svg1.querySelectorAll("g[transform] > g > :is(path,rect,ellipse,text)")).toHaveLength(1);
+  });
+
+  it("migrates the legacy single-scene autosave into the first workspace", () => {
+    localStorage.setItem(LEGACY_SCENE_KEY, JSON.stringify({ version: 1, elements: [] }));
+    setup();
+    const ws = JSON.parse(localStorage.getItem(WORKSPACES_KEY)!);
+    expect(localStorage.getItem(LEGACY_SCENE_KEY)).toBeNull();
+    expect(localStorage.getItem(sceneKey(ws.activeId))).not.toBeNull();
   });
 
   it("moves a selected element by dragging", () => {

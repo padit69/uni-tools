@@ -282,7 +282,8 @@
       "Chọn, di chuyển, đổi kích thước và xoá hình; hoàn tác/làm lại",
       "Canvas vô hạn, kéo và thu phóng, dùng được với chuột, cảm ứng và bút",
       "Xuất PNG (tuỳ chọn nền trong suốt) hoặc SVG, lưu/mở bản vẽ dạng JSON",
-      "Tự động lưu trong trình duyệt — dữ liệu không rời khỏi thiết bị"
+      "Tự động lưu trong trình duyệt — dữ liệu không rời khỏi thiết bị",
+      "Nhiều không gian làm việc dạng tab — mỗi tab một bản vẽ riêng, đổi tên, nhân bản, sắp xếp"
     ],
     "cron": [
       "Hỗ trợ 5 trường, 6 trường (có giây) và macro như @daily",
@@ -1042,6 +1043,17 @@
     "tool.http-status.group.font": "Phông chữ",
     "tool.http-status.group.application": "Ứng dụng",
     "tool.http-status.group.archive": "Nén / lưu trữ",
-    "tool.http-status.group.document": "Tài liệu"
+    "tool.http-status.group.document": "Tài liệu",
+    "tool.mini-draw.ws.label": "Không gian làm việc",
+    "tool.mini-draw.ws.default": "Bảng",
+    "tool.mini-draw.ws.new": "Thêm không gian làm việc",
+    "tool.mini-draw.ws.rename": "Đổi tên",
+    "tool.mini-draw.ws.duplicate": "Nhân bản",
+    "tool.mini-draw.ws.close": "Đóng không gian làm việc",
+    "tool.mini-draw.ws.copySuffix": "(bản sao)",
+    "tool.mini-draw.ws.hint": "Nhấp đúp để đổi tên · kéo để sắp xếp",
+    "tool.mini-draw.ws.deleteTitle": "Xoá “{name}”?",
+    "tool.mini-draw.ws.deleteDesc": "Không gian làm việc này và bản vẽ trong đó sẽ bị xoá vĩnh viễn.",
+    "tool.mini-draw.ws.delete": "Xoá"
   }
 }
