@@ -5,6 +5,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { useI18n } from "@/i18n";
+import { useFileDrop } from "@/lib/fileDrop";
 
 interface Decoded {
   header: Record<string, unknown>;
@@ -28,6 +29,7 @@ const SAMPLE =
 export default function JwtTool() {
   const { t } = useI18n();
   const [token, setToken] = useState("");
+  useFileDrop("jwt", (f) => setToken(f.text.trim()));
 
   const decoded = useMemo(() => {
     if (!token.trim()) return null;

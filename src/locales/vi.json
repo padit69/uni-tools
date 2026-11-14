@@ -1054,6 +1054,18 @@
     "tool.mini-draw.ws.hint": "Nhấp đúp để đổi tên · kéo để sắp xếp",
     "tool.mini-draw.ws.deleteTitle": "Xoá “{name}”?",
     "tool.mini-draw.ws.deleteDesc": "Không gian làm việc này và bản vẽ trong đó sẽ bị xoá vĩnh viễn.",
-    "tool.mini-draw.ws.delete": "Xoá"
+    "tool.mini-draw.ws.delete": "Xoá",
+    "drop.title": "Thả file vào để mở",
+    "drop.hint": "JSON, YAML, CSV, XML, Markdown, SQL, HTML/CSS/JS, .env, JWT, Postman/OpenAPI, bản vẽ Mini Draw hoặc bất kỳ file văn bản nào",
+    "drop.opened": "Đã mở bằng {tool}",
+    "drop.unsupported": "Không mở được loại file này",
+    "drop.tooLarge": "File quá lớn (tối đa 10 MB)",
+    "drop.readFailed": "Không đọc được file",
+    "drop.onlyFirst": "Chỉ mở file đầu tiên",
+    "drop.where": "Mở bằng {tool}?",
+    "drop.newTab": "Mở tab mới",
+    "drop.here": "Mở tại đây",
+    "drop.popupBlocked": "Trình duyệt đã chặn tab mới. Hãy cho phép pop-up cho trang này, hoặc chọn “Mở tại đây”.",
+    "drop.transferFailed": "Không nhận được file từ tab kia. Hãy thả file lại."
   }
 }

@@ -5,6 +5,7 @@ import { Eraser, FileText } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { useI18n } from "@/i18n";
+import { useFileDrop } from "@/lib/fileDrop";
 
 const SAMPLE = `# Uni Tools
 
@@ -33,6 +34,7 @@ export default function MarkdownTool() {
   const { t } = useI18n();
   const [input, setInput] = useState(SAMPLE);
   const [html, setHtml] = useState("");
+  useFileDrop("markdown", (f) => setInput(f.text));
 
   const rawHtml = useMemo(() => marked.parse(input, { async: false }) as string, [input]);
 

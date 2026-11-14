@@ -1054,6 +1054,18 @@
     "tool.mini-draw.ws.hint": "Double-click to rename · drag to reorder",
     "tool.mini-draw.ws.deleteTitle": "Delete “{name}”?",
     "tool.mini-draw.ws.deleteDesc": "This workspace and its drawing will be permanently removed.",
-    "tool.mini-draw.ws.delete": "Delete"
+    "tool.mini-draw.ws.delete": "Delete",
+    "drop.title": "Drop a file to open it",
+    "drop.hint": "JSON, YAML, CSV, XML, Markdown, SQL, HTML/CSS/JS, .env, JWT, Postman/OpenAPI, Mini Draw scenes, or any text file",
+    "drop.opened": "Opened in {tool}",
+    "drop.unsupported": "Can't open this file type",
+    "drop.tooLarge": "File is too large (max 10 MB)",
+    "drop.readFailed": "Couldn't read the file",
+    "drop.onlyFirst": "Only the first file was opened",
+    "drop.where": "Open with {tool}?",
+    "drop.newTab": "Open in new tab",
+    "drop.here": "Open here",
+    "drop.popupBlocked": "The browser blocked the new tab. Allow pop-ups for this site, or choose “Open here”.",
+    "drop.transferFailed": "Couldn't receive the file from the other tab. Try dropping it again."
   }
 }

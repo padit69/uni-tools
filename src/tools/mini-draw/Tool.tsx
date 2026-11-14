@@ -5,6 +5,9 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/compone
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n";
 import { Board } from "./Board";
+import { parseScene, serializeScene } from "./model";
+import { useFileDrop } from "@/lib/fileDrop";
+import { toast } from "sonner";
 import {
   LEGACY_SCENE_KEY,
   WORKSPACES_KEY,
@@ -98,6 +101,19 @@ export default function MiniDrawTool() {
   const active = state.list.find((w) => w.id === state.activeId) ?? state.list[0];
 
   const add = () => setState((s) => addWorkspace(s, base));
+
+  // Dropping a scene file anywhere opens it in a new workspace tab.
+  useFileDrop("mini-draw", (f) => {
+    try {
+      const els = parseScene(f.text);
+      const id = newWorkspaceId();
+      storageSet(sceneKey(id), serializeScene(els));
+      const name = f.fileName.replace(/\.json$/i, "").slice(0, 60) || base;
+      setState((s) => ({ list: [...s.list, { id, name }], activeId: id }));
+    } catch {
+      toast.error(t("tool.mini-draw.importFailed"));
+    }
+  });
 
   const startRename = (id: string, name: string) => {
     setRenaming(id);

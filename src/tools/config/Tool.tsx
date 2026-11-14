@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Settings2 } from "lucide-react";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { useI18n } from "@/i18n";
+import { useFileDrop } from "@/lib/fileDrop";
 
 function envToJson(s: string) {
   const o: Record<string, string> = {};
@@ -21,6 +22,10 @@ export default function ConfigTool() {
   const { t } = useI18n();
   const [mode, setMode] = useState<"env-json" | "json-env">("env-json");
   const [input, setInput] = useState("API_URL=https://api.example.com\nTOKEN=secret");
+  useFileDrop("config", (f) => {
+    setMode("env-json");
+    setInput(f.text);
+  });
   const out = useMemo(() => {
     try {
       return mode === "env-json" ? envToJson(input) : jsonToEnv(input);

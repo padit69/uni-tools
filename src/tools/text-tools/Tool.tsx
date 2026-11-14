@@ -6,6 +6,7 @@ import { CopyButton } from "@/components/tool/CopyButton";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n";
 import { applyLineOp, computeStats, type LineOp } from "./ops";
+import { useFileDrop } from "@/lib/fileDrop";
 
 const OPS: { op: LineOp; key: string }[] = [
   { op: "sortAsc", key: "sortAsc" },
@@ -23,6 +24,7 @@ const OPS: { op: LineOp; key: string }[] = [
 export default function TextToolsTool() {
   const { t } = useI18n();
   const [input, setInput] = useState("");
+  useFileDrop("text-tools", (f) => setInput(f.text));
   const [output, setOutput] = useState("");
   const [lastOp, setLastOp] = useState<LineOp | null>(null);
   const [caseInsensitive, setCaseInsensitive] = useState(false);

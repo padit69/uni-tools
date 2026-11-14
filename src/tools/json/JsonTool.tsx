@@ -31,6 +31,7 @@ import { useToolHistory } from "@/hooks/useToolHistory";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n";
+import { useFileDrop } from "@/lib/fileDrop";
 
 const SAMPLE = `{
   "name": "uni-tools",
@@ -67,6 +68,19 @@ export default function JsonTool() {
   const inputEditorRef = useRef<JsonEditorHandle>(null);
 
   const history = useToolHistory("json");
+
+  useFileDrop("json", (f) => {
+    setInput(f.text);
+    setOutput("");
+    setSelectedTreePath(null);
+    if (f.convertFrom) {
+      setFrom(f.convertFrom);
+      setTo("json");
+      setTab("convert");
+    } else if (tab === "convert") {
+      setFrom("json");
+    }
+  });
 
   const showOutputPane = true;
 

@@ -4,6 +4,7 @@ import { CheckSquare, Copy, Download, FileJson, FolderOpen, List, Link as LinkIc
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n";
+import { useFileDrop } from "@/lib/fileDrop";
 
 type AnyRecord = Record<string, unknown>;
 
@@ -59,6 +60,7 @@ export default function PostmanDocsTool() {
     if (!file) return;
     convertText(await file.text());
   };
+  useFileDrop("postman-docs", (f) => convertText(f.text));
 
   const applyFiles = (nextFiles: MdFile[]) => {
     setFiles(nextFiles);

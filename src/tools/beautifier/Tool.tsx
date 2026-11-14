@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Code2 } from "lucide-react";
 import { CopyButton } from "@/components/tool/CopyButton";
 import { useI18n } from "@/i18n";
+import { useFileDrop } from "@/lib/fileDrop";
 
 type Lang = "html" | "css" | "js";
 
@@ -28,6 +29,10 @@ export default function BeautifierTool() {
   const [lang, setLang] = useState<Lang>("html");
   const [input, setInput] = useState("<div><span>Hello</span></div>");
   const [mode, setMode] = useState<"format" | "minify">("format");
+  useFileDrop("beautifier", (f) => {
+    if (f.lang) setLang(f.lang);
+    setInput(f.text);
+  });
   const out = useMemo(() => mode === "format" ? fmt(input, lang) : min(input), [input, lang, mode]);
 
   return (

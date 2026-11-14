@@ -6,6 +6,7 @@ import { CommandPalette } from "@/components/command-palette/CommandPalette";
 import { TooltipProvider } from "@/components/ui/Tooltip";
 import { I18nProvider } from "@/i18n";
 import { InstallAppButton, InstallAppProvider } from "./InstallAppButton";
+import { GlobalFileDrop } from "./GlobalFileDrop";
 
 export function AppShell() {
   return (
@@ -28,6 +29,7 @@ export function AppShell() {
       </div>
 
       <CommandPalette />
+      <GlobalFileDrop />
       <InstallAppButton />
     </TooltipProvider>
     </InstallAppProvider>
