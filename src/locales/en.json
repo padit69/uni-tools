@@ -63,7 +63,8 @@
       "Repair broken JSON",
       "Sort keys alphabetically",
       "JSON path queries (e.g. $.tools[*].id)",
-      "Size stats and action history"
+      "Size stats",
+      "Save (Ctrl/⌘+S), download input/output, and a history panel to restore past results"
     ],
     "base64": [
       "Encode / decode Base64 with Unicode (UTF-8) support",
@@ -1066,6 +1067,25 @@
     "drop.newTab": "Open in new tab",
     "drop.here": "Open here",
     "drop.popupBlocked": "The browser blocked the new tab. Allow pop-ups for this site, or choose “Open here”.",
-    "drop.transferFailed": "Couldn't receive the file from the other tab. Try dropping it again."
+    "drop.transferFailed": "Couldn't receive the file from the other tab. Try dropping it again.",
+    "json.history.title": "History",
+    "json.history.save": "Save to history",
+    "json.history.saved": "Saved to history",
+    "json.history.tooLarge": "Too large to save in history (max ~200k characters)",
+    "json.history.restored": "Restored from history",
+    "json.history.restore": "Click to restore",
+    "json.history.remove": "Remove",
+    "json.history.clear": "Clear",
+    "json.history.close": "Close history",
+    "json.history.empty": "No history yet. Run Format, Minify, Sort, Repair or press Save (Ctrl/⌘+S).",
+    "json.history.hasOutput": "has output",
+    "json.history.action.format": "Format",
+    "json.history.action.minify": "Minify",
+    "json.history.action.sort": "Sort",
+    "json.history.action.repair": "Repair",
+    "json.history.action.save": "Saved",
+    "json.download": "Download",
+    "json.downloadInput": "Download input",
+    "json.downloadOutput": "Download output"
   }
 }

@@ -63,7 +63,8 @@
       "Repair JSON lỗi cú pháp",
       "Sắp xếp key theo alphabet",
       "Query JSON path (ví dụ $.tools[*].id)",
-      "Thống kê kích thước và lịch sử thao tác"
+      "Thống kê kích thước",
+      "Lưu (Ctrl/⌘+S), tải input/output và panel lịch sử để khôi phục kết quả cũ"
     ],
     "base64": [
       "Encode / decode Base64, hỗ trợ Unicode (UTF-8)",
@@ -1066,6 +1067,25 @@
     "drop.newTab": "Mở tab mới",
     "drop.here": "Mở tại đây",
     "drop.popupBlocked": "Trình duyệt đã chặn tab mới. Hãy cho phép pop-up cho trang này, hoặc chọn “Mở tại đây”.",
-    "drop.transferFailed": "Không nhận được file từ tab kia. Hãy thả file lại."
+    "drop.transferFailed": "Không nhận được file từ tab kia. Hãy thả file lại.",
+    "json.history.title": "Lịch sử",
+    "json.history.save": "Lưu vào lịch sử",
+    "json.history.saved": "Đã lưu vào lịch sử",
+    "json.history.tooLarge": "Quá lớn để lưu vào lịch sử (tối đa ~200k ký tự)",
+    "json.history.restored": "Đã khôi phục từ lịch sử",
+    "json.history.restore": "Click để khôi phục",
+    "json.history.remove": "Xoá",
+    "json.history.clear": "Xoá hết",
+    "json.history.close": "Đóng lịch sử",
+    "json.history.empty": "Chưa có lịch sử. Chạy Format, Minify, Sort, Repair hoặc bấm Lưu (Ctrl/⌘+S).",
+    "json.history.hasOutput": "có output",
+    "json.history.action.format": "Format",
+    "json.history.action.minify": "Minify",
+    "json.history.action.sort": "Sort",
+    "json.history.action.repair": "Repair",
+    "json.history.action.save": "Đã lưu",
+    "json.download": "Tải xuống",
+    "json.downloadInput": "Tải input",
+    "json.downloadOutput": "Tải output"
   }
 }

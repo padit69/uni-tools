@@ -14,10 +14,16 @@ import {
   ArrowRightLeft,
   Wrench,
   GitCompare,
+  Save,
+  Download,
+  History as HistoryIcon,
+  Trash2,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/Tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/DropdownMenu";
 import { JsonEditor, type JsonEditorHandle } from "./JsonEditor";
 import { TreeView } from "./TreeView";
 import { formatJson, minifyJson, sortJson, type Indent } from "./format";
@@ -27,7 +33,7 @@ import { repairJson } from "./repair";
 import { analyzeJson, queryJson } from "./query";
 import { locateJsonPath } from "./locatePath";
 import { compareJson, type CompareResult, type JsonDiff } from "./compare";
-import { useToolHistory } from "@/hooks/useToolHistory";
+import { useToolHistory, type HistoryEntry } from "@/hooks/useToolHistory";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { cn } from "@/lib/cn";
 import { useI18n } from "@/i18n";
@@ -67,9 +73,12 @@ export default function JsonTool() {
   const splitRef = useRef<HTMLDivElement>(null);
   const inputEditorRef = useRef<JsonEditorHandle>(null);
 
-  const history = useToolHistory("json");
+  const history = useToolHistory("json", { max: 30 });
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   useFileDrop("json", (f) => {
+    setFileName(f.fileName);
     setInput(f.text);
     setOutput("");
     setSelectedTreePath(null);
@@ -155,7 +164,7 @@ export default function JsonTool() {
   const handleFormat = () => {
     try {
       const out = formatJson(input, indent);
-      history.push(input);
+      history.push(input, { action: "format", output: out, label: fileName ?? undefined });
       applyActionOutput(out);
       toast.success(t("action.formatted"));
     } catch (e) {
@@ -166,7 +175,7 @@ export default function JsonTool() {
   const handleMinify = () => {
     try {
       const out = minifyJson(input);
-      history.push(input);
+      history.push(input, { action: "minify", output: out, label: fileName ?? undefined });
       applyActionOutput(out);
       toast.success(t("action.minified"));
     } catch (e) {
@@ -177,7 +186,7 @@ export default function JsonTool() {
   const handleSort = () => {
     try {
       const out = sortJson(input, indent);
-      history.push(input);
+      history.push(input, { action: "sort", output: out, label: fileName ?? undefined });
       applyActionOutput(out);
       toast.success(t("action.sorted"));
     } catch (e) {
@@ -188,7 +197,7 @@ export default function JsonTool() {
   const handleRepair = () => {
     try {
       const out = repairJson(input, indent);
-      history.push(input);
+      history.push(input, { action: "repair", output: out, label: fileName ?? undefined });
       applyActionOutput(out);
       toast.success(t("action.repaired"));
     } catch (e) {
@@ -196,7 +205,62 @@ export default function JsonTool() {
     }
   };
 
+  /* ---------- Save / download / history ---------- */
+
+  const handleSave = () => {
+    if (!input.trim()) return;
+    const ok = history.push(input, { action: "save", output: output || undefined, label: fileName ?? undefined });
+    if (ok) toast.success(t("json.history.saved"));
+    else toast.error(t("json.history.tooLarge"));
+  };
+
+  const saveRef = useRef(handleSave);
+  saveRef.current = handleSave;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        saveRef.current();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const baseName = (fileName ?? "data").replace(/\.[^.]+$/, "") || "data";
+  const inputExt = tab === "convert" ? from : "json";
+  const outputDownload: { text: string; ext: string } | null =
+    tab === "convert"
+      ? convertResult?.ok
+        ? { text: convertResult.output, ext: to }
+        : null
+      : output
+        ? { text: output, ext: "json" }
+        : null;
+
+  const handleDownload = (text: string, ext: string, suffix = "") => {
+    const mime = { json: "application/json", yaml: "application/yaml", csv: "text/csv", xml: "application/xml" }[ext] ?? "text/plain";
+    const url = URL.createObjectURL(new Blob([text], { type: `${mime};charset=utf-8` }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${baseName}${suffix}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  const restoreHistory = (entry: HistoryEntry) => {
+    setInput(entry.input);
+    setOutput(entry.output ?? "");
+    setFileName(entry.label ?? null);
+    setSelectedTreePath(null);
+    if (entry.output && tab !== "format") setTab("format");
+    toast.success(t("json.history.restored"));
+  };
+
   const handleClear = () => {
+    setFileName(null);
     setInput("");
     setOutput("");
     setSelectedTreePath(null);
@@ -296,6 +360,56 @@ export default function JsonTool() {
             )}
             <Button
               variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={handleSave}
+              disabled={!input.trim()}
+              title={`${t("json.history.save")} (Ctrl/⌘+S)`}
+              aria-label={t("json.history.save")}
+            >
+              <Save className="size-3.5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-8"
+                  disabled={!input.trim() && !outputDownload}
+                  title={t("json.download")}
+                  aria-label={t("json.download")}
+                >
+                  <Download className="size-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled={!input.trim()} onSelect={() => handleDownload(input, inputExt)}>
+                  {t("json.downloadInput")} (.{inputExt})
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={!outputDownload}
+                  onSelect={() => outputDownload && handleDownload(outputDownload.text, outputDownload.ext, "-output")}
+                >
+                  {t("json.downloadOutput")}
+                  {outputDownload ? ` (.${outputDownload.ext})` : ""}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant={showHistory ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() => setShowHistory((v) => !v)}
+              title={t("json.history.title")}
+              aria-pressed={showHistory}
+            >
+              <HistoryIcon className="size-3.5" />
+              <span className="hidden sm:inline">{t("json.history.title")}</span>
+              {history.entries.length > 0 && (
+                <span className="rounded-full bg-[var(--muted)] px-1.5 text-[10px] font-medium">{history.entries.length}</span>
+              )}
+            </Button>
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => setInput(SAMPLE)}
               disabled={!!input}
@@ -313,7 +427,7 @@ export default function JsonTool() {
         <div
           ref={splitRef}
           className={cn(
-            "grid flex-1 overflow-hidden grid-cols-1",
+            "relative grid flex-1 overflow-hidden grid-cols-1",
             showOutputPane && "md:grid-cols-[var(--json-input-width)_6px_minmax(0,1fr)]"
           )}
           style={{ "--json-input-width": `${inputWidth}%` } as React.CSSProperties}
@@ -423,6 +537,16 @@ export default function JsonTool() {
           </div>
           </>
           )}
+
+          {showHistory && (
+            <HistoryPanel
+              entries={history.entries}
+              onRestore={restoreHistory}
+              onRemove={history.remove}
+              onClear={history.clear}
+              onClose={() => setShowHistory(false)}
+            />
+          )}
         </div>
       </Tabs>
     </div>
@@ -430,6 +554,108 @@ export default function JsonTool() {
 }
 
 /* ---------- Sub components ---------- */
+
+function formatBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function relativeTime(ts: number, lang: string) {
+  const diff = (ts - Date.now()) / 1000;
+  const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
+  const abs = Math.abs(diff);
+  if (abs < 60) return rtf.format(Math.round(diff), "second");
+  if (abs < 3600) return rtf.format(Math.round(diff / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(diff / 3600), "hour");
+  if (abs < 86400 * 7) return rtf.format(Math.round(diff / 86400), "day");
+  return new Date(ts).toLocaleString(lang);
+}
+
+const ACTION_STYLE: Record<string, string> = {
+  format: "bg-sky-500/15 text-sky-500",
+  minify: "bg-violet-500/15 text-violet-500",
+  sort: "bg-amber-500/15 text-amber-500",
+  repair: "bg-orange-500/15 text-orange-500",
+  save: "bg-emerald-500/15 text-emerald-500",
+};
+
+function HistoryPanel({
+  entries,
+  onRestore,
+  onRemove,
+  onClear,
+  onClose,
+}: {
+  entries: HistoryEntry[];
+  onRestore: (e: HistoryEntry) => void;
+  onRemove: (ts: number) => void;
+  onClear: () => void;
+  onClose: () => void;
+}) {
+  const { t, lang } = useI18n();
+  return (
+    <aside className="absolute inset-y-0 right-0 z-20 flex w-full max-w-sm flex-col border-l border-[var(--border)] bg-[var(--background)] shadow-2xl">
+      <div className="flex h-9 shrink-0 items-center justify-between border-b border-[var(--border)] px-3">
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted-foreground)]">
+          {t("json.history.title")} · {entries.length}
+        </span>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={onClear} disabled={!entries.length}>
+            <Trash2 className="size-3.5" />
+            {t("json.history.clear")}
+          </Button>
+          <Button variant="ghost" size="icon" className="size-7" onClick={onClose} aria-label={t("json.history.close")}>
+            <X className="size-3.5" />
+          </Button>
+        </div>
+      </div>
+      {entries.length === 0 ? (
+        <EmptyState message={t("json.history.empty")} />
+      ) : (
+        <ul className="min-h-0 flex-1 overflow-auto p-2">
+          {entries.map((e) => {
+            const action = e.action ?? "format";
+            return (
+              <li key={e.ts} className="group relative mb-1.5">
+                <button
+                  type="button"
+                  onClick={() => onRestore(e)}
+                  className="block w-full rounded-lg border border-[var(--border)] bg-[var(--muted)]/20 px-2.5 py-2 pr-8 text-left transition-colors hover:border-[var(--primary)]/50 hover:bg-[var(--muted)]/50"
+                  title={t("json.history.restore")}
+                >
+                  <div className="flex items-center gap-1.5 text-[10px]">
+                    <span className={cn("rounded px-1.5 py-0.5 font-semibold uppercase tracking-wider", ACTION_STYLE[action] ?? "bg-[var(--muted)]")}>
+                      {t(`json.history.action.${action}`)}
+                    </span>
+                    {e.label && <span className="truncate font-medium text-[var(--foreground)]">{e.label}</span>}
+                    <span className="ml-auto shrink-0 text-[var(--muted-foreground)]">{relativeTime(e.ts, lang)}</span>
+                  </div>
+                  <div className="mt-1 truncate font-mono text-[11px] text-[var(--muted-foreground)]">
+                    {e.input.replace(/\s+/g, " ").slice(0, 120)}
+                  </div>
+                  <div className="mt-0.5 text-[10px] text-[var(--muted-foreground)]">
+                    {formatBytes(new Blob([e.input]).size)}
+                    {e.output ? ` · ${t("json.history.hasOutput")}` : ""}
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemove(e.ts)}
+                  className="absolute right-1.5 top-1.5 grid size-6 place-items-center rounded text-[var(--muted-foreground)] opacity-0 transition-opacity hover:bg-[var(--muted)] hover:text-red-400 focus:opacity-100 group-hover:opacity-100"
+                  aria-label={t("json.history.remove")}
+                  title={t("json.history.remove")}
+                >
+                  <X className="size-3.5" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </aside>
+  );
+}
 
 function PaneHeader({ label, right }: { label: string; right?: React.ReactNode }) {
   return (
